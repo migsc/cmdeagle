@@ -89,11 +89,7 @@ Docs coming soon.
 
 ## Distribution
 
-This tool **does not** help you with releasing or codesigning your resulting binary. It's **highly recommendeded** for you and your users' security that you do some sort of codesigning before distributing your CLI. Some recommendations:
-
-- [goreleaser](https://goreleaser.com/) - Builds and distributes your CLI for multiple platforms and handles codesigning. cmdeagle itself uses this.
-- [sigstore](https://sigstore.dev/) - Codesigning and verification.
-- [cosign](https://github.com/sigstore/cosign) - Codesigning and verification.
+This tool **does not** help you with releasing or codesigning your resulting binary. It's **highly recommendeded** for you and your users' security that you do some sort of codesigning before distributing your CLI. You can use something like [goreleaser](https://goreleaser.com/) to build and distribute your CLI for multiple platforms and handle codesigning. Worth noiting that cmdeagle itself uses this.
 
 ## Contributing
 

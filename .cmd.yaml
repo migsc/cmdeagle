@@ -1,13 +1,13 @@
 # This is the name of the binary you use to invoke your CLI.
 
-name: "{{name}}"
+name: "cmdeagle"
 
 # Some optional metadata you can add to your CLI. This doesn't get used anywhere but may be useful to document. 
-# Displayed by `{{name}} --help` when help command invoked in some other way. 
-description: "{{description}}" # e.g. "My CLI is a tool to manage my projects."
-version: "{{version}}" # e.g.  "0.0.1" 
-author: "{{author}}" # e.g. Your name e.g. "John Doe"
-license: "{{license}}" # e.g. Your license e.g. "MIT"
+# Displayed by `cmdeagle --help` when help command invoked in some other way. 
+description: "" # e.g. "My CLI is a tool to manage my projects."
+version: "" # e.g.  "0.0.1" 
+author: "" # e.g. Your name e.g. "John Doe"
+license: "sdfasdf" # e.g. Your license e.g. "MIT"
 
 # When you run `cmdeagle build` without arguments, we'll try to install the binary in these directories
 # - For macOs and Linux:   /usr/local/bin or ~/.local/bin

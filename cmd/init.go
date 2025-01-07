@@ -35,6 +35,30 @@ func init() {
 //go:embed template.cmd.yaml
 var sampleYAMLConfig []byte
 
+type TemplateVariable = struct {
+	Name        string
+	Value       *string
+	Placeholder string
+}
+
+var templateVariablePrefix = "{{"
+var templateVariableSuffix = "}}"
+
+var cliName string
+var cliDescription string
+var cliVersion string
+var cliAuthor string
+var cliLicense string
+var cliLanguages []string
+
+var templateVariables map[string]TemplateVariable = map[string]TemplateVariable{
+	"name":        {Name: "name", Value: &cliName, Placeholder: "My CLI"},
+	"description": {Name: "description", Value: &cliDescription, Placeholder: "My CLI is a tool to manage my projects."},
+	"version":     {Name: "version", Value: &cliVersion, Placeholder: "0.0.1"},
+	"author":      {Name: "author", Value: &cliAuthor, Placeholder: "John Doe"},
+	"license":     {Name: "license", Value: &cliLicense, Placeholder: "MIT"},
+}
+
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
@@ -52,7 +76,6 @@ var initCmd = &cobra.Command{
 			return fmt.Errorf(".cmd.yaml already exists in current directory")
 		}
 
-		var cliName string
 		if len(args) > 0 {
 			cliName = args[len(args)-1]
 		} else {
@@ -74,10 +97,8 @@ var initCmd = &cobra.Command{
 						Title("What’s your CLI's name?.").
 						Description("This will be the name of the binary and the directory.").
 						// TODO implement rename command then change to: Description("This will be the name of the binary and the directory. You can change this later with `cmdeagle rename` command. It must be lowercase.").
-						Placeholder("mycli").
-						Value(&cliName).
-						// Validating fields is easy. The form will mark erroneous fields
-						// and display error messages accordingly.
+						Placeholder(templateVariables["name"].Placeholder).
+						Value(templateVariables["name"].Value).
 						Validate(func(str string) error {
 							if str == "" {
 								return fmt.Errorf("cli name cannot be empty")
@@ -89,6 +110,38 @@ var initCmd = &cobra.Command{
 
 							return nil
 						}),
+				),
+				huh.NewGroup(
+					huh.NewInput().
+						Title("Description (optional).").
+						Description("This will be the description of the binary and the directory.").
+						Placeholder(templateVariables["description"].Placeholder).
+						Value(templateVariables["description"].Value),
+					huh.NewInput().
+						Title("Version (optional).").
+						Placeholder(templateVariables["version"].Placeholder).
+						Value(templateVariables["version"].Value),
+					huh.NewInput().
+						Title("Author (optional).").
+						Placeholder(templateVariables["author"].Placeholder).
+						Value(templateVariables["author"].Value),
+					huh.NewInput().
+						Title("License (optional).").
+						Placeholder(templateVariables["license"].Placeholder).
+						Value(templateVariables["license"].Value),
+				).Description("Some optional metadata to document your CLI. Displayed by the help command."),
+				huh.NewGroup(
+					huh.NewMultiSelect[string]().
+						Title("Which languages/runtimes do you want to support? (optional).").
+						Description("We'll generate sample code showing how to integrate languages/runtimes you choose.").
+						Options(
+							huh.NewOption("go", "Go"),
+							huh.NewOption("python", "Python"),
+							huh.NewOption("rust", "Rust"),
+							huh.NewOption("javascript", "JavaScript"),
+							huh.NewOption("typescript", "TypeScript"),
+						).
+						Value(&cliLanguages),
 				),
 			)
 
@@ -107,11 +160,11 @@ var initCmd = &cobra.Command{
 			return err
 		}
 
-		// Interpolate the name into the sample YAML
-		var interpolatedYAML string
 		// Replace template variables
-		content := string(sampleYAMLConfig)
-		interpolatedYAML = strings.ReplaceAll(content, "{{.Name}}", cliName)
+		interpolatedYAML := string(sampleYAMLConfig)
+		for name, variable := range templateVariables {
+			interpolatedYAML = strings.ReplaceAll(interpolatedYAML, templateVariablePrefix+name+templateVariableSuffix, *variable.Value)
+		}
 
 		// Write the file
 		err = os.WriteFile(".cmd.yaml", []byte(interpolatedYAML), 0644)

@@ -16,11 +16,13 @@ Big thanks to [@spf13](https://github.com/spf13) and [@charmbracelet](https://gi
 
 ## Prerequisites
 
-You need to have Go installed to build CLIs.
+You need to have Go installed to install cmdeagle and build CLIs. You can install Go by following the instructions at https://go.dev/doc/install.
 
 ## Installation
 
-Package installation instructions coming soon.
+```
+go install github.com/migsc/cmdeagle
+```
 
 ### Install from source
 

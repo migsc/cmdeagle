@@ -1,7 +1,6 @@
 package params
 
 import (
-	"cmdeagle/types"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/migsc/cmdeagle/types"
 
 	afero "github.com/spf13/afero"
 	cast "github.com/spf13/cast"

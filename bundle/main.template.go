@@ -1,11 +1,6 @@
 package bundle
 
 import (
-	"cmdeagle/args"
-	"cmdeagle/config"
-	"cmdeagle/executable"
-	"cmdeagle/flags"
-	"cmdeagle/types"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -15,6 +10,12 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/migsc/cmdeagle/args"
+	"github.com/migsc/cmdeagle/config"
+	"github.com/migsc/cmdeagle/executable"
+	"github.com/migsc/cmdeagle/flags"
+	"github.com/migsc/cmdeagle/types"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"

@@ -2,10 +2,11 @@ package bundle
 
 import (
 	"bytes"
-	"cmdeagle/file"
-	"cmdeagle/types"
 	"embed"
 	"runtime"
+
+	"github.com/migsc/cmdeagle/file"
+	"github.com/migsc/cmdeagle/types"
 
 	"fmt"
 	"os"

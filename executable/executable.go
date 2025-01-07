@@ -2,7 +2,6 @@ package executable
 
 import (
 	"bytes"
-	"cmdeagle/file"
 	"embed"
 	"fmt"
 	"os"
@@ -10,6 +9,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/migsc/cmdeagle/file"
 
 	log "github.com/charmbracelet/log"
 )

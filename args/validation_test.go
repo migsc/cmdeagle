@@ -1,8 +1,9 @@
 package args
 
 import (
-	"cmdeagle/types"
 	"testing"
+
+	"github.com/migsc/cmdeagle/types"
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"

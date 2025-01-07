@@ -1,11 +1,12 @@
 package flags
 
 import (
-	"cmdeagle/envvar"
-	"cmdeagle/types"
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/migsc/cmdeagle/envvar"
+	"github.com/migsc/cmdeagle/types"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"

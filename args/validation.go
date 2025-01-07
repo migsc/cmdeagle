@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"cmdeagle/params"
-	"cmdeagle/types"
+	"github.com/migsc/cmdeagle/params"
+	"github.com/migsc/cmdeagle/types"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"

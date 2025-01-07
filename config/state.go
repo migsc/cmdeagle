@@ -1,13 +1,14 @@
 package config
 
 import (
-	"cmdeagle/args"
-	"cmdeagle/envvar"
-	"cmdeagle/flags"
-	"cmdeagle/types"
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/migsc/cmdeagle/args"
+	"github.com/migsc/cmdeagle/envvar"
+	"github.com/migsc/cmdeagle/flags"
+	"github.com/migsc/cmdeagle/types"
 )
 
 type ParamsStateStore struct {

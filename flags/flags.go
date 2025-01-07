@@ -1,9 +1,10 @@
 package flags
 
 import (
-	"cmdeagle/types"
 	"embed"
 	"fmt"
+
+	"github.com/migsc/cmdeagle/types"
 
 	"github.com/spf13/pflag"
 )

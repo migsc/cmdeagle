@@ -1,8 +1,9 @@
 package config
 
 import (
-	"cmdeagle/types"
 	"fmt"
+
+	"github.com/migsc/cmdeagle/types"
 
 	"github.com/charmbracelet/log"
 )

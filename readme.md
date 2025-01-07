@@ -25,8 +25,18 @@ Package installation instructions coming soon.
 ### Install from source
 
 ```
+git clone https://github.com/migsc/cmdeagle.git
+cd cmdeagle
 make build
 ```
+
+Then add the following line to your `.zshrc` or `.bashrc` to make it easier to invoke `cmdeagle` directly. Then run `source ~/.zshrc` or `source ~/.bashrc` to apply the changes.
+
+```
+PATH="$PATH:PATH_TO_YOUR_CLONE_DIR/cmdeagle/sdk/bin"
+```
+
+Where `PATH_TO_YOUR_CLONE_DIR` is the path to the directory you cloned cmdeagle into.
 
 ## Usage
 

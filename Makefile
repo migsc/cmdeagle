@@ -24,5 +24,8 @@ clean:
 	rm -rf $(BUILD_DIR) 
 
 
+release:
+	goreleaser release --clean
+
 test:
 	go test ./...

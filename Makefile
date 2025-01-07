@@ -22,3 +22,7 @@ build: $(BUILD_DIR)
 # Clean build artifacts
 clean:
 	rm -rf $(BUILD_DIR) 
+
+
+test:
+	go test ./...

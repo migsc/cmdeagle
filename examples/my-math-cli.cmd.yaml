@@ -1,0 +1,44 @@
+name: my-math-cli
+description: (Example CLI for cmdeagle) Commands to perform math operations
+
+flags:
+  -f, --file:
+    description: File to read from
+    example: math --file data.txt
+
+commands:
+  add:
+    description: Add two numbers
+    alias: add,+
+    usage: my-math-cli <number1> plus <number2>
+    example: my-math-cli <number1> plus <number2>
+  subtract:
+    description: Subtract two numbers
+    alias: sub,-
+    usage: my-math-cli <number1> minus <number2>
+    example: my-math-cli <number1> minus <number2>
+  multiply:
+    description: Multiply two numbers
+    alias: mul,*
+    usage: my-math-cli <number1> times <number2>
+    example: my-math-cli 4 times 7
+  divide:
+    description: Divide two numbers
+    alias: div,/
+    usage: my-math-cli <number1> over <number2>
+    example: my-math-cli 8 over 2
+  random:
+    description: Generate a random number
+    alias: rand
+    usage: my-math-cli pick <min> through|thru <max>
+    example: my-math-cli pick 1 thru 10
+  exponent:
+    description: Raise a number to a power
+    alias: ^
+    usage: my-math-cli raise <base> to <exponent>
+    example: my-math-cli raise 2 to 3
+  evaluate:
+    alias: eval,e
+    description: Evaluate a mathematical expression
+    usage: my-math-cli eval <expression>
+    example: my-math-cli eval "1 + 2 * 3"

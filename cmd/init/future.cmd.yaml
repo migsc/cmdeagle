@@ -1,0 +1,9 @@
+name: mycli
+
+commands:
+- name: greet
+  description: "This is a command to greet the user."
+  args:
+  - name: arg1
+    description: "This is the first argument"
+    type: string

@@ -1,0 +1,85 @@
+# This is the name of the binary you use to invoke your CLI.
+
+name: "mycli"
+
+# Some optional metadata you can add to your CLI. This doesn't get used anywhere but may be useful to document.
+# version: "0.0.1"
+# author: "Your Name"
+# license: "Your License"
+
+# This a description that will be displayed when you run `mycli --help` or invoke the help command in some other way.
+description: "A sample CLI tool to play around with cmdeagle."
+
+# When you run `cmdeagle build` without arguments, we'll try to install the binary in these directories
+# - For macOs and Linux:   /usr/local/bin or ~/.local/bin
+# - For Windows: C:\Users\<username>\AppData\Local\Programs\MyApp\bin
+
+# We also install the bundled files declared by your CLI in these directories
+# - For macOS and Linux:   /usr/local/share/mycli or ~/.local/share/mycli
+# - Windows (user-only): %LocalAppData%\MyApp
+
+# You can bundle files with your CLI by declaring the paths to them in the `includes` field.
+# This is useful for things like static assets, media, configuration files, data files, etc.
+# includes:
+# - "image.jpg"
+# - "sql.db"
+
+# The `requires` statement is used to specify the dependencies your CLI needs to run. These are checked when you run 
+# your binary. They are not checked at build time.
+requires:
+  # You need to have Go installed to build with cmdeagle. If you don't have it, you can install it by going to: 
+  # https://go.dev/doc/install
+  go: "*"
+  # You can use comparison operators preceeding a version number to specify the version of the dependency you need. 
+  # Here is the full list of operators you can use:
+  # - `*` (any version)
+  # - `^` (major version)
+  # - `~` (major and minor version)
+  # - `>` (greater than)
+  # - `<` (less than)
+  # - `>=` (greater than or equal)
+  # - `<=` (less than or equal)
+  # - No operator (exact match)
+
+  # Global flags available to all commands
+flags:
+- name: verbose
+  shorthand: v
+  type: boolean
+  description: "Enable verbose output"
+
+# Global arguments are much less common than global flags but it's possible to declare them here if you wanted your 
+# args:
+#   vars:
+#   - name: name
+#     type: string
+#     description: "The name to greet."
+
+# start: ./mycli-script.sh
+
+
+# "root command" to do something with them. The "root command" refers to the command that is declared in the `start` 
+# directive for the entire CLI.
+
+
+# args:
+#   vars:
+#   - name: name
+#     type: string
+#     description: "The name to greet."
+
+# The subcommands of your CLI. You can nest them as deeply as you want.
+commands:
+
+- name: greet
+  description: "Greet the user."
+  args:
+  - name: name
+    type: string
+    description: "Name to greet"
+    default: "World"
+  flags:
+  - name: uppercase
+    shorthand: u
+    type: boolean
+    description: "Convert greeting to uppercase"

@@ -49,7 +49,7 @@ mdkir ./mycli && cd mycli
 cmdeagle init
 ```
 
-This will create a `.cmd.yaml` file in your project root to define your CLI structure. The schema is not documented yet, but you can read the comments in the file to understand what each field does.
+This will create a `..cmd.yaml` file in your project root to define your CLI structure. The schema is not documented yet, but you can read the comments in the file to understand what each field does.
 
 2. Build your CLI:
 

@@ -42,19 +42,25 @@ var initCmd = &cobra.Command{
 	// Long:  ``, // TODO: Add long description
 	// Args: cobra.PositionalArgs(cobra.ExactArgs(1)),
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		// Determine name of the project
 		log.Info("Initializing cmdeagle project")
 
+		// Check if cmd.yaml already exists
+		if _, err := os.Stat(".cmd.yaml"); err == nil {
+			log.Error(".cmd.yaml already exists in current directory")
+			return fmt.Errorf(".cmd.yaml already exists in current directory")
+		}
+
 		var cliName string
 		if len(args) > 0 {
-			cliName = args[0]
+			cliName = args[len(args)-1]
 		} else {
 			// Get current directory name as fallback
 			dir, err := os.Getwd()
 			if err != nil {
 				fmt.Printf("Error getting current directory: %v\n", err)
-				return
+				return err
 			}
 
 			var folderName = filepath.Base(dir)
@@ -93,28 +99,28 @@ var initCmd = &cobra.Command{
 			}
 		}
 
-		// Create the cmd.yaml file
-		fmt.Printf("Creating cmd.yaml for %s\n", cliName)
-		file, err := os.Create("cmd.yaml")
+		// Create the .cmd.yaml file
+		fmt.Printf("Creating .cmd.yaml for %s\n", cliName)
+		_, err := os.Create(".cmd.yaml")
 		if err != nil {
-			fmt.Printf("Error creating cmd.yaml: %v\n", err)
-			return
+			fmt.Printf("Error creating .cmd.yaml: %v\n", err)
+			return err
 		}
 
 		// Interpolate the name into the sample YAML
 		var interpolatedYAML string
-		interpolatedYAML = strings.Replace(string(sampleYAMLConfig), "{{name}}", cliName, -1)
-		interpolatedYAML = strings.Replace(interpolatedYAML, "{{license}}", "Your License", -1)
+		// Replace template variables
+		content := string(sampleYAMLConfig)
+		interpolatedYAML = strings.ReplaceAll(content, "{{.Name}}", cliName)
 
-		// Write the sample YAML to the file
-		countBytes, err := file.Write([]byte(interpolatedYAML))
+		// Write the file
+		err = os.WriteFile(".cmd.yaml", []byte(interpolatedYAML), 0644)
 		if err != nil {
-			fmt.Printf("Error writing to cmd.yaml: %v\n", err)
-			return
+			log.Error("Failed to write .cmd.yaml", "error", err)
+			return fmt.Errorf("failed to write .cmd.yaml: %w", err)
 		}
 
-		fmt.Printf("Wrote %d bytes to cmd.yaml\n", countBytes)
-		defer file.Close()
-
+		log.Info("Successfully initialized cmdeagle project", "name", cliName)
+		return nil
 	},
 }

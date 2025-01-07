@@ -1,6 +1,6 @@
 # This is the name of the binary you use to invoke your CLI.
 
-name: "mycli"
+name: "{{.Name}}"
 
 # Some optional metadata you can add to your CLI. This doesn't get used anywhere but may be useful to document.
 # version: "0.0.1"

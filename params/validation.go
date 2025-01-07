@@ -172,8 +172,12 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 }
 
 func HasFileConstraints(constraints *types.ParamConstraints) bool {
+	if constraints == nil {
+		return false
+	}
+	constraintsValue := reflect.ValueOf(constraints).Elem()
 	for _, constraint := range types.ConstraintFileKeys {
-		if value := reflect.ValueOf(constraints).FieldByName(constraint).String(); value != "" {
+		if value := constraintsValue.FieldByName(constraint).String(); value != "" {
 			return true
 		}
 	}

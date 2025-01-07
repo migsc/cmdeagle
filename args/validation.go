@@ -56,8 +56,9 @@ func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *types.ArgsConfig, stor
 
 			if entry.Def != nil && entry.Def.ConflictsWith != nil {
 				for _, conflict := range entry.Def.ConflictsWith {
-					if store.GetVal(conflict) != nil {
-						return fmt.Errorf("Argument %s conflicts with %s", entry.Def.Name, conflict)
+					conflictVal := store.GetVal(conflict)
+					if conflictVal != nil && conflictVal != "" {
+						return fmt.Errorf("argument %s conflicts with %s", entry.Def.Name, conflict)
 					}
 				}
 			}
@@ -78,9 +79,8 @@ func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *types.ArgsConfig, stor
 
 func validateRule(cobraCmd *cobra.Command, ruleDef types.ArgRuleDef, args []string) error {
 	if ruleDef.NoArgs {
-		err := cobra.NoArgs(cobraCmd, args)
-		if err != nil {
-			return err
+		if len(args) > 0 {
+			return fmt.Errorf("%s accepts no args", cobraCmd.Name())
 		}
 	}
 

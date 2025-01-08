@@ -1,18 +1,15 @@
 package args
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/migsc/cmdeagle/params"
 	"github.com/migsc/cmdeagle/types"
 
-	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
 
 func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *types.ArgsConfig, store *ArgsStateStore) error {
-	// log.Debug("Validating args", "argsConfigDef", argsConfigDef, "store", store)
 	if argsConfigDef == nil || store == nil {
 		return nil
 	}
@@ -20,12 +17,8 @@ func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *types.ArgsConfig, stor
 	rawArgs := store.GetAllRawVal()
 
 	if argsConfigDef.Vars != nil {
-
 		for index := range argsConfigDef.Vars {
-
 			entry := store.GetAt(index)
-
-			log.Debug("Validating arg", "index", index, "name", entry.Def.Name, "rawVal", entry.RawVal, "val", entry.Val, "err", entry.Err)
 
 			if entry == nil {
 				continue
@@ -35,25 +28,26 @@ func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *types.ArgsConfig, stor
 				return entry.Err
 			}
 
-			// TODO: Gonna need to refactor the constraints to be pointer based for this to work
-			// if entry.Def != nil && entry.Def.Constraints != nil {
-			// 	for _, dependency := range entry.Def.DependsOn {
-			// 		err := ValidateConstraint(dependency.When, store.GetVal(dependency.Name))
-			// 		if err != nil {
-			// 			return err
-			// 		}
-			// 	}
-			// }
+			// Validate constraints
+			if entry.Def != nil {
+				constraints := entry.Def.Constraints
+				err := params.ValidateConstraint(&constraints, entry.Val)
+				if err != nil {
+					return fmt.Errorf("validation failed for argument %s: %v", entry.Def.Name, err)
+				}
+			}
 
+			// Validate dependencies
 			if entry.Def != nil && entry.Def.DependsOn != nil {
 				for _, dependency := range entry.Def.DependsOn {
 					err := params.ValidateConstraint(dependency.When, store.GetVal(dependency.Name))
 					if err != nil {
-						return err
+						return fmt.Errorf("dependency validation failed for argument %s: %v", entry.Def.Name, err)
 					}
 				}
 			}
 
+			// Validate conflicts
 			if entry.Def != nil && entry.Def.ConflictsWith != nil {
 				for _, conflict := range entry.Def.ConflictsWith {
 					conflictVal := store.GetVal(conflict)
@@ -136,6 +130,10 @@ func validateRule(cobraCmd *cobra.Command, ruleDef types.ArgRuleDef, args []stri
 		if err != nil {
 			return err
 		}
+		err = cobra.OnlyValidArgs(cobraCmd, args)
+		if err != nil {
+			return err
+		}
 	}
 
 	if ruleDef.MatchAll != nil {
@@ -181,11 +179,11 @@ func validateRule(cobraCmd *cobra.Command, ruleDef types.ArgRuleDef, args []stri
 	}
 
 	if ruleDef.Not != nil {
-		err := validateRule(cobraCmd, ruleDef, args)
+		err := validateRule(cobraCmd, *ruleDef.Not, args)
 		if err == nil {
-			return errors.New(fmt.Sprintf("Validation failed on `not` for rule: %v", ruleDef))
+			return fmt.Errorf("validation failed on `not` for rule: %v", *ruleDef.Not)
 		}
-
+		return nil
 	}
 
 	return nil

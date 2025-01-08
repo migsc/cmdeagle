@@ -22,8 +22,16 @@ Big thanks to [@spf13](https://github.com/spf13) and [@charmbracelet](https://gi
 
 ## Installation
 
+With Go installed, you can install cmdeagle by running:
+
 ```
 go install github.com/migsc/cmdeagle
+```
+
+With Node.js installed, you can install cmdeagle by running:
+
+```
+npm install -g cmdeagle
 ```
 
 ### Install from source
@@ -31,12 +39,14 @@ go install github.com/migsc/cmdeagle
 ```
 git clone https://github.com/migsc/cmdeagle.git
 cd cmdeagle
-make build
+make build # or `npm run build` for Node.js
 ```
 
-### Adding to PATH
+#### Adding to PATH
 
-#### Unix (Linux/macOS)
+For invoking the `cmdeagle` command directly from your cloned repository, you need to add the `bin` directory to your PATH.
+
+##### Unix (Linux/macOS)
 
 Then add the following line to your `.zshrc` or `.bashrc` to make it easier to invoke `cmdeagle` directly. Then run `source ~/.zshrc` or `source ~/.bashrc` to apply the changes.
 
@@ -46,7 +56,7 @@ PATH="$PATH:PATH_TO_YOUR_CLONE_DIR/cmdeagle/bin"
 
 Where `PATH_TO_YOUR_CLONE_DIR` is the path to the directory you cloned cmdeagle into.
 
-#### Windows
+##### Windows
 
 You can add the directory to your PATH through:
 
@@ -67,6 +77,7 @@ setx PATH "%PATH%;C:\Path\To\Your\cmdeagle\bin"
 ```
 
 Note: You'll need to restart your terminal for the changes to take effect.
+
 
 ## Usage
 

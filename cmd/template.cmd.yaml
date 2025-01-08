@@ -9,7 +9,7 @@ version: "{{version}}" # e.g.  "0.0.1"
 author: "{{author}}" # e.g. Your name e.g. "John Doe"
 license: "{{license}}" # e.g. Your license e.g. "MIT"
 
-imports:
+imports:url:
 - "https://gist.githubusercontent.com/migsc/4aaf770c450e1b2726bf9374ddac5eb0/raw/47f47ce25040f89b891c6c8672ba7e0e4da1086c/example.yaml"
 # a comment
 - example.com/example-b.yaml
@@ -56,6 +56,7 @@ imports:
 commands:
 
 - name: greet
+  import: ./cmd/greet.cmd.yaml
   description: "Greet the user."
   args:
     vars:
@@ -69,5 +70,5 @@ commands:
     type: boolean
     description: "Convert greeting to uppercase"
   commands:
-  - imports: "./cmd/subcommand-1-template.cmd.yaml"
-  - imports: ./cmd/subcommand-2-template.cmd.yaml
+  - imports:file: "./cmd/subcommand-1-template.cmd.yaml"
+  - imports:file: ./cmd/subcommand-2-template.cmd.yaml

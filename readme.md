@@ -16,7 +16,9 @@ Big thanks to [@spf13](https://github.com/spf13) and [@charmbracelet](https://gi
 
 ## Prerequisites
 
-You need to have Go installed to install cmdeagle and build CLIs. You can install Go by following the instructions at https://go.dev/doc/install.
+- Go 1.22 or higher: You need to have Go installed to install cmdeagle and build CLIs. You can install Go by following the instructions at https://go.dev/doc/install.
+- Node.js 14.0 or higher
+
 
 ## Installation
 
@@ -35,7 +37,7 @@ make build
 Then add the following line to your `.zshrc` or `.bashrc` to make it easier to invoke `cmdeagle` directly. Then run `source ~/.zshrc` or `source ~/.bashrc` to apply the changes.
 
 ```
-PATH="$PATH:PATH_TO_YOUR_CLONE_DIR/cmdeagle/sdk/bin"
+PATH="$PATH:PATH_TO_YOUR_CLONE_DIR/cmdeagle/bin"
 ```
 
 Where `PATH_TO_YOUR_CLONE_DIR` is the path to the directory you cloned cmdeagle into.

@@ -4,7 +4,7 @@
 BINARY_NAME=cmdeagle
 
 # Build directory
-BUILD_DIR=sdk/bin
+BUILD_DIR=bin
 
 # Go build flags
 GOBUILD=go build -o $(BUILD_DIR)/$(BINARY_NAME)

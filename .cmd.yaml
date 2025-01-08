@@ -11,10 +11,7 @@ license: "" # e.g. Your license e.g. "MIT"
 
 imports:
 - "https://gist.githubusercontent.com/migsc/4aaf770c450e1b2726bf9374ddac5eb0/raw/47f47ce25040f89b891c6c8672ba7e0e4da1086c/example.yaml"
-# a comment
-# - example.com/example-b.yaml
-### another comment
-
+- https://gist.githubusercontent.com/migsc/f5a5c25f0b0acd5da1424f3c7694b7df/raw/b571896c4c4023a5b8a433162a2c7091f6588533/example2.yaml
 # When you run `cmdeagle build` without arguments, we'll try to install the binary in these directories
 # - For macOs and Linux:   /usr/local/bin or ~/.local/bin
 # - For Windows: C:\Users\<username>\AppData\Local\Programs\MyApp\bin
@@ -58,15 +55,17 @@ commands:
 - name: greet
   description: "Greet the user."
   args:
-  - name: name
-    type: string
-    description: "Name to greet"
-    default: "World"
+    vars:
+    - name: name
+      type: string
+      description: "Name to greet"
+      default: "World"
   flags:
   - name: uppercase
     shorthand: u
     type: boolean
     description: "Convert greeting to uppercase"
   commands:
-  - imports: "./cmd/subcommand-1-template.cmd.yaml"
-  - imports: ./cmd/subcommand-2-template.cmd.yaml
+  - imports:
+    - "./cmd/subcommand-1-template.cmd.yaml"
+    - "./cmd/subcommand-2-template.cmd.yaml"

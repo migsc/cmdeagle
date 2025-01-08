@@ -25,7 +25,11 @@ clean:
 
 
 release:
+	git tag -a $(VERSION) -m "$(VERSION)"
+	git push origin $(VERSION)
+	git push --tags
 	goreleaser release --clean
 
 test:
 	go test ./...
+

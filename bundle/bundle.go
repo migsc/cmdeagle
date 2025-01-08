@@ -28,6 +28,9 @@ var MainTemplateReplacements = map[string][]byte{
 
 	// Rename the template's intended main function
 	"main_template": []byte("main"),
+
+	// Set debug mode based on flag
+	"var LOG_LEVEL = log.InfoLevel": []byte("var LOG_LEVEL = log.InfoLevel"), // default value
 }
 
 var packageSrcDirPath string

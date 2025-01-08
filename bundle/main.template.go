@@ -35,8 +35,11 @@ var rootCmd = &cobra.Command{
 }
 var cobraCommands = make(map[string]*cobra.Command)
 
+var LOG_LEVEL = log.InfoLevel
+
 func init() {
-	log.SetLevel(log.DebugLevel)
+	// DEBUG_MODE will be replaced during build
+	log.SetLevel(LOG_LEVEL)
 	log.SetFormatter(log.TextFormatter)
 	cobra.EnableTraverseRunHooks = true
 }
@@ -312,19 +315,11 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 		execCmd.Stdout = os.Stdout
 		execCmd.Stderr = os.Stderr
 
-		fmt.Println("#########OUTPUT############")
-		fmt.Println("###########################")
-		fmt.Println()
-		fmt.Println()
-		fmt.Println()
+		log.Debug("#########OUTPUT############")
 		if err := execCmd.Run(); err != nil {
 			return err
 		}
-		fmt.Println()
-		fmt.Println()
-		fmt.Println()
-		fmt.Println("###########################")
-		fmt.Println("###########################")
+		log.Debug("###########################")
 
 		return nil
 	}

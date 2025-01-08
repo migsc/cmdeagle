@@ -58,10 +58,11 @@ commands:
 - name: greet
   description: "Greet the user."
   args:
-  - name: name
-    type: string
-    description: "Name to greet"
-    default: "World"
+    vars:
+    - name: name
+      type: string
+      description: "Name to greet"
+      default: "World"
   flags:
   - name: uppercase
     shorthand: u

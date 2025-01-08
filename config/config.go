@@ -34,7 +34,7 @@ var PackageFS embed.FS
 func LoadFromBundle(bundleFS embed.FS) ([]byte, *types.CmdeagleConfig, error) {
 	log.Debug("Loading config file from embedded bundle")
 
-	configFile, err := bundleFS.Open("config..cmd.yaml")
+	configFile, err := bundleFS.Open("config.cmd.yaml")
 	if err != nil {
 		return nil, nil, err
 	}

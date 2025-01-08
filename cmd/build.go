@@ -27,6 +27,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 const (
@@ -35,25 +36,6 @@ const (
 	mainFileName       = "main.go"
 	binDirName         = "bin"
 )
-
-func init() {
-	log.SetLevel(log.InfoLevel)
-	log.SetFormatter(log.TextFormatter)
-
-	rootCmd.AddCommand(buildCmd)
-
-	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOOS, "os", "linux", "Target operating system")
-	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOARCH, "arch", "amd64", "Target architecture")
-
-	// Add verbose flag and connect it to log level
-	buildCmd.Flags().Bool("verbose", false, "Enable verbose logging")
-	buildCmd.PreRun = func(cmd *cobra.Command, args []string) {
-		verbose, _ := cmd.Flags().GetBool("verbose")
-		if verbose {
-			log.SetLevel(log.DebugLevel)
-		}
-	}
-}
 
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
@@ -67,6 +49,32 @@ var buildCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+}
+
+var flagSet *pflag.FlagSet
+
+func init() {
+	log.SetLevel(log.InfoLevel)
+	log.SetFormatter(log.TextFormatter)
+
+	rootCmd.AddCommand(buildCmd)
+
+	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOOS, "os", "linux", "Target operating system")
+	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOARCH, "arch", "amd64", "Target architecture")
+
+	// Add debug flag
+	buildCmd.Flags().Bool("debug", false, "Enable debug logging in both build and generated CLI")
+
+	// Add verbose flag and connect it to log level
+	buildCmd.Flags().Bool("verbose", false, "Enable verbose logging")
+	buildCmd.PreRun = func(cmd *cobra.Command, args []string) {
+		verbose, _ := cmd.Flags().GetBool("verbose")
+		if verbose {
+			log.SetLevel(log.DebugLevel)
+		}
+	}
+
+	flagSet = buildCmd.Flags()
 }
 
 // TODO: Hacky way to get the bundle staging directory path to be used by the build command visitor
@@ -91,6 +99,13 @@ var packages = []Package{
 
 func runBuild() error {
 	var err error
+
+	// Get debug flag value
+	// TODO: Move this lower into the appropriate place in the code
+	debug, _ := flagSet.GetBool("debug")
+	if debug {
+		bundle.MainTemplateReplacements["var LOG_LEVEL = log.InfoLevel"] = []byte("var LOG_LEVEL = log.DebugLevel")
+	}
 
 	// TODO we should probably allow the user to specify the working directory
 	workingDirPath, err := os.Getwd()
@@ -224,7 +239,7 @@ func runBuild() error {
 	// There's no need to setup an empty directory for the binary to be built in because we expect it to be
 	// shared with other binaries already on the system.
 	var binDirPath string
-	binDirPath, err = executable.GetDestDir(cmdConfig)
+	binDirPath, err = executable.GetDestDir()
 	if err != nil {
 		return err
 	}

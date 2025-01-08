@@ -34,6 +34,10 @@ cd cmdeagle
 make build
 ```
 
+### Adding to PATH
+
+#### Unix (Linux/macOS)
+
 Then add the following line to your `.zshrc` or `.bashrc` to make it easier to invoke `cmdeagle` directly. Then run `source ~/.zshrc` or `source ~/.bashrc` to apply the changes.
 
 ```
@@ -41,6 +45,28 @@ PATH="$PATH:PATH_TO_YOUR_CLONE_DIR/cmdeagle/bin"
 ```
 
 Where `PATH_TO_YOUR_CLONE_DIR` is the path to the directory you cloned cmdeagle into.
+
+#### Windows
+
+You can add the directory to your PATH through:
+
+1. **Using System Properties (GUI)**:
+   - Right-click on 'This PC' or 'My Computer'
+   - Click 'Properties'
+   - Click 'Advanced system settings'
+   - Click 'Environment Variables'
+   - Under 'User variables', select 'Path'
+   - Click 'Edit'
+   - Click 'New'
+   - Add the full path to the cmdeagle bin directory (e.g., `C:\Users\YourUsername\Projects\cmdeagle\bin`)
+   - Click 'OK' on all windows
+
+2. **Using Command Prompt (CLI)**:
+```cmd
+setx PATH "%PATH%;C:\Path\To\Your\cmdeagle\bin"
+```
+
+Note: You'll need to restart your terminal for the changes to take effect.
 
 ## Usage
 
@@ -51,7 +77,7 @@ mdkir ./mycli && cd mycli
 cmdeagle init
 ```
 
-This will create a `..cmd.yaml` file in your project root to define your CLI structure. The schema is not documented yet, but you can read the comments in the file to understand what each field does.
+This will create a `.cmd.yaml` file in your project root to define your CLI structure. You can read the comments in the file to understand what each field does.
 
 2. Build your CLI:
 
@@ -59,7 +85,7 @@ This will create a `..cmd.yaml` file in your project root to define your CLI str
 cmdeagle build
 ```
 
-3. Run your CLI.
+### Running your CLI on Unix (Linux/macOS)
 
 For Linux and macOS, if you have `./.local/bin` in your `PATH` you can simply run:
 
@@ -79,6 +105,33 @@ If you need help setting up your `PATH` variable, add the following line in your
 ```
 PATH="$PATH:~/.local/bin"
 ```
+
+### Running your CLI on Windows
+
+Your CLI will be automatically be installed to `%LocalAppData%\Programs\mycli\bin`. You can run it by:
+```cmd
+%LocalAppData%\Programs\mycli\bin\mycli.exe
+```
+
+To add to your PATH permanently (so you can just run `mycli`):
+
+1. **Using System Properties**:
+   - Right-click on 'This PC' or 'My Computer'
+   - Click 'Properties'
+   - Click 'Advanced system settings'
+   - Click 'Environment Variables'
+   - Under 'User variables', select 'Path'
+   - Click 'Edit'
+   - Click 'New'
+   - Add `%LocalAppData%\Programs\mycli\bin`
+   - Click 'OK' on all windows
+
+2. **Using Command Prompt**:
+```cmd
+setx PATH "%PATH%;%LocalAppData%\Programs\mycli\bin"
+```
+
+Note: You'll need to open a new terminal for the PATH changes to take effect.
 
 ### Configuration Guide
 
@@ -179,6 +232,69 @@ commands:
     fi
     python3 ./scripts/process.py
 ```
+### Build Commands
+
+Each command can specify a `build` script that runs during the CLI's build phase. This is different from the `start` script which runs when the command is executed.
+
+```yaml
+commands:
+- name: generate
+  description: "Generate code"
+  build: |
+    # This script runs when you build your CLI with 'cmdeagle build'
+    go generate ./...
+    tsc --build
+  start: |
+    # This script runs when someone executes 'mycli generate'
+    node ./dist/generator.js
+
+- name: docs
+  description: "Generate documentation"
+  build: |
+    # Compile documentation during build
+    mdbook build docs/
+    cp -r docs/book/* static/docs/
+```
+
+The `build` key is useful for:
+- Compiling assets
+- Generating code
+- Building documentation
+- Running pre-processing steps
+- Setting up command dependencies
+
+Build scripts run in the context of your project directory during the `cmdeagle build` phase, before your CLI is packaged into a binary.
+
+### Including Files
+
+The `includes` key allows you to bundle files with your CLI. These files will be packaged into your binary and extracted when the user first runs your CLI.
+
+```yaml
+includes:
+- "./scripts/helper.sh"     # Shell scripts
+- "./templates/config.json" # Configuration files
+- "./assets/logo.png"      # Static assets
+- "./data/defaults.yaml"   # Data files
+```
+
+When your CLI is built and installed:
+- For macOS and Linux: Files are installed to `/usr/local/share/<cli-name>` or `~/.local/share/<cli-name>`
+- For Windows: Files are installed to `%LocalAppData%\<cli-name>`
+
+You can also specify includes at the command level:
+
+```yaml
+commands:
+- name: generate
+  description: "Generate files"
+  includes:
+  - "./templates/component.ts"
+  - "./templates/test.ts"
+  start: |
+    node ./templates/generator.js
+```
+
+The included files will be available in the same relative path as specified in your configuration when your command executes.
 
 #### Version Constraints
 
@@ -260,11 +376,6 @@ fi
 ```
 
 For more examples, check out the sample CLI in the `examples/mycli` directory.
-
-### For Windows
-
-Docs coming soon.
-
 
 ## Distribution
 

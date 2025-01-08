@@ -17,17 +17,14 @@ license: "{{license}}" # e.g. Your license e.g. "MIT"
 # - For macOS and Linux:   /usr/local/share/mycli or ~/.local/share/mycli
 # - Windows (user-only): %LocalAppData%\MyApp
 
+
+
 includes:
+# You can bundle files with your CLI by declaring the paths to them in the `includes` field.
+# This is useful for things like static assets, media, configuration files, data files, etc.
 - "./greet.sh"
 - "./greet.js"
 - "./greet.py"
-# You can bundle files with your CLI by declaring the paths to them in the `includes` field.
-# This is useful for things like static assets, media, configuration files, data files, etc.
-# includes:
-# - "image.jpg"
-# - "sql.db"
-
-
 
 # The subcommands of your CLI. You can nest subcommands as deeply as you want.
 # Each subcommand can also declare its own `requires`, `includes` just like the root command above.
@@ -37,11 +34,11 @@ commands:
   description: "Greet the user."
 
   requires:
-    node: ">=16.0.0"
-    # python: ">=3.10.12" # TODO: Fix this
     # The `requires` statement is used to specify the dependencies your CLI needs to run. These are checked when you run 
     # your binary. They are not checked at build time.
     # You can use comparison operators preceeding a version number to specify the version of the dependency you need. 
+    node: ">=16.0.0"
+    python3: "*"
     # Here is the full list of operators you can use:
     # - `*` (any version)
     # - `^` (major version)
@@ -59,21 +56,18 @@ commands:
       description: "Name to greet"
       default: "World"
       required: true
-    # TODO: Fix this
-    # - name: age
-    #   type: number
-    #   description: "Age of the user"
-    #   required: true
-    #   default: 20
-    #   constraints:
-    #     min: 18
-    #     max: 100
-    #   depends-on:
-    #   - name: name
-    #     value: "John"
-    # rules:
-    #   # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
-    #   MaximumNArgs: 1
+    - name: age
+      type: number
+      description: "Age of the user"
+      # constraints: TODO: Fix this
+      #   min: 18
+      #   max: 100
+      depends-on:
+      - name: name
+    rules:
+      # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
+      minimum-n-args: 1
+      maximum-n-args: 2
 
   flags:
 

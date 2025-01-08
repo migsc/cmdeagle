@@ -42,5 +42,6 @@ type ArgRuleDef struct {
 	And  *([]ArgRuleDef) `yaml:"And,omitempty"`
 	Or   *([]ArgRuleDef) `yaml:"Or,omitempty"`
 	Nand *([]ArgRuleDef) `yaml:"Nand,omitempty"`
-	Not  *ArgRuleDef     `yaml:"Not,omitempty"`
+
+	Not *ArgRuleDef `yaml:"Not,omitempty"`
 }

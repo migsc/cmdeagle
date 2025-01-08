@@ -110,16 +110,16 @@ func execute() error {
 		log.Fatalf("Failed to setup data directory: %v", err)
 	}
 
-	log.Debug("Command tree structure:")
-	var printCommandTree func(cmd *cobra.Command, level int)
-	printCommandTree = func(cmd *cobra.Command, level int) {
-		indent := strings.Repeat("  ", level)
-		fmt.Printf("%s%s\n", indent, cmd.Name())
-		for _, subCmd := range cmd.Commands() {
-			printCommandTree(subCmd, level+1)
-		}
-	}
-	printCommandTree(rootCmd, 0)
+	// log.Debug("Command tree structure:")
+	// var printCommandTree func(cmd *cobra.Command, level int)
+	// printCommandTree = func(cmd *cobra.Command, level int) {
+	// 	indent := strings.Repeat("  ", level)
+	// 	// fmt.Printf("%s%s\n", indent, cmd.Name())
+	// 	for _, subCmd := range cmd.Commands() {
+	// 		printCommandTree(subCmd, level+1)
+	// 	}
+	// }
+	// printCommandTree(rootCmd, 0)
 
 	log.Debug("Done")
 
@@ -218,6 +218,10 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 
 				if !exists {
 					return fmt.Errorf("dependency %s not found. You need to install it to run this command.", name)
+				}
+
+				if versionDeclared == "*" {
+					continue
 				}
 
 				versionFound, err := executable.GetVersion(path, []string{})

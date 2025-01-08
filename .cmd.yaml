@@ -1,13 +1,19 @@
 # This is the name of the binary you use to invoke your CLI.
 
-name: "cmdeagle"
+name: "cmdeagle-test"
 
 # Some optional metadata you can add to your CLI. This doesn't get used anywhere but may be useful to document. 
-# Displayed by `cmdeagle --help` when help command invoked in some other way. 
+# Displayed by `cmdeagle-test --help` when help command invoked in some other way. 
 description: "" # e.g. "My CLI is a tool to manage my projects."
 version: "" # e.g.  "0.0.1" 
 author: "" # e.g. Your name e.g. "John Doe"
-license: "sdfasdf" # e.g. Your license e.g. "MIT"
+license: "" # e.g. Your license e.g. "MIT"
+
+imports:
+- "https://gist.githubusercontent.com/migsc/4aaf770c450e1b2726bf9374ddac5eb0/raw/47f47ce25040f89b891c6c8672ba7e0e4da1086c/example.yaml"
+# a comment
+# - example.com/example-b.yaml
+### another comment
 
 # When you run `cmdeagle build` without arguments, we'll try to install the binary in these directories
 # - For macOs and Linux:   /usr/local/bin or ~/.local/bin
@@ -25,47 +31,26 @@ license: "sdfasdf" # e.g. Your license e.g. "MIT"
 
 # The `requires` statement is used to specify the dependencies your CLI needs to run. These are checked when you run 
 # your binary. They are not checked at build time.
-requires:
-  # You need to have Go installed to build with cmdeagle. If you don't have it, you can install it by going to: 
-  # https://go.dev/doc/install
-  go: "*"
-  # You can use comparison operators preceeding a version number to specify the version of the dependency you need. 
-  # Here is the full list of operators you can use:
-  # - `*` (any version)
-  # - `^` (major version)
-  # - `~` (major and minor version)
-  # - `>` (greater than)
-  # - `<` (less than)
-  # - `>=` (greater than or equal)
-  # - `<=` (less than or equal)
-  # - No operator (exact match)
-
-  # Global flags available to all commands
-flags:
-- name: verbose
-  shorthand: v
-  type: boolean
-  description: "Enable verbose output"
-
-# Global arguments are much less common than global flags but it's possible to declare them here if you wanted your 
-# args:
-#   vars:
-#   - name: name
-#     type: string
-#     description: "The name to greet."
-
-# start: ./mycli-script.sh
+# requires:
+#   # You need to have Go installed to build with cmdeagle. If you don't have it, you can install it by going to: 
+#   # https://go.dev/doc/install
+#   go: "*"
+# You can use comparison operators preceeding a version number to specify the version of the dependency you need. 
+# Here is the full list of operators you can use:
+# - `*` (any version)
+# - `^` (major version)
+# - `~` (major and minor version)
+# - `>` (greater than)
+# - `<` (less than)
+# - `>=` (greater than or equal)
+# - `<=` (less than or equal)
+# - No operator (exact match)
 
 
 # "root command" to do something with them. The "root command" refers to the command that is declared in the `start` 
 # directive for the entire CLI.
 
 
-# args:
-#   vars:
-#   - name: name
-#     type: string
-#     description: "The name to greet."
 
 # The subcommands of your CLI. You can nest them as deeply as you want.
 commands:
@@ -82,3 +67,6 @@ commands:
     shorthand: u
     type: boolean
     description: "Convert greeting to uppercase"
+  commands:
+  - imports: "./cmd/subcommand-1-template.cmd.yaml"
+  - imports: ./cmd/subcommand-2-template.cmd.yaml

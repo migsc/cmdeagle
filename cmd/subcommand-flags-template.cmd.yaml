@@ -1,0 +1,5 @@
+flags:
+- name: uppercase
+  shorthand: u
+  type: boolean
+  description: "Convert greeting to uppercase"

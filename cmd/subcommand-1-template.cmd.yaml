@@ -1,0 +1,9 @@
+- name: greet1
+  description: "Greet the user."
+  args:
+  - name: name
+    type: string
+    description: "Name to greet"
+    default: "World"
+  flags:
+  - imports: ./cmd/subcommand-flags-template.cmd.yaml

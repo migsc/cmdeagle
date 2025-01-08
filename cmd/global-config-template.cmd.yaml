@@ -1,0 +1,4 @@
+requires:
+  # You need to have Go installed to build with cmdeagle. If you don't have it, you can install it by going to: 
+  # https://go.dev/doc/install
+  go: "*"

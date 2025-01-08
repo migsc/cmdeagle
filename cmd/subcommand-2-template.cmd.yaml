@@ -1,0 +1,12 @@
+- name: greet2
+  description: "Greet the user."
+  args:
+  - name: name
+    type: string
+    description: "Name to greet"
+    default: "World"
+  flags:
+  - name: uppercase
+    shorthand: u
+    type: boolean
+    description: "Convert greeting to uppercase"

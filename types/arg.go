@@ -23,11 +23,12 @@ type ArgVarDef struct {
 
 type ArgRuleDef struct {
 	// Rules from Cobra
+
 	NoArgs         bool  `yaml:"NoArgs,no-args,omitempty"`
 	OnlyValidArgs  bool  `yaml:"OnlyValidArgs,only-valid-args,omitempty"`
 	ArbitraryArgs  bool  `yaml:"ArbitraryArgs,arbitrary-args,omitempty"`
-	MinimumNArgs   int   `yaml:"MinimumNArgs,minimum-n-args,omitempty"`
-	MaximumNArgs   int   `yaml:"MaximumNArgs,maximum-n-args,omitempty"`
+	MinimumNArgs   int   `yaml:"MinimumNArgs,minimum-n-args,max-args,omitempty"`
+	MaximumNArgs   int   `yaml:"MaximumNArgs,maximum-n-args,min-args,omitempty"`
 	ExactArgs      int   `yaml:"ExactArgs,exact-args,omitempty"`
 	RangeArgs      []int `yaml:"RangeArgs,range-args,omitempty"`
 	ExactValidArgs int   `yaml:"ExactValidArgs,exact-valid-args,omitempty"`

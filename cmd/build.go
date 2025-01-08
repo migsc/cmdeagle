@@ -55,16 +55,17 @@ var buildCmd = &cobra.Command{
 var flagSet *pflag.FlagSet
 
 func init() {
+	// Add debug flag
+
 	log.SetLevel(log.InfoLevel)
+	buildCmd.Flags().Bool("debug", false, "Enable debug logging in both build and generated CLI")
+
 	log.SetFormatter(log.TextFormatter)
 
 	rootCmd.AddCommand(buildCmd)
 
 	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOOS, "os", runtime.GOOS, "Target operating system")
 	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOARCH, "arch", runtime.GOARCH, "Target architecture")
-
-	// Add debug flag
-	buildCmd.Flags().Bool("debug", false, "Enable debug logging in both build and generated CLI")
 
 	// Add experimental-imports flag
 	buildCmd.Flags().Bool("experimental-imports", false, "Enable experimental import resolution")
@@ -108,6 +109,7 @@ func runBuild() error {
 	// TODO: Move this lower into the appropriate place in the code
 	debug, _ := flagSet.GetBool("debug")
 	if debug {
+		log.SetLevel(log.DebugLevel)
 		bundle.MainTemplateReplacements["var LOG_LEVEL = log.InfoLevel"] = []byte("var LOG_LEVEL = log.DebugLevel")
 	}
 
@@ -326,22 +328,20 @@ func (v *BuildCommandVisitor) Build(commandDef *types.CommandDefinition, parent 
 	commandPath := filepath.Join(v.baseDir, filepath.Join(path...))
 	log.Debug("target path", "path", commandPath)
 
-	if commandDef.Build == "" {
-		return nil
-	}
+	if commandDef.Build != "" {
+		log.Info("Running build script",
+			"command", commandDef.Name,
+			"script", commandDef.Build,
+		)
 
-	log.Info("Running build script",
-		"command", commandDef.Name,
-		"script", commandDef.Build,
-	)
+		// TODO: Should probably allow the user to specify the shell to run the build script in.
+		cmd := exec.Command("sh", "-c", commandDef.Build)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 
-	// TODO: Should probably allow the user to specify the shell to run the build script in.
-	cmd := exec.Command("sh", "-c", commandDef.Build)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		return err
+		if err := cmd.Run(); err != nil {
+			return err
+		}
 	}
 
 	if err := bundle.CopyIncludedFiles(v.config, commandDef, path, bundleStagingDirPath); err != nil {

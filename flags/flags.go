@@ -70,7 +70,14 @@ var flagTypes = map[string]FlagTypeDef{
 			var flagVal any = &numVal
 			defaultVal := float64(0)
 			if flagDef.Default != nil {
-				defaultVal = flagDef.Default.(float64)
+				switch v := flagDef.Default.(type) {
+				case float64:
+					defaultVal = v
+				case int:
+					defaultVal = float64(v)
+				default:
+					defaultVal = flagDef.Default.(float64)
+				}
 			}
 			flagSet.Float64VarP(&numVal, flagDef.Name, flagDef.Shorthand, defaultVal, flagDef.Description)
 			return &flagVal

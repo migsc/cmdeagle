@@ -32,8 +32,17 @@ func init() {
 	// rootCmd.Args
 }
 
-//go:embed template.cmd.yaml
+//go:embed init/template.cmd.yaml
 var sampleYAMLConfig []byte
+
+//go:embed init/greet.js
+var sampleJS []byte
+
+//go:embed init/greet.py
+var samplePY []byte
+
+//go:embed init/greet.sh
+var sampleSH []byte
 
 type TemplateVariable = struct {
 	Name        string
@@ -172,6 +181,27 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Error("Failed to write .cmd.yaml", "error", err)
 			return fmt.Errorf("failed to write .cmd.yaml: %w", err)
+		}
+
+		// Create the greet.sh file
+		err = os.WriteFile("greet.sh", sampleSH, 0644)
+		if err != nil {
+			log.Error("Failed to write greet.sh", "error", err)
+			return fmt.Errorf("failed to write greet.sh: %w", err)
+		}
+
+		// Create the greet.js file
+		err = os.WriteFile("greet.js", sampleJS, 0644)
+		if err != nil {
+			log.Error("Failed to write greet.js", "error", err)
+			return fmt.Errorf("failed to write greet.js: %w", err)
+		}
+
+		// Create the greet.py file
+		err = os.WriteFile("greet.py", samplePY, 0644)
+		if err != nil {
+			log.Error("Failed to write greet.py", "error", err)
+			return fmt.Errorf("failed to write greet.py: %w", err)
 		}
 
 		log.Info("Successfully initialized cmdeagle project", "name", cliName)

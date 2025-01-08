@@ -57,6 +57,7 @@ func Load(dirPath string) ([]byte, *types.CmdeagleConfig, error) {
 
 	configFilePath, err := file.FindFileEndsWithPattern(dirPath, ".cmd.yaml")
 	if err != nil {
+		log.Info("No config file found. Did you forget to run `cmdeagle init`?")
 		return nil, nil, err
 	}
 

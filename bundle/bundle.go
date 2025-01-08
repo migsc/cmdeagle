@@ -138,6 +138,12 @@ type Bundle struct {
 // }
 
 func CopyIncludedFiles(config *types.CmdeagleConfig, command *types.CommandDefinition, namespace []string, targetDirPath string) error {
+	log.Debug("Copying included files",
+		"command", command.Name,
+		"namespace", namespace,
+		"targetDirPath", targetDirPath,
+	)
+
 	if len(command.Includes) == 0 {
 		return nil
 	}
@@ -157,9 +163,12 @@ func CopyIncludedFiles(config *types.CmdeagleConfig, command *types.CommandDefin
 	}
 
 	for _, includePath := range command.Includes {
+		log.Info("including bundle",
+			"from", includePath,
+			"to", targetDirPath,
+		)
 		if err := copyIncludedFile(filepath.Join(currentDir, includePath), targetDirPath); err != nil {
 			return err
-
 		}
 	}
 

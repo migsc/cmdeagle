@@ -25,14 +25,8 @@ import (
 var bundleFS embed.FS
 
 // var config schema.CmdeagleConfig
-var rootCmd = &cobra.Command{
-	Use:   "cmdeagle",
-	Short: "A CLI builder and runner",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		// Always show help for root command when no subcommand is provided
-		return cmd.Help()
-	},
-}
+var rootCmd *cobra.Command
+
 var cobraCommands = make(map[string]*cobra.Command)
 
 var LOG_LEVEL = log.InfoLevel
@@ -197,7 +191,7 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 			}
 
 			// If there's no start script, just show help
-			if commandDef.Start == "" {
+			if commandDef.Start == "" || parent == nil {
 				return cmd.Help()
 			}
 
@@ -340,10 +334,10 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 	}
 
 	// Allow help to bypass SilenceUsage
-	cobraCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-		cmd.SilenceUsage = false
-		cmd.Parent().HelpFunc()(cmd, args)
-	})
+	// cobraCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+	// 	cmd.SilenceUsage = false
+	// 	cmd.Parent().HelpFunc()(cmd, args)
+	// })
 
 	return cobraCmd, nil
 }

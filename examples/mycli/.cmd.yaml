@@ -1,0 +1,123 @@
+# This is the name of the binary you use to invoke your CLI.
+
+name: "mycli"
+
+# Some optional metadata you can add to your CLI. This doesn't get used anywhere but may be useful to document. 
+# Displayed by `mycli --help` when help command invoked in some other way. 
+description: "" # e.g. "My CLI is a tool to manage my projects."
+version: "" # e.g.  "0.0.1" 
+author: "" # e.g. Your name e.g. "John Doe"
+license: "" # e.g. Your license e.g. "MIT"
+
+# When you run `cmdeagle build` without arguments, we'll try to install the binary in these directories
+# - For macOs and Linux:   /usr/local/bin or ~/.local/bin
+# - For Windows: C:\Users\<username>\AppData\Local\Programs\MyApp\bin
+
+# We also install the bundled files declared by your CLI in these directories
+# - For macOS and Linux:   /usr/local/share/mycli or ~/.local/share/mycli
+# - Windows (user-only): %LocalAppData%\MyApp
+
+includes:
+- "./greet.sh"
+- "./greet.js"
+- "./greet.py"
+# You can bundle files with your CLI by declaring the paths to them in the `includes` field.
+# This is useful for things like static assets, media, configuration files, data files, etc.
+# includes:
+# - "image.jpg"
+# - "sql.db"
+
+
+
+# The subcommands of your CLI. You can nest subcommands as deeply as you want.
+# Each subcommand can also declare its own `requires`, `includes` just like the root command above.
+commands:
+
+- name: greet
+  description: "Greet the user."
+
+  requires:
+    node: ">=16.0.0"
+    # python: ">=3.10.12" # TODO: Fix this
+    # The `requires` statement is used to specify the dependencies your CLI needs to run. These are checked when you run 
+    # your binary. They are not checked at build time.
+    # You can use comparison operators preceeding a version number to specify the version of the dependency you need. 
+    # Here is the full list of operators you can use:
+    # - `*` (any version)
+    # - `^` (major version)
+    # - `~` (major and minor version)
+    # - `>` (greater than)
+    # - `<` (less than)
+    # - `>=` (greater than or equal)
+    # - `<=` (less than or equal)
+    # - No operator (exact match)
+
+  args:
+    vars:
+    - name: name
+      type: string
+      description: "Name to greet"
+      default: "World"
+      required: true
+    # TODO: Fix this
+    # - name: age
+    #   type: number
+    #   description: "Age of the user"
+    #   required: true
+    #   default: 20
+    #   constraints:
+    #     min: 18
+    #     max: 100
+    #   depends-on:
+    #   - name: name
+    #     value: "John"
+    # rules:
+    #   # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
+    #   MaximumNArgs: 1
+
+  flags:
+
+  - name: uppercase
+    shorthand: u
+    type: boolean
+    description: "Convert greeting to uppercase"
+    default: false
+    conflicts-with:
+    - lowercase
+
+  - name: lowercase
+    shorthand: u
+    type: boolean
+    description: "Convert greeting to lowercase"
+    default: false
+    conflicts-with:
+    - uppercase
+
+  - name: repeat
+    shorthand: r
+    type: number
+    description: "Repeat the greeting n times"
+    default: 1
+
+  - name: use-python
+    shorthand: py
+    type: boolean
+    description: "Use Python to greet the user"
+    conflicts-with:
+    - use-javascript
+
+  - name: use-js
+    shorthand: js
+    type: boolean
+    description: "Use JavaScript to greet the user"
+    conflicts-with:
+    - use-python
+
+  start: |
+    if [ "${flags.use-python}" = "true" ]; then
+      python3 greet.py
+    elif [ "${flags.use-js}" = "true" ]; then
+      node greet.js
+    else
+      sh greet.sh
+    fi

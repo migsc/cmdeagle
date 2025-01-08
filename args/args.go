@@ -65,7 +65,17 @@ var argTypes = map[string]ArgTypeDef{
 	},
 	"number": {
 		DefaultVal: 0.0,
-		Convert:    func(val string) (any, error) { return cast.ToFloat64E(val) },
+		Convert: func(val string) (any, error) {
+			// First try to convert to float64
+			if f, err := cast.ToFloat64E(val); err == nil {
+				return f, nil
+			}
+			// If that fails, try converting from int to float64
+			if i, err := cast.ToInt64E(val); err == nil {
+				return float64(i), nil
+			}
+			return 0.0, fmt.Errorf("cannot convert %v to number (float64)", val)
+		},
 	},
 	"float64": {
 		DefaultVal: 0.0,

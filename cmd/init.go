@@ -49,7 +49,7 @@ var cliDescription string
 var cliVersion string
 var cliAuthor string
 var cliLicense string
-var cliLanguages []string
+var cliLanguage string
 
 var templateVariables map[string]TemplateVariable = map[string]TemplateVariable{
 	"name":        {Name: "name", Value: &cliName, Placeholder: "My CLI"},
@@ -57,6 +57,7 @@ var templateVariables map[string]TemplateVariable = map[string]TemplateVariable{
 	"version":     {Name: "version", Value: &cliVersion, Placeholder: "0.0.1"},
 	"author":      {Name: "author", Value: &cliAuthor, Placeholder: "John Doe"},
 	"license":     {Name: "license", Value: &cliLicense, Placeholder: "MIT"},
+	"language":    {Name: "language", Value: &cliLanguage, Placeholder: "javascript"},
 }
 
 // initCmd represents the init command
@@ -130,19 +131,19 @@ var initCmd = &cobra.Command{
 						Placeholder(templateVariables["license"].Placeholder).
 						Value(templateVariables["license"].Value),
 				).Description("Some optional metadata to document your CLI. Displayed by the help command."),
-				huh.NewGroup(
-					huh.NewMultiSelect[string]().
-						Title("Which languages/runtimes do you want to support? (optional).").
-						Description("We'll generate sample code showing how to integrate languages/runtimes you choose.").
-						Options(
-							huh.NewOption("go", "Go"),
-							huh.NewOption("python", "Python"),
-							huh.NewOption("rust", "Rust"),
-							huh.NewOption("javascript", "JavaScript"),
-							huh.NewOption("typescript", "TypeScript"),
-						).
-						Value(&cliLanguages),
-				),
+				// huh.NewGroup(
+				// 	huh.NewSelect[string]().
+				// 		Title("Choose a language/runtime to generate sample code for? (optional).").
+				// 		Description("We'll generate sample code showing how to integrate languages/runtimes you choose.").
+				// 		Options(
+				// 			// huh.NewOption("go", "Go"),
+				// 			huh.NewOption("python", "Python"),
+				// 			// huh.NewOption("rust", "Rust"),
+				// 			huh.NewOption("javascript", "JavaScript"),
+				// 			// huh.NewOption("typescript", "TypeScript"),
+				// 		).
+				// 		Value(&cliLanguages),
+				// ),
 			)
 
 			err = form.Run()

@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/migsc/cmdeagle/bundle"
@@ -59,20 +60,23 @@ func init() {
 
 	rootCmd.AddCommand(buildCmd)
 
-	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOOS, "os", "linux", "Target operating system")
-	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOARCH, "arch", "amd64", "Target architecture")
+	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOOS, "os", runtime.GOOS, "Target operating system")
+	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOARCH, "arch", runtime.GOARCH, "Target architecture")
 
 	// Add debug flag
 	buildCmd.Flags().Bool("debug", false, "Enable debug logging in both build and generated CLI")
 
+	// Add experimental-imports flag
+	buildCmd.Flags().Bool("experimental-imports", false, "Enable experimental import resolution")
+
 	// Add verbose flag and connect it to log level
-	buildCmd.Flags().Bool("verbose", false, "Enable verbose logging")
-	buildCmd.PreRun = func(cmd *cobra.Command, args []string) {
-		verbose, _ := cmd.Flags().GetBool("verbose")
-		if verbose {
-			log.SetLevel(log.DebugLevel)
-		}
-	}
+	// buildCmd.Flags().Bool("verbose", false, "Enable verbose logging")
+	// buildCmd.PreRun = func(cmd *cobra.Command, args []string) {
+	// 	verbose, _ := cmd.Flags().GetBool("verbose")
+	// 	if verbose {
+	// 		log.SetLevel(log.DebugLevel)
+	// 	}
+	// }
 
 	flagSet = buildCmd.Flags()
 }
@@ -133,6 +137,45 @@ func runBuild() error {
 	configFileContent, cmdConfig, err := config.Load(workingDirPath)
 	if err != nil {
 		return err
+	}
+
+	// Print experimental-imports flag value
+	experimentalImports, _ := flagSet.GetBool("experimental-imports")
+
+	if experimentalImports {
+		log.Warn("Experimental imports enabled")
+		// 1. Determine target OS
+		goos := runtime.GOOS
+		resolverBinaryName := "resolve-imports-"
+		if goos == "windows" {
+			resolverBinaryName += "win.exe"
+		} else if goos == "darwin" {
+			resolverBinaryName += "macos"
+		} else {
+			resolverBinaryName += "linux"
+		}
+
+		// 2. Run the resolver binary
+		resolverPath := filepath.Join("bin", resolverBinaryName)
+		cmd := exec.Command(resolverPath)
+		cmd.Dir = workingDirPath // Run in the same directory as the config file
+
+		// 3. Capture the output
+		var stdout bytes.Buffer
+		cmd.Stdout = &stdout
+		cmd.Stderr = os.Stderr
+
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("failed to run import resolver: %w", err)
+		}
+
+		// 4. Parse the resolved config
+		configFileContent = stdout.Bytes()
+		log.Info("Resolved config", "content", string(configFileContent))
+		cmdConfig, err = config.Parse(configFileContent)
+		if err != nil {
+			return fmt.Errorf("failed to parse resolved config: %w", err)
+		}
 	}
 
 	outFile := filepath.Join(bundleStagingDirPath, "config.cmd.yaml")

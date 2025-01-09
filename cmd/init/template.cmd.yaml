@@ -25,6 +25,10 @@ includes:
 - "./greet.sh"
 - "./greet.js"
 - "./greet.py"
+- "{{name}}-go-binary"
+
+build: |
+  go build -o {{name}}-go-binary greet.go && chmod +x {{name}}-go-binary
 
 # The subcommands of your CLI. You can nest subcommands as deeply as you want.
 # Each subcommand can also declare its own `requires`, `includes` just like the root command above.
@@ -49,6 +53,7 @@ commands:
     # - `<=` (less than or equal)
     # - No operator (exact match)
 
+    # The arguments of your CLI.
   args:
     vars:
     - name: name
@@ -64,10 +69,10 @@ commands:
       #   max: 100
       depends-on:
       - name: name
-    rules:
-      # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
-      minimum-n-args: 1
-      maximum-n-args: 2
+    # rules:
+    # # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
+    # - minimum-n-args: 1
+    #   maximum-n-args: 2
 
   flags:
 
@@ -107,11 +112,30 @@ commands:
     conflicts-with:
     - use-python
 
+  - name: use-go
+    shorthand: js
+    type: boolean
+    description: "Use Go to greet the user"
+    conflicts-with:
+    - use-python
+  # - name: use
+  #   type: string
+  #   description: "Use the specified language to greet the user"
+  #   default: "sh"
+  #   constraints:
+  #   - in:
+  #     - "sh"
+  #     - "js"
+  #     - "python"
+  #     - "go"
+
   start: |
     if [ "${flags.use-python}" = "true" ]; then
       python3 greet.py
     elif [ "${flags.use-js}" = "true" ]; then
       node greet.js
+    elif [ "${flags.use-go}" = "true" ]; then
+      ./{{name}}-go-binary
     else
       sh greet.sh
     fi

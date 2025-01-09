@@ -186,15 +186,35 @@ func copyIncludedFile(includedFilePath string, targetDir string) error {
 		return fmt.Errorf("could not expand the path: %s\n%v", includedFilePath, err)
 	}
 
-	// We can't do this here because it would result in files being removed iteratively.
-	// if err := file.SetupEmptyDir(targetDir); err != nil {
-	// 	return err
-	// }
+	// Get the source file's info to check permissions
+	fileInfo, err := os.Stat(expandedPath)
+	if err != nil {
+		return fmt.Errorf("could not stat file: %s\n%v", expandedPath, err)
+	}
 
-	cmd := exec.Command("cp", "-r", expandedPath, targetDir)
+	// Use cp with -p flag to preserve mode, ownership, timestamps
+	cmd := exec.Command("cp", "-pr", expandedPath, targetDir)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+
+	// If the file is executable for user, group, or others, log it
+	if fileInfo.Mode()&0111 != 0 {
+		cmd2 := exec.Command("chmod", "+x", filepath.Join(targetDir, filepath.Base(expandedPath)))
+		cmd2.Stdout = os.Stdout
+		cmd2.Stderr = os.Stderr
+		log.Info("copying executable file",
+			"file", includedFilePath,
+			"mode", fileInfo.Mode().String(),
+		)
+		err = cmd.Run()
+		if err != nil {
+			return err
+		}
+		return cmd2.Run() // TODO: This is not working. Could we move it to the binary directory and then run it from there?
+	} else {
+		return cmd.Run()
+	}
+
 }
 
 // type FileManifest struct {

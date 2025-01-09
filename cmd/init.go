@@ -69,6 +69,16 @@ var templateVariables map[string]TemplateVariable = map[string]TemplateVariable{
 	"language":    {Name: "language", Value: &cliLanguage, Placeholder: "javascript"},
 }
 
+// resetTemplateVariables resets all template variables to their default values
+func resetTemplateVariables() {
+	cliName = ""
+	cliDescription = "A CLI tool"
+	cliVersion = "0.0.1"
+	cliAuthor = "Unknown"
+	cliLicense = "MIT"
+	cliLanguage = "javascript"
+}
+
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
@@ -77,8 +87,18 @@ var initCmd = &cobra.Command{
 	// Args: cobra.PositionalArgs(cobra.ExactArgs(1)),
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Reset template variables at the start of each run
+		resetTemplateVariables()
+
 		// Determine name of the project
 		log.Info("Initializing cmdeagle project")
+
+		// Check if we have write permissions in the current directory
+		testFile := ".cmdeagle_write_test"
+		if err := os.WriteFile(testFile, []byte("test"), 0644); err != nil {
+			return fmt.Errorf("no write permission in current directory: %w", err)
+		}
+		os.Remove(testFile)
 
 		// Check if cmd.yaml already exists
 		if _, err := os.Stat(".cmd.yaml"); err == nil {
@@ -97,9 +117,10 @@ var initCmd = &cobra.Command{
 			}
 
 			var folderName = filepath.Base(dir)
-
 			cliName = folderName
 
+			// Only show interactive form if we're not in a test environment
+			if os.Getenv("GO_TEST") != "1" {
 			form := huh.NewForm(
 				// Gather some final details about the order.
 				huh.NewGroup(

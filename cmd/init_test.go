@@ -15,6 +15,10 @@ var tempDir string
 var err error
 
 func TestInitCmd(t *testing.T) {
+	// Set test environment variable to skip interactive prompts
+	os.Setenv("GO_TEST", "1")
+	defer os.Unsetenv("GO_TEST")
+
 	// Create a temporary directory for testing
 	tempDir, err = afero.TempDir(afero.NewOsFs(), "", "cmdeagle-tests")
 
@@ -54,30 +58,35 @@ func TestInitCmd(t *testing.T) {
 				assert.Contains(t, string(yamlContent), "name: \"test-project\"")
 			},
 		},
-		// {
-		// 	name:         "using directory name",
-		// 	args:         []string{},
-		// 	expectedName: filepath.Base(tempDir),
-		// 	validateFunc: func(t *testing.T, yamlContent []byte) {
-		// 		assert.Contains(t, string(yamlContent), "name: \""+filepath.Base(tempDir)+"\"")
-		// 	},
-		// },
-		// {
-		// 	name:        "error when .cmd.yaml already exists",
-		// 	args:        []string{"test-project"},
-		// 	expectError: true,
-		// 	setupFunc: func() error {
-		// 		return os.WriteFile(".cmd.yaml", []byte("existing content"), 0644)
-		// 	},
-		// },
-		// {
-		// 	name:        "error with invalid directory permissions",
-		// 	args:        []string{"test-project"},
-		// 	expectError: true,
-		// 	setupFunc: func() error {
-		// 		return os.Chmod(tempDir, 0444) // Read-only permissions
-		// 	},
-		// },
+		{
+			name:         "using directory name",
+			args:         []string{"init"},
+			expectedName: "using_directory_name",
+			validateFunc: func(t *testing.T, yamlContent []byte) {
+				assert.Contains(t, string(yamlContent), "name: \"using_directory_name\"")
+			},
+		},
+		{
+			name:        "error when .cmd.yaml already exists",
+			args:        []string{"init", "test-project"},
+			expectError: true,
+			setupFunc: func() error {
+				return os.WriteFile(".cmd.yaml", []byte("existing content"), 0644)
+			},
+		},
+		{
+			name:        "error with invalid directory permissions",
+			args:        []string{"init", "test-project"},
+			expectError: true,
+			setupFunc: func() error {
+				// First create a subdirectory with no write permissions
+				err := os.Mkdir("readonly", 0555)
+				if err != nil {
+					return err
+				}
+				return os.Chdir("readonly")
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -91,6 +100,25 @@ func TestInitCmd(t *testing.T) {
 			// Change to test directory
 			err = os.Chdir(testSubDir)
 			assert.NoError(t, err)
+
+			// Ensure we clean up after the test
+			defer func() {
+				// Change back to temp directory
+				err = os.Chdir(tempDir)
+				assert.NoError(t, err)
+
+				// If this was the permissions test, we need to fix permissions to clean up
+				if tt.name == "error with invalid directory permissions" {
+					// Change back to parent dir to modify readonly dir
+					readonlyDir := filepath.Join(testSubDir, "readonly")
+					err = os.Chmod(readonlyDir, 0755)
+					assert.NoError(t, err)
+				}
+
+				// Remove the test subdirectory
+				err = os.RemoveAll(testSubDir)
+				assert.NoError(t, err)
+			}()
 
 			// Run setup if provided
 			if tt.setupFunc != nil {
@@ -121,10 +149,6 @@ func TestInitCmd(t *testing.T) {
 			if tt.validateFunc != nil {
 				tt.validateFunc(t, yamlContent)
 			}
-
-			// Change back to temp directory for next test
-			err = os.Chdir(tempDir)
-			assert.NoError(t, err)
 		})
 	}
 }

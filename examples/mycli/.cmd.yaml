@@ -4,10 +4,10 @@ name: "mycli"
 
 # Some optional metadata you can add to your CLI. This doesn't get used anywhere but may be useful to document. 
 # Displayed by `mycli --help` when help command invoked in some other way. 
-description: "" # e.g. "My CLI is a tool to manage my projects."
-version: "" # e.g.  "0.0.1" 
-author: "" # e.g. Your name e.g. "John Doe"
-license: "" # e.g. Your license e.g. "MIT"
+description: "A CLI tool" # e.g. "My CLI is a tool to manage my projects."
+version: "0.0.1" # e.g.  "0.0.1" 
+author: "Unknown" # e.g. Your name e.g. "John Doe"
+license: "MIT" # e.g. Your license e.g. "MIT"
 
 # When you run `cmdeagle build` without arguments, we'll try to install the binary in these directories
 # - For macOs and Linux:   /usr/local/bin or ~/.local/bin
@@ -51,23 +51,26 @@ commands:
 
   args:
     vars:
+
     - name: name
       type: string
       description: "Name to greet"
       default: "World"
       required: true
+
     - name: age
       type: number
       description: "Age of the user"
-      default: 18
       constraints:
+        # TODO: Fix this
         min: 18
         max: 100
       depends-on:
       - name: name
     # rules:
-    #   # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
-    #   MaximumNArgs: 1
+    # # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
+    # - minimum-n-args: 1
+    #   maximum-n-args: 2
 
   flags:
 

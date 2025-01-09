@@ -26,13 +26,13 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 	}
 
 	if constraints.MinValue != nil {
-		if cast.ToInt(value) < cast.ToInt(constraints.MinValue) {
+		if cast.ToFloat64(value) < cast.ToFloat64(constraints.MinValue) {
 			return fmt.Errorf("Value is less than the minimum value of %v", constraints.MinValue)
 		}
 	}
 
 	if constraints.MaxValue != nil {
-		if cast.ToInt(value) > cast.ToInt(constraints.MaxValue) {
+		if cast.ToFloat64(value) > cast.ToFloat64(constraints.MaxValue) {
 			return fmt.Errorf("Value is greater than the maximum value of %v", constraints.MaxValue)
 		}
 	}
@@ -105,7 +105,7 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 
 	if constraints.Pattern != "" {
 		if !regexp.MustCompile(constraints.Pattern).MatchString(cast.ToString(value)) {
-			return fmt.Errorf("Value does not match the pattern %v", constraints.Pattern)
+			return fmt.Errorf("Value does not match pattern: %v", constraints.Pattern)
 		}
 	}
 
@@ -164,7 +164,7 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 	if constraints.Not != nil {
 		err := ValidateConstraint(constraints.Not, value)
 		if err == nil {
-			return fmt.Errorf("Condition is true `not` constraint of %v", constraints.Not)
+			return fmt.Errorf("Condition is true for `not` constraint: %v", constraints.Not)
 		}
 	}
 

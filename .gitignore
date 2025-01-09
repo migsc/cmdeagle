@@ -28,6 +28,10 @@ yarn-error.log*
 .tmp
 
 
+# testing
+coverage.out
+coverage
+
 # Libre Calc
 .~lock.*#
 

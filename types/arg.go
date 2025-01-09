@@ -24,24 +24,24 @@ type ArgVarDef struct {
 type ArgRuleDef struct {
 	// Rules from Cobra
 
-	NoArgs         bool  `yaml:"NoArgs,no-args,omitempty"`
-	OnlyValidArgs  bool  `yaml:"OnlyValidArgs,only-valid-args,omitempty"`
-	ArbitraryArgs  bool  `yaml:"ArbitraryArgs,arbitrary-args,omitempty"`
-	MinimumNArgs   int   `yaml:"MinimumNArgs,minimum-n-args,max-args,omitempty"`
-	MaximumNArgs   int   `yaml:"MaximumNArgs,maximum-n-args,min-args,omitempty"`
-	ExactArgs      int   `yaml:"ExactArgs,exact-args,omitempty"`
-	RangeArgs      []int `yaml:"RangeArgs,range-args,omitempty"`
-	ExactValidArgs int   `yaml:"ExactValidArgs,exact-valid-args,omitempty"`
+	NoArgs         bool  `yaml:"no-args,omitempty"`
+	OnlyValidArgs  bool  `yaml:"only-valid-args,omitempty"`
+	ArbitraryArgs  bool  `yaml:"arbitrary-args,omitempty"`
+	MinimumNArgs   int   `yaml:"minimum-n-args,omitempty"`
+	MaximumNArgs   int   `yaml:"maximum-n-args,omitempty"`
+	ExactArgs      int   `yaml:"exact-args,omitempty"`
+	RangeArgs      []int `yaml:"range-args,omitempty"`
+	ExactValidArgs int   `yaml:"exact-valid-args,omitempty"`
 
 	// Boolean logic from Cobra
-	MatchAll  *([]ArgRuleDef) `yaml:"MatchAll,match-all,omitempty"`
-	MatchAny  *([]ArgRuleDef) `yaml:"MatchAny,match-any,omitempty"`
-	MatchNone *([]ArgRuleDef) `yaml:"MatchNone,match-none,omitempty"`
+	MatchAll  *([]ArgRuleDef) `yaml:"match-all,omitempty"`
+	MatchAny  *([]ArgRuleDef) `yaml:"match-any,omitempty"`
+	MatchNone *([]ArgRuleDef) `yaml:"match-none,omitempty"`
 
 	// Boolean logic from cmdeagle
-	And  *([]ArgRuleDef) `yaml:"And,omitempty"`
-	Or   *([]ArgRuleDef) `yaml:"Or,omitempty"`
-	Nand *([]ArgRuleDef) `yaml:"Nand,omitempty"`
+	And  *([]ArgRuleDef) `yaml:"and,omitempty"`
+	Or   *([]ArgRuleDef) `yaml:"or,omitempty"`
+	Nand *([]ArgRuleDef) `yaml:"nand,omitempty"`
 
-	Not *ArgRuleDef `yaml:"Not,omitempty"`
+	Not *ArgRuleDef `yaml:"not,omitempty"`
 }

@@ -42,4 +42,5 @@ publish
 .misc
 
 # VSCode
-.code-workspace
+*.code-workspace
+.vscode

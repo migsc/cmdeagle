@@ -236,3 +236,4 @@ func validateNone(cobraCmd *cobra.Command, ruleDefs []types.ArgRuleDef, args []s
 
 	return nil
 }
+

@@ -197,20 +197,22 @@ func copyIncludedFile(includedFilePath string, targetDir string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	// If the file is executable for user, group, or others, log it
+	// If the file is executable for user, group, or others, throw an error
 	if fileInfo.Mode()&0111 != 0 {
-		cmd2 := exec.Command("chmod", "+x", filepath.Join(targetDir, filepath.Base(expandedPath)))
-		cmd2.Stdout = os.Stdout
-		cmd2.Stderr = os.Stderr
-		log.Info("copying executable file",
-			"file", includedFilePath,
-			"mode", fileInfo.Mode().String(),
-		)
-		err = cmd.Run()
-		if err != nil {
-			return err
-		}
-		return cmd2.Run() // TODO: This is not working. Could we move it to the binary directory and then run it from there?
+		return fmt.Errorf("cannot include executable file in the bundle: %s", expandedPath)
+		// Previous implementation where we wanted to allow executable files in the bundle
+		// cmd2 := exec.Command("chmod", "+x", filepath.Join(targetDir, filepath.Base(expandedPath)))
+		// cmd2.Stdout = os.Stdout
+		// cmd2.Stderr = os.Stderr
+		// log.Info("copying executable file",
+		// 	"file", includedFilePath,
+		// 	"mode", fileInfo.Mode().String(),
+		// )
+		// err = cmd.Run()
+		// if err != nil {
+		// 	return err
+		// }
+		// return cmd2.Run() // TODO: This is not working. Could we move it to the binary directory and then run it from there?
 	} else {
 		return cmd.Run()
 	}

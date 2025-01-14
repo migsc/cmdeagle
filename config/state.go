@@ -17,6 +17,16 @@ type ParamsStateStore struct {
 	Entries map[string]string
 }
 
+func CreateEmptyParamsStore() *ParamsStateStore {
+	store := &ParamsStateStore{
+		Args:    args.CreateArgsStore(nil, nil, nil),
+		Flags:   flags.CreateFlagsStore(nil, nil),
+		Entries: map[string]string{},
+	}
+
+	return store
+}
+
 func CreateParamsStore(argsStore *args.ArgsStateStore, flagsStore *flags.FlagsStateStore) *ParamsStateStore {
 	store := &ParamsStateStore{
 		Args:    argsStore,
@@ -29,6 +39,10 @@ func CreateParamsStore(argsStore *args.ArgsStateStore, flagsStore *flags.FlagsSt
 	store.Entries["params.json"] = store.ToJSONString()
 
 	return store
+}
+
+func (store *ParamsStateStore) Set(key string, value string) {
+	store.Entries[key] = value
 }
 
 func (store *ParamsStateStore) Interpolate(script string) string {

@@ -291,6 +291,20 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 		script = flagStore.Interpolate(script)
 		script = paramsStore.Interpolate(script)
 
+		// TODO: Useful?
+		// cmdVisitor.paramStore.Set("LOG_LEVEL", "debug")
+		paramsStore.Set("cli.name", cmdConfig.Name)
+		// cmdVisitor.paramStore.Set("CMD_VERSION", cmdConfig.Version)
+		// cmdVisitor.paramStore.Set("CMD_DESCRIPTION", cmdConfig.Description)
+		// cmdVisitor.paramStore.Set("CMD_AUTHOR", cmdConfig.Author)
+		// cmdVisitor.paramStore.Set("CMD_LICENSE", cmdConfig.License)
+		binDirPath, err := executable.GetDestDir()
+		if err != nil {
+			return fmt.Errorf("failed to get binary directory: %w", err)
+		}
+		paramsStore.Set("cli.bin_dir", binDirPath)
+		paramsStore.Set("cli.data_dir", appDataDirPath)
+
 		// 4. Run the command
 		log.Debug("Run / Running start script for", "path", commandPath, "script", script)
 

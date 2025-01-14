@@ -4,8 +4,8 @@
 			"path": "."
 		},
 		{
-			"path": "../../lab/cli-example"
+			"path": "../cmdeagle-examples"
 		}
 	],
-	"settings": {},
+	"settings": {}
 }

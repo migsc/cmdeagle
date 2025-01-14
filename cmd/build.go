@@ -186,11 +186,30 @@ func runBuild() error {
 		return fmt.Errorf("error writing %s: %w", outFile, err)
 	}
 
+	// There's no need to setup an empty directory for the binary to be built in because we expect it to be
+	// shared with other binaries already on the system.
+	var binDirPath string
+	binDirPath, err = executable.GetDestDir()
+	if err != nil {
+		return err
+	}
+
 	// Create a visitor to handle the build-specific command processing in a recursive manner.
 	cmdVisitor := BuildCommandVisitor{
-		config:  cmdConfig,
-		baseDir: bundleStagingDirPath,
+		config:   cmdConfig,
+		baseDir:  bundleStagingDirPath,
+		envStore: envvar.CreateEnvStore(),
 	}
+
+	// TODO: Useful?
+	// cmdVisitor.paramStore.Set("LOG_LEVEL", "debug")
+	cmdVisitor.envStore.Set("cli.name", cmdConfig.Name)
+	// cmdVisitor.paramStore.Set("CMD_VERSION", cmdConfig.Version)
+	// cmdVisitor.paramStore.Set("CMD_DESCRIPTION", cmdConfig.Description)
+	// cmdVisitor.paramStore.Set("CMD_AUTHOR", cmdConfig.Author)
+	// cmdVisitor.paramStore.Set("CMD_LICENSE", cmdConfig.License)
+	cmdVisitor.envStore.Set("cli.bin_dir", binDirPath)
+	cmdVisitor.envStore.Set("cli.data_dir", executable.GetAppDataDir(cmdConfig.Name))
 
 	// First we build the root command by creating a command definition from the root configuration.
 	rootCommandDef := &types.CommandDefinition{
@@ -281,14 +300,6 @@ func runBuild() error {
 		})
 	}
 
-	// There's no need to setup an empty directory for the binary to be built in because we expect it to be
-	// shared with other binaries already on the system.
-	var binDirPath string
-	binDirPath, err = executable.GetDestDir()
-	if err != nil {
-		return err
-	}
-
 	// Finally we build the binary
 	log.Debug("Preparing to build binary with", "binDirPath", binDirPath, "targetBinaryPath")
 	targetBinaryPath := filepath.Join(binDirPath, cmdConfig.Name)
@@ -311,8 +322,9 @@ func runBuild() error {
 // BuildCommandVisitor handles the build-specific command processing
 // during command tree traversal
 type BuildCommandVisitor struct {
-	config  *types.CmdeagleConfig
-	baseDir string
+	config   *types.CmdeagleConfig
+	baseDir  string
+	envStore *envvar.EnvStateStore
 }
 
 func (v *BuildCommandVisitor) Visit(commandDef *types.CommandDefinition, parent *types.CommandDefinition, path []string) error {
@@ -334,8 +346,23 @@ func (v *BuildCommandVisitor) Build(commandDef *types.CommandDefinition, parent 
 			"script", commandDef.Build,
 		)
 
+		// Interpolate params such as environment variables
+		script := commandDef.Build
+		script = v.envStore.Interpolate(script)
+
+		// TODO: Highly inefficient, but it works for now
+
 		// TODO: Should probably allow the user to specify the shell to run the build script in.
-		cmd := exec.Command("sh", "-c", commandDef.Build)
+		cmd := exec.Command("sh", "-c", script)
+
+		// Copy the current environment and add new variables iteratively
+		envVars := v.envStore.GetEnvVariables()
+		cmd.Env = os.Environ() // Start with the current environment
+		for _, env := range envVars {
+			log.Debug("Run / Setting environment variable", "path", commandPath, "env", env.Name+"="+env.Value)
+			cmd.Env = append(cmd.Env, env.Name+"="+env.Value)
+		}
+
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 

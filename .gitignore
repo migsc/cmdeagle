@@ -1,7 +1,6 @@
 /node_modules/
 /lib/
 /dist/
-/docs/
 .idea/*
 
 .DS_Store
@@ -41,3 +40,6 @@ publish
 
 # Mystery files I haven't yet gone through and don't want cluttering up the codebase
 .misc
+
+# VSCode
+.code-workspace

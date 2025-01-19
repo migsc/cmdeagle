@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Eagle head -->
+  <path d="M50 70 Q90 30 130 70 L110 90 Q90 70 70 90 Z" fill="#000" />
+  
+  <!-- Beak -->
+  <polygon points="130,70 150,80 130,90" fill="#FFA500" />
+  
+  <!-- Eye -->
+  <circle cx="100" cy="60" r="5" fill="#FFF" />
+  
+  <!-- Wing -->
+  <path d="M50 70 L40 130 Q100 120 130 100 L110 90 Q80 110 50 70 Z" fill="#000" />
+</svg>

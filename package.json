@@ -17,6 +17,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
+    "docs": "docsify serve docs",
     "build": "make build && npm run build:resolver",
     "build:resolver": "pkg scripts/resolve-config-imports.js --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --output bin/resolve-imports"
   },

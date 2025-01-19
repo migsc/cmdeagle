@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>cmdeagle</title>
   <meta charset="UTF-8">
-  <title>Document</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/dark.css" />
 </head>
 <body>
   <div id="app"></div>
+    <!-- Docsify v4 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+
+    <!-- <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script> -->
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
   <script>
     window.$docsify = {
-      name: '',
-      repo: ''
+      name: 'cmdeagle',
+      repo: 'https://github.com/migsc/cmdeagle',
+      // loadSidebar: true,
+      subMaxLevel: 2,
+      
+      loadSidebar: false,
+      subMaxLevel: 2,
+      // coverpage: true,
     }
   </script>
-  <!-- Docsify v4 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+
 </body>
 </html>

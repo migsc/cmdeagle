@@ -163,7 +163,9 @@ order in the command line.
 
 ###### `description` key
 
-... 
+The description key defines a short description of the argument or flag. This description will be used in the help command to describe the argument or flag.
+
+<!-- Long and short descriptions are not yet supported. -->
 
 <!-- ###### `examples` key
 
@@ -181,17 +183,69 @@ The type key defines how the CLI will parse the value of the argument or flag. U
 <!-- - `json[]`
 - `json{}` -->
 
+###### `pattern` key
+
+Validates the value against a regular expression. It uses the [RE2 syntax](https://github.com/google/re2/wiki/Syntax) most commonly used by Perl, Python, and [Go](https://pkg.go.dev/regexp) programming languages.
+
+```yaml
+pattern: "^[a-zA-Z0-9]+$" #validates that the value is a string of alphanumeric characters
+```
+  <!-- # regex: "^[a-zA-Z0-9]+$" #validates that the value is a string of alphanumeric characters -->
+
+<!-- - `uuid` - Validates the value against a UUID format.
+- `email` - Validates the value against an email format.
+- `url` - Validates the value against a URL format.
+- `ip` - Validates the value against an IP address format.
+- `ipv4` - Validates the value against an IPv4 address format.
+- `ipv6` - Validates the value against an IPv6 address format. -->
+
 ###### `default` key
 
-...
+The default value key defines the value that will be used if the argument or flag is not provided.
+
+```yaml
+default: "World"
+```
+
+Note that the default value should match the `type` of the argument or flag. If it doesn't, the CLI will fail to build your command.
 
 ###### `required` key
 
-...
+Will fail if the argument or flag is not provided.
+
+```yaml
+required: true # defaults to false
+```
 
 ###### `depends-on` key
 
-...
+Will fail if the argument or flag is not provided. In this example, the `last-name` flag will fail if the `first-name` flag is not provided.
+
+```yaml
+flags:
+  - name: first-name
+    type: string
+    description: "Name to greet"
+
+  - name: last-name
+    type: string
+    depends-on:
+      - first-name
+```
+This results in the following environment behavior:
+
+```sh
+yourcli --first-name John 
+# will succeed.
+
+yourcli --first-name John --last-name Simpson 
+# will succeed.
+
+yourcli --last-name Simpson 
+# will fail because the `first-name` flag is not provided. 
+
+```
+
 
 ###### `conflicts-with` key
 
@@ -226,35 +280,20 @@ You can define rules for a single argument or flag using the `validation` key wi
 ###### `range` key
 ...
 
-###### `regex` key
-...
 
-###### `is-existing-file` key
-...
 
-###### `is-existing-dir` key
-...
+###### `is-existing` key
 
-###### `is-existing-url` key
-...
+- `file`
+- `dir`
+- `url`
 
-###### `is-existing-file-or-dir` key
-...
-
-###### `is-existing-file-or-url` key
-...
 
 ###### `has-permissions` key
-...
 
-###### `is-executable` key
-...
-
-###### `is-readable` key
-...
-
-###### `is-writable` key
-...
+- `readable`
+- `writable`
+- `executable`
 
 
 

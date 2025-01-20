@@ -87,6 +87,13 @@ Your CLI's schema is defined in a [YAML](https://en.wikipedia.org/wiki/YAML#cite
 
 ...
 
+#### Define Command-Level Environment Variables
+
+
+##### `env` key
+
+...
+
 #### Defining Command-Level Validation
 
 ...
@@ -140,7 +147,7 @@ flags:
     default: false
 ```
 
-###### `name` key
+###### `name`
 
 The name key is important for the CLI to identify your argument or flag. It's also 
 what you will use to reference their values within in your scripts.
@@ -154,12 +161,146 @@ It's also worth noting that cmdeagle assumes that your arguments are positional,
 and that the order of your arguments in the configuration file determines their
 order in the command line. 
 
+###### `description` key
+
+... 
+
+<!-- ###### `examples` key
+
+... -->
+
 ###### `type` key
+
+The type key defines how the CLI will parse the value of the argument or flag. Ultimately though, your scripts will still receive the raw value as a string due to the limitations of the shell.
+
+- `string` (default value) - Effectively a no-op.
+- `int` - Parses the value as an integer. Fails if the value cannot be parsed as an integer.
+- `float` / `number` - Parses the value as a floating-point number. Fails if cannot be parsed as a number.
+-  `bool` /`boolean` - Parses the value as a boolean. The resulting value will either be `"true"` or `"false"`. For flags, any value that is not `"false"` will be considered `"true"`, and the absence of the flag will be considered `"false"`. For arguments, the value must be `"true"` or `"false"`. Otherwise, the value will be considered invalid and the execution will fail.
+<!-- - `date` -->
+<!-- - `json[]`
+- `json{}` -->
+
+###### `default` key
 
 ...
 
-##### Validation and Parsing
-- Argument-Only
+###### `required` key
+
+...
+
+###### `depends-on` key
+
+...
+
+###### `conflicts-with` key
+
+...
+
+###### `validation` key (argument-and-flag-level)
+
+You can define rules for a single argument or flag using the `validation` key within the argument or flag definition.
+
+
+###### `eq` key
+...
+
+###### `gt` key
+...
+
+###### `gte` key
+...
+
+###### `lt` key
+...
+
+###### `lte` key
+...
+
+###### `min` key
+...
+
+###### `max` key
+...
+
+###### `range` key
+...
+
+###### `regex` key
+...
+
+###### `is-existing-file` key
+...
+
+###### `is-existing-dir` key
+...
+
+###### `is-existing-url` key
+...
+
+###### `is-existing-file-or-dir` key
+...
+
+###### `is-existing-file-or-url` key
+...
+
+###### `has-permissions` key
+...
+
+###### `is-executable` key
+...
+
+###### `is-readable` key
+...
+
+###### `is-writable` key
+...
+
+
+
+<!-- ###### `alternative-for` key
+
+...  -->
+
+### Validation and Parsing
+
+#### `validation` key
+
+You can define validation rules for your arguments and flags as a whole with the `validation` key.
+
+
+###### Argument-Only Validators:
+...
+
+##### `no-args` key
+
+...
+
+##### `arbitrary-args` key
+
+...
+
+##### `min-args` key
+
+...
+
+##### `max-args` key
+
+...
+
+##### `exact-args` key
+
+...
+
+##### `range-args` key
+
+...
+
+
+###### Conditional Validations with `and`, `or`, `not` keys
+
+...
+
 - Flag-Only          
 
 ##### Using Environment Variables

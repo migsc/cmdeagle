@@ -22,7 +22,8 @@
     "build:resolver": "pkg scripts/resolve-config-imports.js --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --output bin/resolve-imports"
   },
   "devDependencies": {
-    "pkg": "^5.8.1"
+    "pkg": "^5.8.1",
+    "docsify-cli": "^4.4.4"
   },
   "dependencies": {
     "yaml": "^2.0.0"

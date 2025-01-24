@@ -27,64 +27,130 @@
       color: #fff;
       border-color: #444;
     }
+    #cover-main img {
+      width: 100px;
+      height: auto;
+    }
+    
+    /* Light and dark mode */
+    :root {
+      --theme-color: #42b983;
+      --cover-background: #1a1a1a;
+    }
+
+
+    /* Apply cover background color */
+    section.cover.dark {
+      background: var(--cover-background) !important;
+    }
+
+    /* Logo switching */
+    /* .logo-light {
+      display: block;
+    }
+    .logo-dark {
+      display: none;
+    }
+    
+    [data-theme='dark'] .logo-light {
+      display: none;
+    }
+    [data-theme='dark'] .logo-dark {
+      display: block;
+    } */
+
   </style>
 </head>
 <body>
   <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()">🌙</button>
   <div id="app"></div>
-    <!-- Docsify v4 -->
-    <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- Docsify v4 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- Prism syntax highlighting -->
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+  <!-- autoloads, injects CSS -->
+  <script src="//unpkg.com/@rakutentech/docsify-code-inline/dist/index.min.js"></script>
   <script>
+
+    let toggle, cover, lightTheme, darkTheme;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      toggle = document.getElementById('theme-toggle');
+      cover = document.getElementsByClassName('cover').item(0);
+      lightTheme = document.getElementById('light-theme');
+      darkTheme = document.getElementById('dark-theme');
+
+      // Add a small delay to ensure the cover content is loaded
+      setTimeout(() => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        
+        if (savedTheme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.getElementById('light-theme').disabled = true;
+          document.getElementById('dark-theme').disabled = false;
+          toggle.innerText = '🌙';
+          cover.classList.add('dark');
+          updateLogo('dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.getElementById('light-theme').disabled = false;
+          document.getElementById('dark-theme').disabled = true;
+          toggle.innerText = '☀️';
+          cover.classList.remove('dark');
+          updateLogo('light');
+        }
+      }, 100);
+    });
+
+    function updateLogo(theme) {
+      // Try multiple selectors to find the logo
+      const logoElements = document.querySelectorAll('.cover-main img, #main img');
+      console.log('Found logo elements:', logoElements);
+      logoElements.forEach(logo => {
+        logo.src = theme === 'dark' ? '/_media/logo-dark.svg' : '/_media/logo-light.svg';
+      });
+    }
+
     function toggleTheme() {
       const html = document.documentElement;
-      const lightTheme = document.getElementById('light-theme');
-      const darkTheme = document.getElementById('dark-theme');
-      const toggle = document.getElementById('theme-toggle');
-      
+
       if (html.getAttribute('data-theme') === 'dark') {
         html.removeAttribute('data-theme');
         lightTheme.disabled = false;
         darkTheme.disabled = true;
         localStorage.setItem('theme', 'light');
         toggle.innerText = '🌙';
+        cover.classList.remove('dark');
+        updateLogo('light');
       } else {
         html.setAttribute('data-theme', 'dark');
         lightTheme.disabled = true;
         darkTheme.disabled = false;
         localStorage.setItem('theme', 'dark');
         toggle.innerText = '☀️';
+        cover.classList.add('dark');
+        updateLogo('dark');
       }
     }
 
-    (function() {
+    function handleLogo() {
       const savedTheme = localStorage.getItem('theme') || 'light';
-      if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.getElementById('light-theme').disabled = true;
-        document.getElementById('dark-theme').disabled = false;
-        toggle.innerText = '🌙';
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        document.getElementById('light-theme').disabled = false;
-        document.getElementById('dark-theme').disabled = true;
-        toggle.innerText = '☀️';
-      }
-    })();
+      const logoPath = savedTheme === 'dark' ? '/_media/logo-dark.svg' : '/_media/logo-light.svg';
+      const logoElements = document.querySelectorAll('.cover-main img');
+      console.log('Logo elements after render:', logoElements);
+      logoElements.forEach(logo => {
+        logo.src = logoPath;
+     });
+    }
 
     window.$docsify = {
       name: 'cmdeagle',
       repo: 'https://github.com/migsc/cmdeagle',
-      // loadSidebar: true,
+      loadSidebar: true,
+      loadNavbar: true,
       subMaxLevel: true,
-      loadSidebar: false,
-      // coverpage: true,
+      coverpage: true,
     }
   </script>
-  <!-- Prism syntax highlighting -->
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
-  <!-- autoloads, injects CSS -->
-  <script
-    src="//unpkg.com/@rakutentech/docsify-code-inline/dist/index.min.js"
-  ></script>
 </body>
 </html>

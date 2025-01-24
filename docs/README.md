@@ -27,18 +27,26 @@ Prerequisites:
 <!-- - Node.js (v16.17.0+) -->
 <!-- - Node.js Package Manager (npm) -->
 
-### Initialize a CLI starter project named yourcli
+### Initialize a starter project
 
 ```sh
-cmdeagle init yourcli
+mkdir yourcli && cd yourcli && \
+cmdeagle init
 ```
 
-### Build the CLI from the root directory of your project:
+### Build your CLI from the root directory
 
 ```sh
 cmdeagle build
 ```
 
+### Run your CLI
+
+```sh
+./yourcli
+```
+
+<!-- 
 ### Create a sub command
 
 ...
@@ -57,10 +65,8 @@ cmdeagle build
 
 ### Defining build scripts for executables
 
-...
+... -->
 
-## Prerequisites
-- Install cmdeagle
 
 # Reference
 

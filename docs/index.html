@@ -107,7 +107,7 @@
       const logoElements = document.querySelectorAll('.cover-main img, #main img');
       console.log('Found logo elements:', logoElements);
       logoElements.forEach(logo => {
-        logo.src = theme === 'dark' ? '/_media/logo-dark.svg' : '/_media/logo-light.svg';
+        logo.src = logo.src.replace('light', theme).replace('dark', theme);
       });
     }
 

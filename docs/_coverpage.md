@@ -8,13 +8,12 @@
 
 > A versatile cross-platform CLI application builder.
 
-<!-- - Define commands and subcommands from a single YAML configuration file.
-- Reuse your existing external scripts and binaries to build commands.
-- Define, parse, and validate your arguments and flags into environment variables your scripts can use.
-- Create build steps, declare assets and data to bundle for each command, bundled assets, and more. -->
+- Declaratively define commands in a single config file.
+- Easily handle complex validation and parsing.
+- Build, distribute and run anyhwere.
 
-[GitHub](https://github.com/migsc/cmdeagle)
-[Get Started](#cmdeagle)
+[Reference](#reference)
+[Getting Started](#quick-start)
 
 <!-- background color -->
 

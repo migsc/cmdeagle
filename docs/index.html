@@ -11,8 +11,8 @@
   <style>
     .theme-toggle {
       position: fixed;
-      top: 10px;
-      left: 10px;
+      right: 10px;
+      bottom: 10px;
       z-index: 1000;
       padding: 8px 12px;
       border-radius: 4px;
@@ -146,11 +146,24 @@
     window.$docsify = {
       name: 'cmdeagle',
       repo: 'https://github.com/migsc/cmdeagle',
-      loadSidebar: true,
+      // loadSidebar: true,
       loadNavbar: true,
       subMaxLevel: true,
       coverpage: true,
+
+            // complete configuration parameters
+      search: {
+        maxAge: 86400000, // Expiration time, the default one day
+        paths: 'auto',
+        placeholder: 'Type to search',
+        noData: 'No Results!',
+        // Headline depth, 1 - 6
+        depth: 6,
+        hideOtherSidebarContent: false, // whether or not to hide other sidebar content
+     }
     }
   </script>
+
+<script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
 </body>
 </html>

@@ -9,26 +9,32 @@ version: "{{version}}" # e.g.  "0.0.1"
 author: "{{author}}" # e.g. Your name e.g. "John Doe"
 license: "{{license}}" # e.g. Your license e.g. "MIT"
 
-# When you run `cmdeagle build` without arguments, we'll try to install the binary in these directories
+# Controls whether the CLI will be built with a `completion` subcommand that will
+# generate an autocompletion script for you to copy and use in your shell (zsh, bash, etc). 
+# This is made possible because cmdeagle uses [cobra](https://github.com/spf13/cobra) 
+# under the hood.
+completion: true
+
+# This is the build script that will be used to build your CLI.
+build: |
+  go build -o $CLI_BIN_DIR/{{name}}-go-binary greet.go
+  chmod +x $CLI_BIN_DIR/{{name}}-go-binary
+# When you run `cmdeagle build` without arguments, It will try to install the binary in these directories
 # - For macOs and Linux:   /usr/local/bin or ~/.local/bin
 # - For Windows: C:\Users\<username>\AppData\Local\Programs\MyApp\bin
+# The build script can also be define on any subcommand level.
 
-# We also install the bundled files declared by your CLI in these directories
-# - For macOS and Linux:   /usr/local/share/mycli or ~/.local/share/mycli
-# - Windows (user-only): %LocalAppData%\MyApp
-
-
-
+# The includes field is used to declare the files that will be bundled with your CLI.
 includes:
 # You can bundle files with your CLI by declaring the paths to them in the `includes` field.
 # This is useful for things like static assets, media, configuration files, data files, etc.
 - "./greet.sh"
 - "./greet.js"
 - "./greet.py"
-- "{{name}}-go-binary"
+# When the CLI runs for the first time, it will install the files in these directories
+# - For macOS and Linux:   /usr/local/share/{name} or ~/.local/share/{{name}}
+# - Windows (user-only): %LocalAppData%\{{name}}
 
-build: |
-  go build -o {{name}}-go-binary greet.go && chmod +x {{name}}-go-binary
 
 # The subcommands of your CLI. You can nest subcommands as deeply as you want.
 # Each subcommand can also declare its own `requires`, `includes` just like the root command above.

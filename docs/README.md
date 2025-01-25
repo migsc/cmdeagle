@@ -43,30 +43,83 @@ You can build a binary for your CLI that will only run on your current operating
 ```sh
 cmdeagle build -o .
 ```
-It will build the executable file in the current working directory.
 
-If you ran it without arguments, it will build the executable file to the default executable directory, which varies by operating system.
+Which will build the executable file to the current working directory.
+
+Change the `-o` flag to build the executable file to a different directory, or run it without arguments, and it will build it to the default executable directory, which varies by operating system.
 
 On macOS and on Linux, it will be built to either `./usr/local/bin` directory if you have write permissions, or `~/.local/bin` directory if you don't.
 
 On Windows, it will be built to the `%LOCALAPPDATA%\Programs` directory.
 
-### 4) Run the CLI
+### 4) Run your CLI
 
-You can run the executable file from your current working directory, or from anywhere on your system if you add its directory to your system's PATH environment variable.
+You can run the executable file from your current working directory, or from anywhere on your system if you add its directory to the `PATH` environment variable. Let's invoke its help command to see what it can do.
+
+The `greet` command is a sample subcommand that you can use as a starting point for your own commands. It's defined in the `.cmd.yaml` file and it is configured to run the sample scripts in the project.
+
+Let's test it out:
 
 ```sh
-./<YOUR_CLI_NAME>
+./<YOUR_CLI_NAME> greet cmdeagle 2 --uppercase --repeat 3
+HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
+HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
+HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
 ```
 
-Where `<YOUR_CLI_NAME>` was the name you selected in step 2.
+You can get more information about the `greet` command by running:
 
-You can 
+```sh
+> ./<YOUR_CLI_NAME> help greet
+```
+
+Every one of those flags and arguments are defined in the `.cmd.yaml` file. Have a look and read the comments to learn how each configuration key works.
+
+The sample scripts are defined in several different languages to help you get started. For Python, JavaScript and other interpreted languages, the scripts are bundled together with the executable file via the `includes` key. 
+
+```sh
+includes:
+# You can bundle files with your CLI by declaring the paths to them in the `includes` field.
+# This is useful for things like static assets, media, configuration files, data files, etc.
+- "./greet.sh"
+- "./greet.js"
+- "./greet.py"
+```
+
+But for Go, and other compiled languages, the executable needs to be built and installed to the system's default executable directory seperately. This is done with the `build` key which defines a build script for either your CLI or a specific subcommand in the `.cmd.yaml` file.
+
+```sh
+build: |
+  go build -o $CLI_BIN_DIR/mycli-go-binary greet.go
+  chmod +x $CLI_BIN_DIR/mycli-go-binary
+```
+
+Note that `$CLI_BIN_DIR` is a special environment variable that cmdeagle provides you in the build script that points to the directory where the executable file should be built.
+
+The start script You can also read the [reference](#reference) section for more information on how to define your own commands, flags, and arguments.
+
+```sh
+> ./<YOUR_CLI_NAME> help
+Usage:
+  <YOUR_CLI_NAME> [flags]
+  <YOUR_CLI_NAME> [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  greet       Greet the user.
+  help        Help about any command
+
+Flags:
+  -h, --help   help for yourcli
+
+Use "yourcli [command] --help" for more information about a command.
+```
+
+Where `<YOUR_CLI_NAME>` was the name you created in [step 2](#_2-initialize-a-cli-starter-project-named-yourcli).
+
+The `completion` command will generate a script for your CLI to use in your shell. This is made possible because cmdeagle uses [cobra](https://github.com/spf13/cobra) under the hood. You can turn this off by setting the `completion` key to `false` in the `.cmd.yaml` file.
 
 
-If you want to run the executable file from anywhere, you simply add its directory to your system's PATH environment variable.
-
-Otherwise, you can run the executable file from the directory where you built it.
 
 <!-- 
 
@@ -77,38 +130,6 @@ TODO: Move this to the reference section.
 Where `<OPERATING_SYSTEM>` defaults to your operating  the operating system you want to build for, `<ARCHITECTURE>` is the architecture you want to build for, and `<OUTPUT_FILEPATH>` is the filepath where the executable file will be built.
 
 You can also use the `-o` flag to specify the name and filepath of the executable file you want to build. By default, the executable file will be built in the current working directory. -->
-
-### 
-
-### Define a sub command
-
-
-
-...
-```yaml
-
-commands:
-
-  - name: sub-command-name
-    description: "Description of your sub command"
-```
-
-### Define build script for your command
-
-...
-
-### Define start script for your command
-
-...
-
-### Build and run your new sub command
-
-...
-
-### Defining build scripts for executables
-
-... -->
-
 
 # Reference
 

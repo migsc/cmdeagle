@@ -16,40 +16,82 @@ A versatile build tool that allows you to build cross-platform CLI applications 
 
 The easiest way to install cmdeagle right now is with [Go](https://go.dev/doc/install), on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
 
-### Install with Go's package manager
+### 1) Install with Go's package manager
 
 ```sh
 go install github.com/migsc/cmdeagle
 ```
 
-Prerequisites: 
-- Go 1.23.2 or later. Installation intructions are available [here](https://go.dev/doc/install).
+Go 1.23.2 or later is required. Install it from [Golang's website](https://go.dev/doc/install).
 <!-- - Node.js (v16.17.0+) -->
 <!-- - Node.js Package Manager (npm) -->
 
-### Initialize a starter project
+### 2) Initialize a CLI starter project named yourcli
 
 ```sh
-mkdir yourcli && cd yourcli && \
-cmdeagle init
+cmdeagle init <YOUR_CLI_NAME>
 ```
 
-### Build your CLI from the root directory
+Where `<YOUR_CLI_NAME>` is the name of the executable file you want to build. By default, the binary will be named after the directory you run the command from.
+
+You can change this later in the `.cmd.yaml` file ofr your new CLI project.
+
+### 3) Build the CLI:
+
+You can build a binary for your CLI that will only run on your current operating system and architecture from the root directory of your project:
 
 ```sh
-cmdeagle build
+cmdeagle build -o .
 ```
+It will build the executable file in the current working directory.
 
-### Run your CLI
+If you ran it without arguments, it will build the executable file to the default executable directory, which varies by operating system.
+
+On macOS and on Linux, it will be built to either `./usr/local/bin` directory if you have write permissions, or `~/.local/bin` directory if you don't.
+
+On Windows, it will be built to the `%LOCALAPPDATA%\Programs` directory.
+
+### 4) Run the CLI
+
+You can run the executable file from your current working directory, or from anywhere on your system if you add its directory to your system's PATH environment variable.
 
 ```sh
-./yourcli
+./<YOUR_CLI_NAME>
 ```
+
+Where `<YOUR_CLI_NAME>` was the name you selected in step 2.
+
+You can 
+
+
+If you want to run the executable file from anywhere, you simply add its directory to your system's PATH environment variable.
+
+Otherwise, you can run the executable file from the directory where you built it.
 
 <!-- 
-### Create a sub command
+
+TODO: Move this to the reference section.
+
+- <OPERATING_SYSTEM> defaults to your operating system. 
+
+Where `<OPERATING_SYSTEM>` defaults to your operating  the operating system you want to build for, `<ARCHITECTURE>` is the architecture you want to build for, and `<OUTPUT_FILEPATH>` is the filepath where the executable file will be built.
+
+You can also use the `-o` flag to specify the name and filepath of the executable file you want to build. By default, the executable file will be built in the current working directory. -->
+
+### 
+
+### Define a sub command
+
+
 
 ...
+```yaml
+
+commands:
+
+  - name: sub-command-name
+    description: "Description of your sub command"
+```
 
 ### Define build script for your command
 

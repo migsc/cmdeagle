@@ -10,11 +10,11 @@ A versatile build tool that allows you to build cross-platform CLI applications 
 - Define commands and subcommands from a single YAML configuration file.
 - Reuse your existing external scripts and binaries to build commands.
 - Define, parse, and validate your arguments and flags into environment variables your scripts can use.
-- Create build steps, declare assets and data to bundle for each command, bundled assets, and more.
+- Create build steps and declare data/assets to install your commands.
 
 # Quick Start
 
-The easiest way to install cmdeagle right now is with [Go](https://go.dev/doc/install), on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
+The easiest way to work with cmdeagle right now is by installing it with [Go](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
 
 ### 1) Install with Go's package manager
 
@@ -26,7 +26,7 @@ Go 1.23.2 or later is required. Install it from [Golang's website](https://go.de
 <!-- - Node.js (v16.17.0+) -->
 <!-- - Node.js Package Manager (npm) -->
 
-### 2) Initialize a CLI starter project named yourcli
+### 2) Initialize a CLI starter project
 
 ```sh
 cmdeagle init <YOUR_CLI_NAME>
@@ -48,13 +48,13 @@ Which will build the executable file to the current working directory.
 
 Change the `-o` flag to build the executable file to a different directory, or run it without arguments, and it will build it to the default executable directory, which varies by operating system.
 
-On macOS and on Linux, it will be built to either `./usr/local/bin` directory if you have write permissions, or `~/.local/bin` directory if you don't.
+On macOS and on Linux, it will be built to either `./usr/local/bin` directory if you have the necessary write permissions, or `~/.local/bin` directory if you don't.
 
 On Windows, it will be built to the `%LOCALAPPDATA%\Programs` directory.
 
 ### 4) Run your CLI
 
-You can run the executable file from your current working directory, or from anywhere on your system if you add its directory to the `PATH` environment variable. Let's invoke its help command to see what it can do.
+You can run the executable file from your current working directory, or from anywhere on your system if you add its directory to the your systems PATH environment variable. Let's invoke its help command to see what it can do.
 
 The `greet` command is a sample subcommand that you can use as a starting point for your own commands. It's defined in the `.cmd.yaml` file and it is configured to run the sample scripts in the project.
 

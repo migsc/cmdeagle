@@ -26,7 +26,7 @@ Go 1.23.2 or later is required. Install it from [Golang's website](https://go.de
 <!-- - Node.js (v16.17.0+) -->
 <!-- - Node.js Package Manager (npm) -->
 
-### 2) Initialize a CLI starter project
+### 2) Initializing a starter project
 
 ```sh
 cmdeagle init <YOUR_CLI_NAME>
@@ -36,25 +36,45 @@ Where `<YOUR_CLI_NAME>` is the name of the executable file you want to build. By
 
 You can change this later in the `.cmd.yaml` file ofr your new CLI project.
 
-### 3) Build the CLI:
-
-You can build a binary for your CLI that will only run on your current operating system and architecture from the root directory of your project:
+### 3) Building the CLI:
 
 ```sh
 cmdeagle build -o .
 ```
 
-Which will build the executable file to the current working directory.
+Run this in the root directory of your project  to build a binary for your CLI to the current working directory. The binary will only run on your current operating system and architecture but you can target other platforms with flags. See the [reference]().
 
-Change the `-o` flag to build the executable file to a different directory, or run it without arguments, and it will build it to the default executable directory, which varies by operating system.
+You can change the `-o` flag to build the executable file to a different directory, or run it without arguments, and it will build it to the default executable directory, which varies by operating system.
 
 On macOS and on Linux, it will be built to either `./usr/local/bin` directory if you have the necessary write permissions, or `~/.local/bin` directory if you don't.
 
 On Windows, it will be built to the `%LOCALAPPDATA%\Programs` directory.
 
-### 4) Run your CLI
+The sample scripts are defined in several different languages to help you get started. For Python, JavaScript and other interpreted languages, the scripts are bundled together with the executable file thanks to the file paths defined in the `includes` setting.
 
-You can run the executable file from your current working directory, or from anywhere on your system if you add its directory to the your systems PATH environment variable. Let's invoke its help command to see what it can do.
+```sh
+includes:
+- "./greet.sh"
+- "./greet.js"
+- "./greet.py"
+```
+This is useful for things like scripts, static assets, media, configuration files, data files, etc.
+
+But if you're using Go, or some other compiled language, bundling executable binaries into your cmdeagle-built binary is not allowed for security reasons. So instead you must use the 'CLI_BIN_DIR' variable within a build script on the root or subcommand level `build` setting of your `.cmd.yaml`.
+
+```sh
+build: |
+  go build -o $CLI_BIN_DIR/mycli-go-binary greet.go
+  chmod +x $CLI_BIN_DIR/mycli-go-binary
+```
+
+Note that `$CLI_BIN_DIR` is a special environment variable that cmdeagle provides you within the shell that your build script will run in. And it points to the directory where the executable file should be built.
+
+You can override this to point to a different directory by either defining an environment variable, or using the root or subcommand level 'env' setting in your '.cmd.yaml'. You can learn more about that here in the (#reference)[reference].
+
+### 4) Running your CLI
+
+You can run the executable file from your current working directory, or from anywhere on your system if you add its directory to the your system's PATH variable.
 
 The `greet` command is a sample subcommand that you can use as a starting point for your own commands. It's defined in the `.cmd.yaml` file and it is configured to run the sample scripts in the project.
 
@@ -73,30 +93,17 @@ You can get more information about the `greet` command by running:
 > ./<YOUR_CLI_NAME> help greet
 ```
 
-Every one of those flags and arguments are defined in the `.cmd.yaml` file. Have a look and read the comments to learn how each configuration key works.
+Every one of those flags and arguments are defined in the `.cmd.yaml` file. Have a look and read the comments to learn how each configuration key works. You can also read the [reference](#reference) for more information on how to define your own commands, flags, and arguments.
 
-The sample scripts are defined in several different languages to help you get started. For Python, JavaScript and other interpreted languages, the scripts are bundled together with the executable file via the `includes` key. 
+For now, let's focus on the 'start' script defined for the 'greet' subcommand.
 
-```sh
-includes:
-# You can bundle files with your CLI by declaring the paths to them in the `includes` field.
-# This is useful for things like static assets, media, configuration files, data files, etc.
-- "./greet.sh"
-- "./greet.js"
-- "./greet.py"
-```
+'''
+# paste start script here.
+'''
 
-But for Go, and other compiled languages, the executable needs to be built and installed to the system's default executable directory seperately. This is done with the `build` key which defines a build script for either your CLI or a specific subcommand in the `.cmd.yaml` file.
+Note that it runs the 'my-cli-gobinary' mentioned before, if the '--use-go' flag is passed.
 
-```sh
-build: |
-  go build -o $CLI_BIN_DIR/mycli-go-binary greet.go
-  chmod +x $CLI_BIN_DIR/mycli-go-binary
-```
-
-Note that `$CLI_BIN_DIR` is a special environment variable that cmdeagle provides you in the build script that points to the directory where the executable file should be built.
-
-The start script You can also read the [reference](#reference) section for more information on how to define your own commands, flags, and arguments.
+Let's invoke the built-in 'help' command now
 
 ```sh
 > ./<YOUR_CLI_NAME> help

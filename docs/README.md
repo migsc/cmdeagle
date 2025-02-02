@@ -117,9 +117,7 @@ Use "yourcli [command] --help" for more information about a command.
 
 Where `<YOUR_CLI_NAME>` was the name you created in [step 2](#_2-initialize-a-cli-starter-project-named-yourcli).
 
-The `completion` command will generate a script for your CLI to use in your shell. This is made possible because cmdeagle uses [cobra](https://github.com/spf13/cobra) under the hood. You can turn this off by setting the `completion` key to `false` in the `.cmd.yaml` file.
-
-
+The `completion` command will generate a script for your CLI to use in your shell. This is made possible because cmdeagle uses [cobra](https://github.com/spf13/cobra) under the hood. You can turn this off by setting the `completion` key to `false` at the root level of the `.cmd.yaml` file.
 
 <!-- 
 

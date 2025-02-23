@@ -7,7 +7,7 @@ type CommandDefinition struct {
 	// If omitted: Args will be nil
 	// If key exists but empty (args: []): Args will be empty slice
 	// If has values: Args will contain the values
-	Args     ArgsConfig          `yaml:"args,omitempty"`
+	Args     []ArgDefinition     `yaml:"args,omitempty"`
 	Flags    []FlagDefinition    `yaml:"flags,omitempty"`
 	Commands []CommandDefinition `yaml:"commands,omitempty"`
 	Requires map[string]string   `yaml:"requires,omitempty"`

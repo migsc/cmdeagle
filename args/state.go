@@ -14,7 +14,7 @@ import (
 
 type ArgsStateStore struct {
 	CobraCommand *cobra.Command
-	Config       *types.ArgsConfig
+	Config       *[]types.ArgDefinition
 	Entries      map[string]*ArgStateEntry
 	Count        int
 	RawList      []string
@@ -22,7 +22,7 @@ type ArgsStateStore struct {
 
 type ArgStateEntry struct {
 	Position int
-	Def      *types.ArgVarDef
+	Def      *types.ArgDefinition
 	Val      any
 	RawVal   string
 	// TODO: Thought about adding multiple error handling and that might help. Not implementing for now.
@@ -32,7 +32,7 @@ type ArgStateEntry struct {
 var DefaultArgType string = "string"
 
 // func CreateArgsStore(cobraCommand *cobra.Command, commandDef *config.CommandDefinition, args []string) *ArgsStateStore {
-func CreateArgsStore(cobraCommand *cobra.Command, argsConfigDef *types.ArgsConfig, args []string) *ArgsStateStore {
+func CreateArgsStore(cobraCommand *cobra.Command, argsConfigDef *[]types.ArgDefinition, args []string) *ArgsStateStore {
 	log.Debug("Creating args store / A", "args", args)
 	store := &ArgsStateStore{
 		CobraCommand: cobraCommand,
@@ -43,12 +43,12 @@ func CreateArgsStore(cobraCommand *cobra.Command, argsConfigDef *types.ArgsConfi
 	}
 
 	log.Debug("Creating args store / B", "args", args)
-	if argsConfigDef.Vars == nil {
+	if argsConfigDef == nil {
 		return store
 	}
 
 	log.Debug("Creating args store / C", "args", args)
-	for index, def := range argsConfigDef.Vars {
+	for index, def := range *argsConfigDef {
 		// Set default type if not specified
 		if def.Type == "" {
 			def.Type = DefaultArgType

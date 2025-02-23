@@ -7,17 +7,17 @@ type ParamDependency struct {
 
 type ParamConstraints struct {
 	// Numeric validations
-	MinValue   *float64 `yaml:"min,omitempty"` // Will be nil if not specified in YAML
-	MaxValue   *float64 `yaml:"max,omitempty"`
-	MultipleOf *float64 `yaml:"multipleOf,omitempty"`
-	Eq         any      `yaml:"eq,omitempty"`    // equals
-	Neq        any      `yaml:"neq,omitempty"`   // not equals
-	Gt         any      `yaml:"gt,omitempty"`    // greater than
-	Gte        any      `yaml:"gte,omitempty"`   // greater than or equal
-	Lt         any      `yaml:"lt,omitempty"`    // less than
-	Lte        any      `yaml:"lte,omitempty"`   // less than or equal
-	In         []any    `yaml:"in,omitempty"`    // value is in list
-	NotIn      []any    `yaml:"notIn,omitempty"` // value is not in list
+	MinValue   any   `yaml:"min,omitempty"` // Will be nil if not specified in YAML
+	MaxValue   any   `yaml:"max,omitempty"`
+	MultipleOf any   `yaml:"multipleOf,omitempty"`
+	Eq         any   `yaml:"eq,omitempty"`    // equals
+	Neq        any   `yaml:"neq,omitempty"`   // not equals
+	Gt         any   `yaml:"gt,omitempty"`    // greater than
+	Gte        any   `yaml:"gte,omitempty"`   // greater than or equal
+	Lt         any   `yaml:"lt,omitempty"`    // less than
+	Lte        any   `yaml:"lte,omitempty"`   // less than or equal
+	In         []any `yaml:"in,omitempty"`    // value is in list
+	NotIn      []any `yaml:"notIn,omitempty"` // value is not in list
 	// Could add more like:
 	// Pattern string `yaml:"pattern,omitempty"` // regex match
 	// Exists  bool   `yaml:"exists,omitempty"`  // just check if arg exists

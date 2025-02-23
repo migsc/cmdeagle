@@ -8,8 +8,8 @@
 
 > A versatile cross-platform CLI application builder.
 
-- Declaratively define commands in a single config file.
 - Easily handle complex validation and parsing.
+- Write command scripts in any language.
 - Build, distribute and run anyhwere.
 
 [Reference](#reference)

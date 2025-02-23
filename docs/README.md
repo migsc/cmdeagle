@@ -3,28 +3,30 @@
 
 _**WARNING:** This is very much a work in progress, but we're close to releasing a stable version 1. Check back soon. Feedback is also much appreciated._
 
-A versatile build tool that allows you to build cross-platform CLI applications written in any programming language of your choice.
+A language-agnostic CLI application build tool that allows you to create cross-platform applications written in any programming language of your choice.
 
-### Features:
+## Features
 
 - Define commands and subcommands from a single YAML configuration file.
 - Reuse your existing external scripts and binaries to build commands.
 - Define, parse, and validate your arguments and flags into environment variables your scripts can use.
 - Create build steps, declare assets and data to bundle for each command, bundled assets, and more.
 
-# Quick Start
+## Quick Start
 
 The easiest way to install cmdeagle right now is with [Go](https://go.dev/doc/install), on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
 
 ### 1) Install with Go's package manager
 
 ```sh
-go install github.com/migsc/cmdeagle
+go install github.com/migsc/cmdeagle@latest
 ```
 
 Go 1.23.2 or later is required. Install it from [Golang's website](https://go.dev/doc/install).
 <!-- - Node.js (v16.17.0+) -->
 <!-- - Node.js Package Manager (npm) -->
+
+For macOS, you will need to insure the your `PATH` variable contains the directory `~/go/bin` or whatever custom directory you set up for Go.
 
 ### 2) Initialize a CLI starter project named yourcli
 
@@ -34,7 +36,7 @@ cmdeagle init <YOUR_CLI_NAME>
 
 Where `<YOUR_CLI_NAME>` is the name of the executable file you want to build. By default, the binary will be named after the directory you run the command from.
 
-You can change this later in the `.cmd.yaml` file ofr your new CLI project.
+You can change this later in the `.cmd.yaml` file for your new CLI project.
 
 ### 3) Build the CLI:
 
@@ -131,20 +133,23 @@ Where `<OPERATING_SYSTEM>` defaults to your operating  the operating system you 
 
 You can also use the `-o` flag to specify the name and filepath of the executable file you want to build. By default, the executable file will be built in the current working directory. -->
 
-# Reference
+## Reference
 
-## Using the cmdeagle CLI
+<!-- ## Using the cmdeagle CLI
 
 ### Initializing CLI configuration with the init Command
 
 ### Build your CLI with the build Command
-- Targeting a Specific Platform
+- Targeting a Specific Platform -->
 
-## Configuring Your CLI
+<!-- ## Installation -->
+
+
+### Configuring Your CLI
 
 Your CLI's schema is defined in a [YAML](https://en.wikipedia.org/wiki/YAML#cite_note-19) file named `.cmd.yaml`. There, you define your CLI's basic information and metadata, top-level command and sub commands, validation and parsing rules for your arguments and flags, build steps, bundled assets, and more.
 
-### Defining Your CLI's Basic Information and Metadata
+<!-- ### Defining Your CLI's Basic Information and Metadata
 
 ...
 
@@ -165,19 +170,19 @@ Your CLI's schema is defined in a [YAML](https://en.wikipedia.org/wiki/YAML#cite
 
 #### Defining Command-Level Validation
 
-...
+... -->
 
 #### Command Lifecycle Scripts
 
-...
+<!-- ... -->
 
-##### The Command Scripts Lifecycle
+<!-- ##### The Command Scripts Lifecycle -->
 - `requires` - Validates dependencies, once before building and once before running your command.
 - `build` - Builds your command and create an exectuable file
 - `include` - Defines bundled assets to include in your CLI's executable file after building your command
 - `start` - Executed when you or your users run your command
 
-##### Defining `build` script
+<!-- ##### Defining `build` script
 
 ...
 
@@ -191,32 +196,16 @@ Your CLI's schema is defined in a [YAML](https://en.wikipedia.org/wiki/YAML#cite
 
 ##### Defining Bundled Assets To Include
 
-...
+... -->
 
-#### Arguments and Flags
+#### Validating Single Arguments and Flags
 
-Arguments and flags are defined with `args` and `flags` key.
+uments to be named in order to better support arbitrary number of arguments.
 
-<!-- ##### Definition -->
+It's also worth noting that cmdeagle assumes that your arguments are positional, and that the order of your arguments in the configuration file determines their order in the command line.
 
-Their definitions are relatively similar.
 
-```yaml
-args:
-  - name: name
-    type: string
-    description: "Name to greet"
-    default: "World"
-    required: true
-flags:
-  - name: uppercase
-    shorthand: u
-    type: boolean
-    description: "Convert greeting to uppercase"
-    default: false
-```
-
-###### `name`
+##### `name`
 
 The name key is important for the CLI to identify your argument or flag. It's also 
 what you will use to reference their values within in your scripts.
@@ -230,7 +219,9 @@ It's also worth noting that cmdeagle assumes that your arguments are positional,
 and that the order of your arguments in the configuration file determines their
 order in the command line. 
 
-###### `description` key
+
+
+##### `description` key
 
 The description key defines a short description of the argument or flag. This description will be used in the help command to describe the argument or flag.
 
@@ -240,7 +231,7 @@ The description key defines a short description of the argument or flag. This de
 
 ... -->
 
-###### `type` key
+##### `type` key
 
 The type key defines how the CLI will parse the value of the argument or flag. Ultimately though, your scripts will still receive the raw value as a string due to the limitations of the shell.
 
@@ -252,7 +243,7 @@ The type key defines how the CLI will parse the value of the argument or flag. U
 <!-- - `json[]`
 - `json{}` -->
 
-###### `pattern` key
+##### `pattern` key
 
 Validates the value against a regular expression. It uses the [RE2 syntax](https://github.com/google/re2/wiki/Syntax) most commonly used by Perl, Python, and [Go](https://pkg.go.dev/regexp) programming languages.
 
@@ -268,7 +259,7 @@ pattern: "^[a-zA-Z0-9]+$" #validates that the value is a string of alphanumeric 
 - `ipv4` - Validates the value against an IPv4 address format.
 - `ipv6` - Validates the value against an IPv6 address format. -->
 
-###### `default` key
+##### `default` key
 
 The default value key defines the value that will be used if the argument or flag is not provided.
 
@@ -278,7 +269,7 @@ default: "World"
 
 Note that the default value should match the `type` of the argument or flag. If it doesn't, the CLI will fail to build your command.
 
-###### `required` key
+##### `required` key
 
 Will fail if the argument or flag is not provided.
 
@@ -286,7 +277,7 @@ Will fail if the argument or flag is not provided.
 required: true # defaults to false
 ```
 
-###### `depends-on` key
+##### `depends-on` key
 
 Will fail if the argument or flag is not provided. In this example, the `last-name` flag will fail if the `first-name` flag is not provided.
 
@@ -316,63 +307,79 @@ yourcli --last-name Simpson
 ```
 
 
-###### `conflicts-with` key
+##### `conflicts-with` key
 
 ...
 
-###### `validation` key (argument-and-flag-level)
+##### `validation` key (argument-and-flag-level)
 
 You can define rules for a single argument or flag using the `validation` key within the argument or flag definition.
 
 
-###### `eq` key
+##### `eq` key
 ...
 
-###### `gt` key
+##### `gt` key
 ...
 
-###### `gte` key
+##### `gte` key
 ...
 
-###### `lt` key
+##### `lt` key
 ...
 
-###### `lte` key
+##### `lte` key
 ...
 
-###### `min` key
+##### `min` key
 ...
 
-###### `max` key
+##### `max` key
 ...
 
-###### `range` key
+##### `range` key
 ...
 
 
 
-###### `is-existing` key
+##### `is-existing` key
 
 - `file`
 - `dir`
 - `url`
 
 
-###### `has-permissions` key
+##### `has-permissions` key
 
 - `readable`
 - `writable`
 - `executable`
 
+##### `check-stderr-on` key
 
+This key can be used to define a custom validation by providing a script to be executed in the value of the key.
+
+```yaml
+check-stderr-on: |
+  echo "Hello, World!"
+```
+
+If the script returns a non-zero exit code, or prints anything to the standard error stream, the validation will fail.
+
+All environment variables normally available to your `build` and `start` scripts are also available to your custom validation script, including the arguments and flags passed to your command.
+
+
+##### `has-stdout` key
+
+...
 
 <!-- ###### `alternative-for` key
 
 ...  -->
 
-### Validation and Parsing
+#### Validating Multiple Arguments and Flags
 
-#### `validation` key
+##### `validation` key
 
 You can define validation rules for your arguments and flags as a whole with the `validation` key.
 
@@ -415,7 +422,7 @@ You can define validation rules for your arguments and flags as a whole with the
 - Interpolated in Build Scripts
 - Directly In Scripts and Source Code
 - Directly In Build Scripts 
-
+<!-- 
 ### Linux/Unix/macOS
 - Link to Windows installation
 
@@ -423,6 +430,4 @@ You can define validation rules for your arguments and flags as a whole with the
 
 ### Typescript
 
-## Installation
-
-## Install CLI 
+ -->

@@ -18,40 +18,143 @@ import (
 	cast "github.com/spf13/cast"
 )
 
+type ConstraintValidator struct {
+	ConfigKey string
+	NameKey   string
+	TestFn    func(inputVal any, testVal any) error
+	TestCmd   string
+}
+
+type ConstraintValidatorDict struct {
+	lookup map[string]ConstraintValidator
+}
+
+func (v *ConstraintValidatorDict) Register(configKey string, name string, testFn func(inputVal any, testVal any) error) {
+	v.RegisterNativeValidator(configKey, name, testFn)
+}
+
+func (v *ConstraintValidatorDict) RegisterNativeValidator(configKey string, name string, testFn func(inputVal any, testVal any) error) {
+	v.lookup[name] = ConstraintValidator{
+		ConfigKey: configKey,
+		NameKey:   name,
+		TestFn:    testFn,
+	}
+}
+
+func (v *ConstraintValidatorDict) RegisterShellValidator(configKey string, name string, testCmd string) {
+	v.lookup[name] = ConstraintValidator{
+		ConfigKey: configKey,
+		NameKey:   name,
+		TestCmd:   testCmd,
+	}
+}
+
+var ConstraintValidators = &ConstraintValidatorDict{
+	lookup: make(map[string]ConstraintValidator),
+}
+
+func init() {
+	ConstraintValidators.Register("gte", "Gte", func(rawInputVal any, rawConfigVal any) error {
+
+		if rawInputVal == nil && rawConfigVal == nil {
+			return nil
+		} else if rawInputVal == nil {
+			return fmt.Errorf("input value is nil")
+		} else if rawConfigVal == nil {
+			return fmt.Errorf("test value is nil")
+		}
+
+		inputValAsInt, inputCastErr := cast.ToIntE(rawInputVal)
+		testValAsInt, testCastErr := cast.ToIntE(rawConfigVal)
+		if inputCastErr == nil && testCastErr == nil {
+			if inputValAsInt < testValAsInt {
+				return fmt.Errorf("input value of `%f` is less than the minimum value of `%f`", rawInputVal, rawConfigVal)
+			} else {
+				return nil
+			}
+		}
+
+		inputValAsFloat, inputCastErr := cast.ToFloat64E(rawInputVal)
+		testValAsFloat, testCastErr := cast.ToFloat64E(rawConfigVal)
+		if inputCastErr == nil && testCastErr == nil {
+			if inputValAsFloat < testValAsFloat {
+				return fmt.Errorf("input value of `%f` is less than the minimum value of `%f`", rawInputVal, rawConfigVal)
+			} else {
+				return nil
+			}
+		}
+
+		inputValAsStr, inputCastErr := cast.ToStringE(rawInputVal)
+		testValAsStr, testCastErr := cast.ToStringE(rawConfigVal)
+		if inputCastErr == nil && testCastErr == nil {
+			// TODO: Compare the strings alphabetically here
+			if inputValAsStr < testValAsStr {
+				return fmt.Errorf("input value of `%s` is less than the minimum value of `%s`", rawInputVal, rawConfigVal)
+			} else {
+				return nil
+			}
+		}
+
+		return nil
+	})
+}
+
+func ForEachField(obj any, fn func(fieldName string, fieldValue any) error) error {
+	if obj == nil {
+		return nil
+	}
+
+	// Get reflect.Value of the struct
+	objVal := reflect.ValueOf(obj)
+
+	// If it's a pointer, get the underlying value
+	if objVal.Kind() == reflect.Ptr {
+		objVal = objVal.Elem()
+	}
+
+	// Get reflect.Type of the struct
+	typ := objVal.Type()
+
+	// Iterate over all fields
+	numFields := objVal.NumField()
+	for i := 0; i < numFields; i++ {
+		reflVal := objVal.Field(i)
+		fieldName := typ.Field(i).Name
+		fieldValue := reflVal.Interface()
+		err := fn(fieldName, fieldValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Returns a boolean and a reason in the case of failing the constraints
 func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMapFs ...bool) error {
+	fmt.Println(constraints, value)
 
 	if constraints == nil {
 		return nil
 	}
 
-	if constraints.MinValue != nil {
-		if cast.ToFloat64(value) < cast.ToFloat64(constraints.MinValue) {
-			return fmt.Errorf("Value is less than the minimum value of %v", constraints.MinValue)
-		}
-	}
+	err := ForEachField(constraints, func(fieldName string, fieldValue any) error {
+		fmt.Println(fieldName, fieldValue)
 
-	if constraints.MaxValue != nil {
-		if cast.ToFloat64(value) > cast.ToFloat64(constraints.MaxValue) {
-			return fmt.Errorf("Value is greater than the maximum value of %v", constraints.MaxValue)
-		}
-	}
+		configVal := getFieldValue(constraints, fieldName)
 
-	if constraints.MultipleOf != nil {
-		if cast.ToInt(value)%cast.ToInt(constraints.MultipleOf) != 0 {
-			return fmt.Errorf("Value is not a multiple of %v", constraints.MultipleOf)
-		}
+		testFn := ConstraintValidators.lookup[fieldName].TestFn
+
+		return testFn(value, configVal)
+	})
+
+	if err != nil {
+		return err
 	}
 
 	if constraints.Eq != nil {
 		if value != constraints.Eq {
 			return fmt.Errorf("Value is not equal to %v", constraints.Eq)
-		}
-	}
-
-	if constraints.Neq != nil {
-		if value == constraints.Neq {
-			return fmt.Errorf("Value is equal to %v", constraints.Neq)
 		}
 	}
 
@@ -61,11 +164,11 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 		}
 	}
 
-	if constraints.Gte != nil {
-		if cast.ToInt(value) < cast.ToInt(constraints.Gte) {
-			return fmt.Errorf("Value is not greater than or equal to %v", constraints.Gte)
-		}
-	}
+	// if constraints.Gte != nil {
+	// 	if cast.ToInt(value) < cast.ToInt(constraints.Gte) {
+	// 		return fmt.Errorf("Value is not greater than or equal to %v", constraints.Gte)
+	// 	}
+	// }
 
 	if constraints.Lt != nil {
 		if cast.ToInt(value) >= cast.ToInt(constraints.Lt) {
@@ -82,12 +185,6 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 	if constraints.In != nil {
 		if !slices.Contains(constraints.In, value) {
 			return fmt.Errorf("Value is not in the list of %v", constraints.In)
-		}
-	}
-
-	if constraints.NotIn != nil {
-		if slices.Contains(constraints.NotIn, value) {
-			return fmt.Errorf("Value is in the list of %v", constraints.NotIn)
 		}
 	}
 
@@ -169,6 +266,26 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 	}
 
 	return nil
+}
+
+func getFieldValue(obj any, fieldName string) any {
+	// Get reflect.Value of the struct
+	value := reflect.ValueOf(obj)
+
+	// If it's a pointer, get the underlying value
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+
+	// Get the field by name
+	field := value.FieldByName(fieldName)
+
+	// Check if field exists and is valid
+	if !field.IsValid() {
+		return nil
+	}
+
+	return field.Interface()
 }
 
 func HasFileConstraints(constraints *types.ParamConstraints) bool {

@@ -38,7 +38,7 @@ type CmdeagleConfig struct {
 
 	// Settings    Settings            `yaml:"settings,omitempty"`
 
-	Args     ArgsConfig          `yaml:"args,omitempty"`
+	Args     []ArgDefinition     `yaml:"args,omitempty"`
 	Flags    []FlagDefinition    `yaml:"flags,omitempty"`
 	Commands []CommandDefinition `yaml:"commands"`
 	Requires map[string]string   `yaml:"requires,omitempty"`

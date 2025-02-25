@@ -150,7 +150,6 @@ func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMa
 	log.Debug("Validating constraint", "constraints", constraints, "value", value)
 
 	err := ForEachField(constraints, func(fieldName string, fieldValue any) error {
-		fmt.Println(fieldName, fieldValue)
 
 		configVal := getFieldValue(constraints, fieldName)
 

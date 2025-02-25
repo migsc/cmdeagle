@@ -46,7 +46,7 @@ func main_template() {
 }
 
 func execute() error {
-	log.Info("Executing...")
+	log.Debug("Executing...")
 
 	var err error
 	var cmdConfig *types.CmdeagleConfig
@@ -83,7 +83,7 @@ func execute() error {
 		return fmt.Errorf("failed to process commands: %w", err)
 	}
 
-	log.Info("Inspecting embedded bundle filesystem...")
+	log.Debug("Inspecting embedded bundle filesystem...")
 
 	// Walk through the embedded filesystem and print the directory tree
 	// err = fs.WalkDir(bundleFS, ".", func(path string, d fs.DirEntry, err error) error {

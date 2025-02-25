@@ -187,7 +187,7 @@ func copyIncludedFile(includedFilePath string, targetDir string) error {
 	}
 
 	// Get the source file's info to check permissions
-	fileInfo, err := os.Stat(expandedPath)
+	// fileInfo, err := os.Stat(expandedPath)
 	if err != nil {
 		return fmt.Errorf("could not stat file: %s\n%v", expandedPath, err)
 	}
@@ -197,26 +197,28 @@ func copyIncludedFile(includedFilePath string, targetDir string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	// TODO: This wasn't working as expected. We should revisit this.
 	// If the file is executable for user, group, or others, throw an error
-	if fileInfo.Mode()&0111 != 0 {
-		return fmt.Errorf("cannot include executable file in the bundle: %s", expandedPath)
-		// Previous implementation where we wanted to allow executable files in the bundle
-		// cmd2 := exec.Command("chmod", "+x", filepath.Join(targetDir, filepath.Base(expandedPath)))
-		// cmd2.Stdout = os.Stdout
-		// cmd2.Stderr = os.Stderr
-		// log.Info("copying executable file",
-		// 	"file", includedFilePath,
-		// 	"mode", fileInfo.Mode().String(),
-		// )
-		// err = cmd.Run()
-		// if err != nil {
-		// 	return err
-		// }
-		// return cmd2.Run() // TODO: This is not working. Could we move it to the binary directory and then run it from there?
-	} else {
-		return cmd.Run()
-	}
+	// if fileInfo.Mode()&0111 != 0 {
+	// 	return fmt.Errorf("cannot include executable file in the bundle: %s", expandedPath)
+	// 	// Previous implementation where we wanted to allow executable files in the bundle
+	// 	// cmd2 := exec.Command("chmod", "+x", filepath.Join(targetDir, filepath.Base(expandedPath)))
+	// 	// cmd2.Stdout = os.Stdout
+	// 	// cmd2.Stderr = os.Stderr
+	// 	// log.Info("copying executable file",
+	// 	// 	"file", includedFilePath,
+	// 	// 	"mode", fileInfo.Mode().String(),
+	// 	// )
+	// 	// err = cmd.Run()
+	// 	// if err != nil {
+	// 	// 	return err
+	// 	// }
+	// 	// return cmd2.Run() // TODO: This is not working. Could we move it to the binary directory and then run it from there?
+	// } else {
+	// 	return cmd.Run()
+	// }
 
+	return cmd.Run()
 }
 
 // type FileManifest struct {

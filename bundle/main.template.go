@@ -69,7 +69,7 @@ func execute() error {
 	}
 
 	// Set up the root command
-	rootCmd, err = setupCommand(cmdConfig, rootCommandDef, nil, []string{})
+	rootCmd, err = registerCommandDef(cmdConfig, rootCommandDef, nil, []string{})
 
 	if err != nil {
 		return fmt.Errorf("failed to setup root command: %w", err)
@@ -133,7 +133,7 @@ type RunnerCommandVisitor struct {
 
 func (visitor *RunnerCommandVisitor) Visit(commandDef *types.CommandDefinition, parent *types.CommandDefinition, path []string) error {
 	log.Debug("Visiting command", "name", commandDef.Name, "path", path)
-	_, err := setupSubCommand(visitor.config, commandDef, parent, path)
+	_, err := registerSubCommandDef(visitor.config, commandDef, parent, path)
 	return err
 }
 
@@ -142,19 +142,19 @@ func getCommandPath(parts ...string) string {
 	return strings.Join(parts, ":")
 }
 
-func setupSubCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefinition, parent *types.CommandDefinition, path []string) (*cobra.Command, error) {
+func registerSubCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefinition, parent *types.CommandDefinition, path []string) (*cobra.Command, error) {
 	log.Debug("Setting up subcommand", "name", commandDef.Name, "path", path)
-	cobraCmd, err := setupCommand(cmdConfig, commandDef, parent, path)
+	cobraCmd, err := registerCommandDef(cmdConfig, commandDef, parent, path)
 	if err != nil {
 		return nil, err
 	}
 
 	// Add to parent
 	if parent == nil {
-		log.Debug("Adding command to root", "name", commandDef.Name, "path", path)
+		log.Debug("Adding subcommand to root command", "subcommand-name", commandDef.Name, "path", path)
 		rootCmd.AddCommand(cobraCmd)
 	} else {
-		log.Debug("Adding command to parent", "name", commandDef.Name, "path", path)
+		log.Debug("Adding subcommand to parent command", "subcommand-name", commandDef.Name, "path", path)
 		cobraCmd.InheritedFlags()
 		parentPath := getCommandPath(path[:len(path)-1]...)
 		if parentCmd, exists := cobraCommands[parentPath]; exists {
@@ -169,7 +169,7 @@ func setupSubCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandD
 	return cobraCmd, nil
 }
 
-func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefinition, parent *types.CommandDefinition, path []string) (*cobra.Command, error) {
+func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefinition, parent *types.CommandDefinition, path []string) (*cobra.Command, error) {
 	appDataDirPath := executable.GetAppDataDir(cmdConfig.Name)
 	commandPath := filepath.Join(appDataDirPath, filepath.Join(path...))
 
@@ -179,21 +179,16 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 	// 2. A way to validate the args and flags, and probably we may put the "requires" configuration in here?
 	// 2. A way to interpolate the args and flags into the start script
 	// 3. A way to run the command
-
 	cobraCmd := &cobra.Command{
 		Use:          commandDef.Name,
 		Short:        commandDef.Description,
 		SilenceUsage: true, // Silence usage on validation errors
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Show help if it's a leaf command with no args
-			if len(args) == 0 && len(cmd.Commands()) == 0 {
-				return cmd.Help()
-			}
-
-			// If there's no start script, just show help
-			if commandDef.Start == "" || parent == nil {
-				return cmd.Help()
-			}
+			// if len(args) == 0 && len(cmd.Commands()) == 0 {
+			// 	cmd.HelpFunc()
+			// 	return cmd.Help()
+			// }
 
 			// Continue with normal command execution
 			return nil
@@ -249,22 +244,25 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 
 	cobraCmd.Args = func(cobraCommand *cobra.Command, arguments []string) error {
 		log.Debug("Triggering hook `Args`", "path", commandPath)
-		argStore = args.CreateArgsStore(cobraCmd, &commandDef.Args, arguments)
+		argStore = args.CreateArgsStore(cobraCommand, &commandDef.Args, arguments)
 		log.Debug("Created argsStore", "path", commandPath, "argsStore", argStore)
 
 		paramsStore = config.CreateParamsStore(argStore, flagStore)
 		log.Debug("Created paramsStore", "path", commandPath, "paramsStore", paramsStore)
 
-		err := args.ValidateArgs(cobraCmd, &commandDef.Args, argStore)
+		log.Debug("Validating args", "path", commandPath, "argsStore", argStore, "commandDef.Args", commandDef.Args)
+		err := args.ValidateArgs(cobraCommand, &commandDef.Args, argStore)
 		if err != nil {
 			return err
 		}
 
-		err = flags.ValidateFlags(cobraCmd, commandDef.Flags, flagStore)
+		log.Debug("Validating flags", "path", commandPath, "flagStore", flagStore, "commandDef.Flags", commandDef.Flags)
+		err = flags.ValidateFlags(cobraCommand, commandDef.Flags, flagStore)
 		if err != nil {
 			return err
 		}
 
+		log.Debug("Validation successful", "path", commandPath)
 		return nil
 	}
 
@@ -280,6 +278,10 @@ func setupCommand(cmdConfig *types.CmdeagleConfig, commandDef *types.CommandDefi
 
 		if commandDef.Start == "" {
 			log.Debug("No start script defined for command", "path", commandPath)
+			// If there's no start script, just show help
+			if commandDef.Start == "" || parent == nil {
+				return cobraCmd.Help()
+			}
 			return nil
 		}
 

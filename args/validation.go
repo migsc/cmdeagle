@@ -3,6 +3,7 @@ package args
 import (
 	"fmt"
 
+	"github.com/charmbracelet/log"
 	"github.com/migsc/cmdeagle/params"
 	"github.com/migsc/cmdeagle/types"
 
@@ -10,10 +11,12 @@ import (
 )
 
 func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *[]types.ArgDefinition, store *ArgsStateStore) error {
+	log.Debug("Validating args", "cobraCmd", cobraCmd, "argsConfigDef", argsConfigDef, "store", store)
 	if argsConfigDef == nil || store == nil {
 		return nil
 	}
 
+	log.Debug("Validating args", "argsConfigDef", argsConfigDef)
 	argsConfigDevVal := *argsConfigDef
 
 	if argsConfigDevVal == nil {
@@ -22,11 +25,13 @@ func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *[]types.ArgDefinition,
 
 	for index := range argsConfigDevVal {
 		entry := store.GetAt(index)
+		log.Debug("Validating args", "index", index, "entry", entry)
 
 		if entry == nil {
 			continue
 		}
 
+		log.Debug("Validating args", "entry", entry)
 		if entry.Err != nil {
 			return entry.Err
 		}
@@ -34,6 +39,7 @@ func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *[]types.ArgDefinition,
 		// Validate constraints
 		if entry.Def != nil {
 			constraints := entry.Def.Constraints
+			log.Debug("Validating args", "constraints", constraints)
 			err := params.ValidateConstraint(&constraints, entry.Val)
 			if err != nil {
 				return fmt.Errorf("validation failed for argument %s: %v", entry.Def.Name, err)

@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/migsc/cmdeagle/types"
 
 	afero "github.com/spf13/afero"
@@ -117,11 +118,20 @@ func ForEachField(obj any, fn func(fieldName string, fieldValue any) error) erro
 
 	// Iterate over all fields
 	numFields := objVal.NumField()
+	log.Debug("Number of fields", "numFields", numFields)
 	for i := 0; i < numFields; i++ {
+		log.Debug("Field", "name", typ.Field(i).Name, "type", typ.Field(i).Type)
 		reflVal := objVal.Field(i)
 		fieldName := typ.Field(i).Name
 		fieldValue := reflVal.Interface()
+		log.Debug("Field", "fieldName", fieldName, "fieldValue", fieldValue)
+
+		if fieldValue == nil {
+			continue
+		}
+
 		err := fn(fieldName, fieldValue)
+		log.Debug("Field", "fieldName", fieldName, "fieldValue", fieldValue, "err", err)
 		if err != nil {
 			return err
 		}
@@ -132,18 +142,26 @@ func ForEachField(obj any, fn func(fieldName string, fieldValue any) error) erro
 
 // Returns a boolean and a reason in the case of failing the constraints
 func ValidateConstraint(constraints *types.ParamConstraints, value any, useMemMapFs ...bool) error {
-	fmt.Println(constraints, value)
 
 	if constraints == nil {
 		return nil
 	}
+
+	log.Debug("Validating constraint", "constraints", constraints, "value", value)
 
 	err := ForEachField(constraints, func(fieldName string, fieldValue any) error {
 		fmt.Println(fieldName, fieldValue)
 
 		configVal := getFieldValue(constraints, fieldName)
 
+		log.Debug("Validating constraint", "fieldName", fieldName, "configVal", configVal)
 		testFn := ConstraintValidators.lookup[fieldName].TestFn
+
+		if testFn == nil {
+			return nil
+		}
+
+		log.Debug("Validating constraint", "fieldName", fieldName, "configVal", configVal, "testFn", testFn)
 
 		return testFn(value, configVal)
 	})

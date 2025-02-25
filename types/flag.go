@@ -12,4 +12,5 @@ type FlagDefinition struct {
 	ConflictsWith []string            `yaml:"conflicts-with,omitempty"`
 	Constraints   *ParamConstraints   `yaml:"constraints,omitempty"`
 	Rules         []*ParamConstraints `yaml:"rules,omitempty"`
+	Pattern       string              `yaml:"pattern,omitempty"`
 }

@@ -2,6 +2,7 @@ package args
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/charmbracelet/log"
 	"github.com/migsc/cmdeagle/params"
@@ -63,6 +64,28 @@ func ValidateArgs(cobraCmd *cobra.Command, argsConfigDef *[]types.ArgDefinition,
 				if conflictVal != nil && conflictVal != "" {
 					return fmt.Errorf("argument %s conflicts with %s", entry.Def.Name, conflict)
 				}
+			}
+		}
+
+		// Validate pattern
+		if entry.Def != nil && entry.Def.Pattern != "" {
+			var err error
+			var match bool
+			var pattern *regexp.Regexp
+
+			pattern, err = regexp.Compile(entry.Def.Pattern)
+
+			if err != nil {
+				return fmt.Errorf("invalid pattern for argument %s: %v", entry.Def.Name, err)
+			}
+			log.Debug("Validating pattern for argument", "pattern", pattern, "value", entry.Val.(string))
+			match = pattern.MatchString(entry.Val.(string))
+			found := pattern.FindString(entry.Val.(string))
+
+			log.Debug("Validating pattern for argument", "pattern", pattern, "value", entry.Val, "match", match, "err", err, "found", found)
+
+			if !match {
+				return fmt.Errorf("pattern validation failed for argument %s: %v", entry.Def.Name, entry.Val)
 			}
 		}
 	}

@@ -22,6 +22,8 @@ type ArgDefinition struct {
 	// Dependency validations
 	DependsOn     []ParamDependency `yaml:"depends-on,omitempty"`
 	ConflictsWith []string          `yaml:"conflicts-with,omitempty"`
+
+	Pattern string `yaml:"pattern,omitempty"`
 }
 
 // type ArgRuleDef struct {

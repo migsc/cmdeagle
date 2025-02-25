@@ -262,6 +262,8 @@ func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.Comma
 			return err
 		}
 
+		// TODO: Run the custom validation script here
+
 		log.Debug("Validation successful", "path", commandPath)
 		return nil
 	}

@@ -2,7 +2,9 @@ package flags
 
 import (
 	"fmt"
+	"regexp"
 
+	"github.com/charmbracelet/log"
 	"github.com/migsc/cmdeagle/params"
 	"github.com/migsc/cmdeagle/types"
 
@@ -79,13 +81,27 @@ func ValidateFlags(cobraCmd *cobra.Command, flagsConfigDefs []types.FlagDefiniti
 			}
 		}
 
-		// TODO: Add rules for validating flags in a group
-		// for _, ruleDef := range flagDef.Rules {
-		// 	err := validateRule(cobraCmd, ruleDef, rawArgs)
-		// 	if err != nil {
-		// 		foundErr = err
-		// 	}
-		// }
+		// Validate pattern
+		// Validate pattern
+		if flagDef.Pattern != "" {
+			var err error
+			var match bool
+			var pattern *regexp.Regexp
+
+			pattern, err = regexp.Compile(flagDef.Pattern)
+
+			if err != nil {
+				foundErr = fmt.Errorf("invalid pattern for argument %s: %v", flagDef.Name, err)
+			}
+			log.Debug("Validating pattern for argument", "pattern", pattern, "value", flag.Value)
+			match = pattern.MatchString(flag.Value.String())
+
+			log.Debug("Validating pattern for argument", "pattern", pattern, "value", flag.Value, "match", match, "err", err)
+
+			if !match {
+				foundErr = fmt.Errorf("pattern validation failed for argument %s: %v", flagDef.Name, flag.Value)
+			}
+		}
 
 	})
 

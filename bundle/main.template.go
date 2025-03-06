@@ -65,6 +65,7 @@ func execute() error {
 		Requires:    cmdConfig.Requires,
 		Includes:    cmdConfig.Includes,
 		Build:       cmdConfig.Build,
+		Validate:    cmdConfig.Validate,
 		Start:       cmdConfig.Start,
 	}
 
@@ -184,12 +185,6 @@ func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.Comma
 		Short:        commandDef.Description,
 		SilenceUsage: true, // Silence usage on validation errors
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Show help if it's a leaf command with no args
-			// if len(args) == 0 && len(cmd.Commands()) == 0 {
-			// 	cmd.HelpFunc()
-			// 	return cmd.Help()
-			// }
-
 			// Continue with normal command execution
 			return nil
 		},
@@ -262,7 +257,41 @@ func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.Comma
 			return err
 		}
 
-		// TODO: Run the custom validation script here
+		if commandDef.Validate != "" {
+			log.Debug("Running custom validation script", "path", commandPath, "commandDef.Validate", commandDef.Validate)
+			script := commandDef.Validate
+
+			binDirPath, err := executable.GetDestDir()
+			if err != nil {
+				return fmt.Errorf("failed to get binary directory: %w", err)
+			}
+			paramsStore.Set("cli.bin_dir", binDirPath)
+			paramsStore.Set("cli.data_dir", appDataDirPath)
+
+			script = argStore.Interpolate(script)
+			script = flagStore.Interpolate(script)
+			script = paramsStore.Interpolate(script)
+
+			log.Debug("Run / Running custom validation script", "path", commandPath, "script", script)
+
+			execCmd := exec.Command("sh", "-c", script)
+
+			// Copy the current environment and add new variables iteratively
+			envVars := append(paramsStore.GetEnvVariables(), append(argStore.GetEnvVariables(), flagStore.GetEnvVariables()...)...)
+			execCmd.Env = os.Environ() // Start with the current environment
+			for _, env := range envVars {
+				log.Debug("Run / Setting environment variable", "path", commandPath, "env", env.Name+"="+env.Value)
+				execCmd.Env = append(execCmd.Env, env.Name+"="+env.Value)
+			}
+
+			execCmd.Dir = appDataDirPath
+			execCmd.Stdout = os.Stdout
+			execCmd.Stderr = os.Stderr
+
+			if err := execCmd.Run(); err != nil {
+				return err
+			}
+		}
 
 		log.Debug("Validation successful", "path", commandPath)
 		return nil
@@ -279,7 +308,7 @@ func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.Comma
 		log.Debug("Run / Triggering hook", "path", commandPath)
 
 		if commandDef.Start == "" {
-			log.Debug("No start script defined for command", "path", commandPath)
+			log.Debug("No start script defined for command", "path", commandPath, "commandDef.Start", commandDef.Start)
 			// If there's no start script, just show help
 			if commandDef.Start == "" || parent == nil {
 				return cobraCmd.Help()
@@ -291,10 +320,12 @@ func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.Comma
 		script := commandDef.Start
 
 		// Interpolate args and flags
-		script = argStore.Interpolate(script)
-		script = flagStore.Interpolate(script)
-		script = paramsStore.Interpolate(script)
-
+		binDirPath, err := executable.GetDestDir()
+		if err != nil {
+			return fmt.Errorf("failed to get binary directory: %w", err)
+		}
+		paramsStore.Set("cli.bin_dir", binDirPath)
+		paramsStore.Set("cli.data_dir", appDataDirPath)
 		// TODO: Useful?
 		// cmdVisitor.paramStore.Set("LOG_LEVEL", "debug")
 		paramsStore.Set("cli.name", cmdConfig.Name)
@@ -302,12 +333,9 @@ func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.Comma
 		// cmdVisitor.paramStore.Set("CMD_DESCRIPTION", cmdConfig.Description)
 		// cmdVisitor.paramStore.Set("CMD_AUTHOR", cmdConfig.Author)
 		// cmdVisitor.paramStore.Set("CMD_LICENSE", cmdConfig.License)
-		binDirPath, err := executable.GetDestDir()
-		if err != nil {
-			return fmt.Errorf("failed to get binary directory: %w", err)
-		}
-		paramsStore.Set("cli.bin_dir", binDirPath)
-		paramsStore.Set("cli.data_dir", appDataDirPath)
+		script = argStore.Interpolate(script)
+		script = flagStore.Interpolate(script)
+		script = paramsStore.Interpolate(script)
 
 		// 4. Run the command
 		log.Debug("Run / Running start script for", "path", commandPath, "script", script)

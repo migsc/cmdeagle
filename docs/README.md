@@ -181,9 +181,10 @@ Your CLI's schema is defined in a [YAML](https://en.wikipedia.org/wiki/YAML#cite
 
 <!-- ##### The Command Scripts Lifecycle -->
 - `requires` - Validates dependencies, once before building and once before running your command.
-- `build` - Builds your command and create an exectuable file
-- `include` - Defines bundled assets to include in your CLI's executable file after building your command
-- `start` - Executed when you or your users run your command
+- `build` - Builds your command and create an exectuable file.
+- `include` - Defines bundled assets to include in your CLI's executable file after building your command.
+- `validate` - An optional script you can provide to validate your command's arguments and flags before running it.
+- `start` - Executed when your users run your command.
 
 <!-- ##### Defining `build` script
 
@@ -201,27 +202,17 @@ Your CLI's schema is defined in a [YAML](https://en.wikipedia.org/wiki/YAML#cite
 
 ... -->
 
-#### Validating Single Arguments and Flags
+#### Arguments and Flags
 
-uments to be named in order to better support arbitrary number of arguments.
+It's worth noting that cmdeagle assumes your arguments are positional, and that the order of your arguments in the configuration file determines their order in the command line. The flags you define do not have this behavior and can be defined in any order.
 
-It's also worth noting that cmdeagle assumes that your arguments are positional, and that the order of your arguments in the configuration file determines their order in the command line.
+##### `name` key
 
-
-##### `name`
-
-The name key is important for the CLI to identify your argument or flag. It's also 
-what you will use to reference their values within in your scripts.
+Both arguments and flags must have a `name` key. The name key is important for the CLI to identify your argument or flag and it's also what you will use to reference their values within in your scripts.
 
 See [Using Environment Variables](#using-environment-variables) for more information on how to reference their values.
 
-In the future, we plan to relax the requirement for arguments to be named in order
-to better support arbitrary number of arguments.
-
-It's also worth noting that cmdeagle assumes that your arguments are positional,
-and that the order of your arguments in the configuration file determines their
-order in the command line. 
-
+In the future, we plan to relax the requirement for arguments to be named in order to better support arbitrary number of arguments.
 
 
 ##### `description` key

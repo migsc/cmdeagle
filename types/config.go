@@ -44,6 +44,7 @@ type CmdeagleConfig struct {
 	Requires map[string]string   `yaml:"requires,omitempty"`
 	Includes []string            `yaml:"includes,omitempty"`
 	Build    string              `yaml:"build,omitempty"`
+	Validate string              `yaml:"validate,omitempty"`
 	Start    string              `yaml:"start,omitempty"`
 }
 

@@ -16,9 +16,10 @@ license: "{{license}}" # e.g. Your license e.g. "MIT"
 completion: true
 
 # This is the build script that will be used to build your CLI.
+# The Go build process requires internet connectivity to resolve and download modules 
+# for the wrapper application that cmdeagle generates to bundle your scripts and assets.
 build: |
   go build -o $CLI_BIN_DIR/{{name}}-go-binary greet.go
-  chmod +x $CLI_BIN_DIR/{{name}}-go-binary
 # When you run `cmdeagle build` without arguments, It will try to install the binary in these directories
 # - For macOs and Linux:   /usr/local/bin or ~/.local/bin
 # - For Windows: C:\Users\<username>\AppData\Local\Programs\MyApp\bin
@@ -61,24 +62,21 @@ commands:
 
     # The arguments of your CLI.
   args:
-    vars:
+
+  - name: name
+    type: string
+    description: "Name to greet"
+    default: "World"
+    required: true
+
+  - name: age
+    type: number
+    description: "Age of the user"
+    # constraints: TODO: Fix this
+    #   min: 18
+    #   max: 100
+    depends-on:
     - name: name
-      type: string
-      description: "Name to greet"
-      default: "World"
-      required: true
-    - name: age
-      type: number
-      description: "Age of the user"
-      # constraints: TODO: Fix this
-      #   min: 18
-      #   max: 100
-      depends-on:
-      - name: name
-    # rules:
-    # # Rules apply to all arguments and they follow the same naming conventions as the ones from Cobra
-    # - minimum-n-args: 1
-    #   maximum-n-args: 2
 
   flags:
 
@@ -124,24 +122,18 @@ commands:
     description: "Use Go to greet the user"
     conflicts-with:
     - use-python
-  # - name: use
-  #   type: string
-  #   description: "Use the specified language to greet the user"
-  #   default: "sh"
-  #   constraints:
-  #   - in:
-  #     - "sh"
-  #     - "js"
-  #     - "python"
-  #     - "go"
 
   start: |
     if [ "${flags.use-python}" = "true" ]; then
+      echo "Using Python"
       python3 greet.py
     elif [ "${flags.use-js}" = "true" ]; then
+      echo "Using JavaScript"
       node greet.js
     elif [ "${flags.use-go}" = "true" ]; then
+      echo "Using Go"
       ./{{name}}-go-binary
     else
+      echo "Using Shell"
       sh greet.sh
     fi

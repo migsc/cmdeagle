@@ -4,13 +4,13 @@
 
 ![logo](_media/logo-light.svg)
 
-# cmdeagle <small>0.1</small>
+# cmdeagle <small>0.11.1</small>
 
 > A versatile cross-platform CLI application builder.
 
 - Easily handle complex validation and parsing.
 - Write command scripts in any language.
-- Build, distribute and run anyhwere.
+- Build, distribute and run anywhere.
 
 [Reference](#reference)
 [Getting Started](#quick-start)

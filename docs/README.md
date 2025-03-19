@@ -96,11 +96,11 @@ For now, let's focus on the `start` script defined for the `greet` subcommand:
 
 ```yaml
   start: |
-    if [ "${flags.use-python}" = "true" ]; then
+    if [ "${FLAGS_USE_PYTHON}" = "true" ]; then
       python3 greet.py
-    elif [ "${flags.use-js}" = "true" ]; then
+    elif [ "${FLAGS_USE_JS}" = "true" ]; then
       node greet.js
-    elif [ "${flags.use-go}" = "true" ]; then
+    elif [ "${FLAGS_USE_GO}" = "true" ]; then
       ./{{name}}-go-binary
     else
       sh greet.sh
@@ -391,13 +391,13 @@ The `validate` setting defines a script that runs at runtime before the main com
 
 ```yaml
 validate: |
-  if [ -z "${args.filename}" ]; then
+  if [ -z "$ARGS_FILENAME" ]; then
     echo "Error: Filename cannot be empty" >&2
     exit 1
   fi
   
-  if [ ! -f "${args.filename}" ]; then
-    echo "Error: File does not exist: ${args.filename}" >&2
+  if [ ! -f "$ARGS_FILENAME" ]; then
+    echo "Error: File does not exist: ${ARGS_FILENAME}" >&2
     exit 1
   fi
 ```
@@ -417,11 +417,11 @@ The `start` setting defines the main script that runs when your command is execu
 
 ```yaml
 start: |
-  if [ "${flags.use-python}" = "true" ]; then
+  if [ "$FLAGS_USE_PYTHON" = "true" ]; then
     python3 greet.py
-  elif [ "${flags.use-js}" = "true" ]; then
+  elif [ "$FLAGS_USE_JS" = "true" ]; then
     node greet.js
-  elif [ "${flags.use-go}" = "true" ]; then
+  elif [ "$FLAGS_USE_GO" = "true" ]; then
     ./{{name}}-go-binary
   else
     sh greet.sh
@@ -436,7 +436,7 @@ The start script:
 
 See [Using Environment Variables](#using-environment-variables) for details on how to reference argument and flag values within your scripts.
 
-#### Arguments and Flags
+#### Arguments and flags
 
 Arguments and flags are the primary ways users interact with your CLI application. cmdeagle provides a robust system for defining, validating, and accessing these inputs in your command scripts.
 
@@ -447,7 +447,7 @@ Arguments and flags are the primary ways users interact with your CLI applicatio
 
 cmdeagle assumes your arguments are positional, and the order of your arguments in the configuration file determines their order in the command line. Flags do not have this positional behavior and can be provided in any order.
 
-##### Defining Arguments
+##### Defining arguments
 
 Arguments are defined in the `args` array of a command. Each argument has several properties that control its behavior:
 
@@ -460,7 +460,7 @@ args:
   required: false
 ```
 
-##### Defining Flags
+##### Defining flags
 
 Flags are defined in the `flags` array of a command. They have similar properties to arguments but with some additional options:
 
@@ -475,7 +475,7 @@ flags:
   required: false
 ```
 
-##### Common properties for Arguments and Flags
+##### Common properties for arguments and flags
 
 ###### `name` setting
 
@@ -501,9 +501,11 @@ The type defines how cmdeagle will parse and validate the input value. Currently
 - `number`: Numeric input (integers and decimals)
 - `boolean`: True/false values (for flags only)
 
-```yaml
-type: string
-```
+cmdeagle will attempt to parse the input value according to the specified type. If the input value cannot be parsed into the specified type, the argument or flag will be considered invalid and the command will fail, similar to how the `validate` script works.
+
+The default behavior for `number` arguments is to only allow decimal numbers. For `boolean` flags, the input value is case-insensitive and can be either `true`, `false`, `1`, `0`, `yes`, `no`, `y`, `n`, `on`, or `off`.
+
+Note that in your script, these will still be available via environment variables as strings. All cmdeagle is doing for you is validating the input value according to the specified type.
 
 ###### `required` setting
 
@@ -515,7 +517,7 @@ required: true
 
 ###### `pattern` setting
 
-A regular expression pattern that the input value must match to be considered valid.
+A regular expression pattern that the input value must match to be considered valid. If the regular expression fails to match, the argument or flag will be considered invalid and the command will fail, similar to how the `validate` script works.
 
 ```yaml
 pattern: ^((\d+h)?(\d+m)?(\d+s)?)$|^(\d+)$
@@ -559,7 +561,7 @@ depends-on:
 - name: name
 ```
 
-##### Using Environment Variables
+##### Using environment variables
 
 When your command runs, all arguments and flags are made available as environment variables that your scripts can access. This makes it easy to use input values in any programming language.
 
@@ -597,18 +599,18 @@ name = os.environ.get('ARGS_NAME')
 uppercase = os.environ.get('FLAGS_UPPERCASE') == 'true'
 ```
 
-##### Validation
+##### Basic built-in validations
 
-cmdeagle performs automatic validation based on the properties you define:
+In addition to the (command-level `validate`)[#validate-setting] script, cmdeagle performs automatic validation based on the properties you define:
 
 1. Type checking (string, number, boolean)
 2. Required field validation
 3. Pattern matching (if a pattern is provided)
 4. Conflict and dependency validation
 
-You can also implement custom validation logic using the `validate` script for more complex requirements.
+It's recommended to make the most of these built-in validations and piggyback off them with your `validate` script for more complex requirements. It's worth mentioning that the built-in validations are checked first, so if they fail, the `validate` script will not be run.
 
-##### Example: Complete Argument and Flag Configuration
+##### Example of complete argument and flag configuration
 
 Here's a comprehensive example showing various argument and flag configurations:
 
@@ -654,7 +656,6 @@ This configuration would allow commands like:
 ```
 mycli greet John 25 --uppercase --repeat 3
 ```
-
 
 ### Using the `cmdeagle` CLI
 

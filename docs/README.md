@@ -13,7 +13,7 @@ A language-agnostic CLI application build tool that allows you to create cross-p
 
 ## Quick Start
 
-The easiest way to work with cmdeagle right now is by [installing it with Go](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
+The easiest way to work with cmdeagle right now is by installing it with [Golang's package manager](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
 
 ### 1) Install it with Go's package manager
 
@@ -131,7 +131,7 @@ Use "mycli [command] --help" for more information about a command.
 
 Where `mycli` was the name you created in [step 2](#_2-initialize-a-cli-starter-project-named-mycli).
 
-The `completion` command will generate a script for your CLI to use in your shell. This is made possible because `cmdeagle` uses [Cobra](https://github.com/spf13/cobra) under the hood. <!--IMPLEMENT--> You can turn this off by setting the `completion` key to `false` at the root level of the `.cmd.yaml` file.
+The `completion` command will generate a script for your CLI to use in your shell. This is made possible because `cmdeagle` uses [Cobra](https://github.com/spf13/cobra) under the hood. <!--IMPLEMENT--> You can turn this off by setting the `completion` setting to `false` at the root level of the `.cmd.yaml` file.
 
 Currently, `cmdeagle` primarily uses Cobra for parsing arguments, flags, and subcommands. While we don't yet take full advantage of all the rich features Cobra provides, we plan to integrate more of these capabilities in future releases to enhance the functionality and flexibility of your CLI applications.
 
@@ -151,65 +151,40 @@ Your CLI's schema is defined in a [YAML](https://en.wikipedia.org/wiki/YAML#cite
 The `.cmd.yaml` file has a tree-like structure that mirrors the command hierarchy of your CLI application:
 
 - The **root level** contains both application-wide configuration (like `completion`) and configuration for the root command itself (the command invoked when users run your CLI without any subcommands)
-- **Subcommands** are defined under the `commands` key and can have their own subcommands, forming a hierarchical tree
+- **Subcommands** are defined under the `commands` setting and can have their own subcommands, forming a hierarchical tree
 - Each command node (root or subcommand) can have its own configuration for arguments, flags, lifecycle scripts, etc.
 
 This hierarchical structure allows you to organize complex CLIs with multiple levels of commands while maintaining a clear and logical configuration.
 
-#### Root-level configuration
+#### Application and root-level configuration
 
 The root level of your `.cmd.yaml` file contains two types of configuration:
 
 1. **Application-level configuration**: Settings that apply to the entire CLI application
-2. **Root command configuration**: Settings that define the behavior of your CLI when invoked without subcommands
+2. **Root command configuration**: Settings that define the behavior of your CLI when invoked without subcommands. These same settings are available to all subcommands.
 
+These following settings only apply at the application level:
 
-##### Application-level Configuration
+##### Basic information and metadata settings
 
-These settings apply to the entire CLI application:
-
-
-###### `name` key
-
-Defines the name of your CLI executable. This is what users will type to invoke your CLI.
+These settings define the core identity and metadata of your CLI application. They're primarily used to populate help text of your CLI for your users.
 
 ```yaml
-name: mycli
+# Basic CLI identity and metadata
+name: mycli                                # Name of your CLI executable
+description: "A tool for managing widgets" # Short description shown in help text
+version: "1.0.0"                           # Version number shown with --version flag
+author: "Jane Doe <jane@example.com>"      # Creator information
+license: "MIT"                             # License information
 ```
 
-###### `description` key
+All these settings are optional except for `name`, which defaults to your project directory name if not specified. They help users understand what your CLI does, who created it, and under what terms it can be used.
 
-A short description of your CLI that appears in help text and documentation.
+It's worth noting that the number defined in the `version` setting is displayed when users run your CLI with the `--version` flag.
 
-```yaml
-description: "A tool for managing widgets"
-```
+##### Other application-level settings
 
-###### `version` key
-
-The version number of your CLI. This is displayed when users run your CLI with the `--version` flag.
-
-```yaml
-version: "1.0.0"
-```
-
-###### `author` key
-
-The name of the author or organization that created the CLI.
-
-```yaml
-author: "Jane Doe <jane@example.com>"
-```
-
-###### `license` key
-
-The license under which your CLI is distributed.
-
-```yaml
-license: "MIT"
-```
-
-###### `completion` key
+###### `completion` setting
 
 Controls whether the built-in command completion functionality is enabled. Defaults to `true`.
 
@@ -223,9 +198,9 @@ Commands are the core building blocks of your CLI application. Each command (whe
 
 The following configuration keys can be used within any command definition, including the root command and all subcommands:
 
-###### `commands` key
+##### `commands` setting
 
-At the root level, the `commands` key defines the top-level subcommands of your CLI application. These are the commands 
+At the root level, the `commands` setting defines the top-level subcommands of your CLI application. These are the commands 
 that users can run directly after your CLI name.
 
 Each command in defined in the `commands` (or the single one at the root level) defines subcommands for either the root 
@@ -255,15 +230,15 @@ mycli subcommand2
 mycli subcommand2 nested
 ```
 
-Each command defined here can have its own configuration including [arguments](#arguments-and-flags), [flags](#arguments-and-flags), [lifecycle scripts](#command-lifecycle-configuration), and even [nested subcommands](#top-level-command-and-sub-commands) (using their own `commands` key).
+Each command defined here can have its own configuration including [arguments](#arguments-and-flags), [flags](#arguments-and-flags), [lifecycle scripts](#command-lifecycle-configuration), and even [nested subcommands](#top-level-command-and-sub-commands) (using their own `commands` setting).
 
-The `commands` key is how you build the command tree structure of your CLI application, starting from these top-level commands. In the next section, we'll look at how to define subcommands and their configuration. For the sake of brevity, we'll use the term "command" to refer to both top-level command and subcommands.
+The `commands` setting is how you build the command tree structure of your CLI application, starting from these top-level commands. In the next section, we'll look at how to define subcommands and their configuration. For the sake of brevity, we'll use the term "command" to refer to both top-level command and subcommands.
 
-###### Command lifecycle configuration
+#### Command lifecycle configuration
 
 Commands in cmdeagle have a well-defined lifecycle with specific phases that you can hook into to customize behavior. These lifecycle hooks allow you to execute code at different stages of command execution, from validation and preprocessing to the main execution and cleanup. By configuring these lifecycle scripts, you can create sophisticated command behaviors while maintaining a clean separation of concerns.
 
-###### Build Time Lifecycle
+##### Build Time Lifecycle
 
 During the build phase (`cmdeagle build`), the following steps occur:
 
@@ -275,17 +250,23 @@ flowchart TD
 
     dev --> |Runs **cmdeagle build** command in developer environment| requires1
 
-    requires1(**requires** step)-->|Described dependencies and their versions checked for existence on the system| build(build)
-    build(**build** step) -->|Build script runs and does any necessary compilation| include
+    requires1(Requirements Step)-->|Described dependencies and their versions checked for existence on the system| build(build)
+    build(Build Step) -->|Build script runs and does any necessary compilation| include
 
-    include(**include** step) --> |Assets and data bundled together and embedded into a single binary executable| exe
+    include(Bundling Step) --> |Assets and data bundled together and embedded into a single binary executable| exe
     
     user -->|Executes CLI application in runtime environment| exe
     exe[EXECUTABLE]
 
 ```
 
-###### Runtime Lifecycle
+The settings you define to control this lifecycle are:
+
+- [`requires`](#requires-setting) - Defines dependencies that must be present on the system for your command to run.
+- [`build`](#build-setting) - Defines a script that runs during the build phase to compile or prepare your command.
+- [`include`](#include-setting) - Defines files that should be bundled with your CLI application.
+
+##### Runtime Lifecycle
 
 When a user runs your CLI application, the following steps occur:
 
@@ -300,21 +281,28 @@ flowchart TD
         
     exe --> fork_install{First time running?}
     fork_install -->|Yes| install
-    install(**install** step) -->|Assets and data extracted from executable| requires2
+    install(Install Step) -->|Assets and data extracted from executable| requires2
     fork_install -->|No| requires2 
-    requires2[**requires** step] -->|Dependencies checked again in the runtime environment| validate
-    validate(**validate** step) -->|Validation script is run and success is determined by lack of non-zero exit code| fork_start{Success?}
+    requires2[Requirements Step] -->|Dependencies checked again in the runtime environment| validate
+    validate(Validation Step) -->|Validation script is run and success is determined by lack of non-zero exit code| fork_start{Success?}
     fork_start --> |Yes| start(Application runs the **start** script)
     fork_start --> |No| exit(Application exits)
 
 
 ```
 
-The following configuration options control different aspects of a command's lifecycle:
+The settings you define to control this lifecycle are:
 
-###### `requires` key
+- [`requires`](#requires-setting) - Defines dependencies that must be present on the system for your command to run.
+- [`validate`](#validate-setting) - Defines a script that runs at runtime before the main command execution.
+- [`start`](#start-setting) - Defines the main script that runs when your command is executed.
 
-The `requires` key specifies dependencies that must be present on the system for your command to run. These dependencies are checked twice: once during build time and again at runtime.
+
+Let's look at each of these settings in more detail in the following sections.
+
+###### `requires` setting
+
+The `requires` setting specifies dependencies that must be present on the system for your command to run. These dependencies are checked twice: once during build time and again at runtime.
 
 ```yaml
 requires:
@@ -329,9 +317,39 @@ Each dependency is specified as a key-value pair where:
 
 cmdeagle will check if these dependencies exist and meet the version requirements before proceeding with the build or execution.
 
-###### `build` key
+**How version checking works:**
+cmdeagle attempts to check the version by executing the dependency command with common version flags (like `--version`, `-version`, `--v`, `-v`, etc.) and extracting the version number from the output. This approach has limitations:
+- The executable must be in the system's PATH
+- The command must support one of the common version flags
+- The version format must be recognizable
 
-The `build` key defines a script that runs during the build phase to compile or prepare your command. This script is executed when you run `cmdeagle build`.
+If cmdeagle cannot determine the version, it will only verify that the command exists but won't validate the version constraint.
+
+If you encounter issues with version checking for a specific dependency, please [create an issue on GitHub](https://github.com/migsc/cmdeagle/issues) so we can improve support for that dependency.
+
+**Available comparison operators:**
+- `*` - Any version is acceptable (just checks if the command exists)
+- `^` - Compatible with major version (e.g., `^1.2.3` matches any `1.x.y` version)
+- `~` - Compatible with major and minor version (e.g., `~1.2.3` matches any `1.2.x` version)
+- `>` - Greater than the specified version
+- `<` - Less than the specified version
+- `>=` - Greater than or equal to the specified version
+- `<=` - Less than or equal to the specified version
+- No operator - Exact version match (e.g., `1.2.3` only matches version `1.2.3`)
+
+Example:
+```yaml
+requires:
+  node: ">=16.0.0"  # Node.js 16.0.0 or higher
+  python3: "*"      # Any version of Python 3
+  go: "~1.22.0"     # Any 1.22.x version of Go
+  ruby: "^3.0.0"    # Any 3.x.y version of Ruby
+  docker: "24.0.5"  # Exactly version 24.0.5 of Docker
+```
+
+###### `build` setting
+
+The `build` setting defines a script that runs during the build phase to compile or prepare your command. This script is executed when you run `cmdeagle build`.
 
 ```yaml
 build: |
@@ -348,9 +366,9 @@ Environment variables available during the build script include:
 - `$CLI_NAME`: The name of your CLI application
 - `$CLI_DATA_DIR`: The directory where data files will be installed
 
-###### `include` key
+###### `include` setting
 
-The `include` key defines files that should be bundled with your CLI application. These files are embedded into the executable during the build phase and extracted when the user first runs your CLI.
+The `include` setting defines files that should be bundled with your CLI application. These files are embedded into the executable during the build phase and extracted when the user first runs your CLI.
 
 ```yaml
 includes:
@@ -367,9 +385,9 @@ This is useful for bundling:
 
 > **Note:** For security reasons, executable binaries cannot be bundled. Instead, use the `build` script to compile and place executables in the appropriate location.
 
-###### `validate` key
+###### `validate` setting
 
-The `validate` key defines a script that runs at runtime before the main command execution. It's used to validate arguments, flags, and other conditions before proceeding with the command.
+The `validate` setting defines a script that runs at runtime before the main command execution. It's used to validate arguments, flags, and other conditions before proceeding with the command.
 
 ```yaml
 validate: |
@@ -385,15 +403,17 @@ validate: |
 ```
 
 The validate script should:
-- Return a non-zero exit code if validation fails
-- Output error messages to stderr
+- Return a non-zero exit code if validation fails (required for the command to fail)
+- Output error messages to stderr (optional but recommended)
 - Return 0 (success) if validation passes
 
-If the validation script fails, the command execution will be aborted, and the error message will be displayed to the user.
+If the validation script fails, the command execution will be aborted, and a generic error message will be displayed to the user after whatever output the validation script may have produced.
 
-###### `start` key
+All [arguments](#arguments-and-flags) and [flags](#arguments-and-flags) defined for the command are available as environment variables within the validation script. See [Using Environment Variables](#using-environment-variables) for details on how to reference these values.
 
-The `start` key defines the main script that runs when your command is executed. This is the core functionality of your command.
+###### `start` setting
+
+The `start` setting defines the main script that runs when your command is executed. This is the core functionality of your command.
 
 ```yaml
 start: |
@@ -409,121 +429,238 @@ start: |
 ```
 
 The start script:
-- Has access to all arguments and flags as environment variables
+- Has access to all [arguments](#arguments-and-flags) and [flags](#arguments-and-flags) as environment variables
 - Can use any files that were included with your command
 - Can invoke other executables or scripts
 - Is responsible for the main functionality of your command
 
-> **Note:** Unlike the `install` step shown in the flowchart, there is no explicit `install` script configuration. The installation of bundled assets is handled automatically by cmdeagle when the user first runs your CLI application.
+See [Using Environment Variables](#using-environment-variables) for details on how to reference argument and flag values within your scripts.
 
 #### Arguments and Flags
 
-It's worth noting that cmdeagle assumes your arguments are positional, and that the order of your arguments in the configuration file determines their order in the command line. The flags you define do not have this behavior and can be defined in any order.
+Arguments and flags are the primary ways users interact with your CLI application. cmdeagle provides a robust system for defining, validating, and accessing these inputs in your command scripts.
 
-##### `name` key
+##### Understanding the difference
 
-Both arguments and flags must have a `name` key. The name key is important for the CLI to identify your argument or flag and it's also what you will use to reference their values within in your scripts.
+- **Arguments** are positional inputs that come after the command name. They are ordered and their position matters.
+- **Flags** are named inputs that can appear in any order, typically prefixed with `--` (or `-` for shorthand versions).
 
-See [Using Environment Variables](#using-environment-variables) for more information on how to reference their values.
+cmdeagle assumes your arguments are positional, and the order of your arguments in the configuration file determines their order in the command line. Flags do not have this positional behavior and can be provided in any order.
 
-In the future, we plan to relax the requirement for arguments to be named in order to better support arbitrary number of arguments.
+##### Defining Arguments
 
-
-##### `description` key
-
-The description key defines a short description of the argument or flag. This description will be used in the help command to describe the argument or flag.
-
-<!-- Long and short descriptions are not yet supported. -->
-
-<!-- ###### `examples` key
-
-... -->
-
-##### `type` key
-
-The type key defines how the CLI will parse the value of the argument or flag. Ultimately though, your scripts will still receive the raw value as a string due to the limitations of the shell.
-
-- `string` (default value) - Effectively a no-op.
-- `int` - Parses the value as an integer. Fails if the value cannot be parsed as an integer.
-- `float` / `number` - Parses the value as a floating-point number. Fails if cannot be parsed as a number.
--  `bool` /`boolean` - Parses the value as a boolean. The resulting value will either be `"true"` or `"false"`. For flags, any value that is not `"false"` will be considered `"true"`, and the absence of the flag will be considered `"false"`. For arguments, the value must be `"true"` or `"false"`. Otherwise, the value will be considered invalid and the execution will fail.
-<!-- - `date` -->
-<!-- - `json[]`
-- `json{}` -->
-
-##### `pattern` key
-
-Validates the value against a regular expression. It uses the [RE2 syntax](https://github.com/google/re2/wiki/Syntax) most commonly used by Perl, Python, and [Go](https://pkg.go.dev/regexp) programming languages.
+Arguments are defined in the `args` array of a command. Each argument has several properties that control its behavior:
 
 ```yaml
-pattern: "^[a-zA-Z0-9]+$" #validates that the value is a string of alphanumeric characters
+args:
+- name: duration
+  type: string
+  pattern: ^((\d+h)?(\d+m)?(\d+s)?)$|^(\d+)$
+  description: "The duration of the timer in the format of #h#m#s"
+  required: false
 ```
-  <!-- # regex: "^[a-zA-Z0-9]+$" #validates that the value is a string of alphanumeric characters -->
 
-<!-- - `uuid` - Validates the value against a UUID format.
-- `email` - Validates the value against an email format.
-- `url` - Validates the value against a URL format.
-- `ip` - Validates the value against an IP address format.
-- `ipv4` - Validates the value against an IPv4 address format.
-- `ipv6` - Validates the value against an IPv6 address format. -->
+##### Defining Flags
 
-##### `default` key
+Flags are defined in the `flags` array of a command. They have similar properties to arguments but with some additional options:
 
-The default value key defines the value that will be used if the argument or flag is not provided.
+```yaml
+flags:
+- name: name
+  shorthand:
+  - n
+  type: string
+  description: "A name to save the timer under to be able to recall it later."
+  pattern: ^[a-zA-Z0-9_-]+$
+  required: false
+```
+
+##### Common properties for Arguments and Flags
+
+###### `name` setting
+
+Both arguments and flags must have a `name` setting. This name is used to identify the input and is also how you'll reference its value in your scripts.
+
+```yaml
+name: duration
+```
+
+###### `description` setting
+
+The description provides a short explanation of the argument or flag that will be displayed in help text.
+
+```yaml
+description: "The duration of the timer in the format of #h#m#s"
+```
+
+###### `type` setting
+
+The type defines how cmdeagle will parse and validate the input value. Currently supported types include:
+
+- `string`: Text input (default)
+- `number`: Numeric input (integers and decimals)
+- `boolean`: True/false values (for flags only)
+
+```yaml
+type: string
+```
+
+###### `required` setting
+
+Specifies whether the argument or flag must be provided. Defaults to `false` for flags and `true` for arguments.
+
+```yaml
+required: true
+```
+
+###### `pattern` setting
+
+A regular expression pattern that the input value must match to be considered valid.
+
+```yaml
+pattern: ^((\d+h)?(\d+m)?(\d+s)?)$|^(\d+)$
+```
+
+###### `default` setting
+
+The default value to use if the argument or flag is not provided.
 
 ```yaml
 default: "World"
 ```
 
-Note that the default value should match the `type` of the argument or flag. If it doesn't, the CLI will fail to build your command.
+##### Flag-specific properties
 
-##### `required` key
+###### `shorthand` setting
 
-Will fail if the argument or flag is not provided.
+Defines one or more single-character aliases for the flag. Users can use these with a single dash (e.g., `-n` instead of `--name`).
 
 ```yaml
-required: true # defaults to false
+shorthand:
+- n
+- d
 ```
 
-##### `depends-on` key
+###### `conflicts-with` setting
 
-Will fail if the argument or flag is not provided. In this example, the `last-name` flag will fail if the `first-name` flag is not provided.
+Specifies other flags that cannot be used together with this flag.
 
 ```yaml
+conflicts-with:
+- uppercase
+```
+
+###### `depends-on` setting
+
+Specifies other arguments or flags that must be provided when this one is used.
+
+```yaml
+depends-on:
+- name: name
+```
+
+##### Using Environment Variables
+
+When your command runs, all arguments and flags are made available as environment variables that your scripts can access. This makes it easy to use input values in any programming language.
+
+For arguments, the environment variable format is:
+```
+ARGS_NAME
+```
+
+For flags, the environment variable format is:
+```
+FLAGS_NAME
+```
+
+For example, in a shell script:
+
+```bash
+echo "Hello, ${ARGS_NAME}!"
+if [ "${FLAGS_UPPERCASE}" = "true" ]; then
+  echo "UPPERCASE MODE ENABLED"
+fi
+```
+
+In a Node.js script:
+
+```javascript
+const name = process.env['ARGS_NAME'];
+const uppercase = process.env['FLAGS_UPPERCASE'] === 'true';
+```
+
+In a Python script:
+
+```python
+import os
+name = os.environ.get('ARGS_NAME')
+uppercase = os.environ.get('FLAGS_UPPERCASE') == 'true'
+```
+
+##### Validation
+
+cmdeagle performs automatic validation based on the properties you define:
+
+1. Type checking (string, number, boolean)
+2. Required field validation
+3. Pattern matching (if a pattern is provided)
+4. Conflict and dependency validation
+
+You can also implement custom validation logic using the `validate` script for more complex requirements.
+
+##### Example: Complete Argument and Flag Configuration
+
+Here's a comprehensive example showing various argument and flag configurations:
+
+```yaml
+args:
+- name: name
+  type: string
+  description: "Name to greet"
+  default: "World"
+  required: true
+
+- name: age
+  type: number
+  description: "Age of the user"
+  depends-on:
+  - name: name
+
 flags:
-  - name: first-name
-    type: string
-    description: "Name to greet"
+- name: uppercase
+  shorthand: u
+  type: boolean
+  description: "Convert greeting to uppercase"
+  default: false
+  conflicts-with:
+  - lowercase
 
-  - name: last-name
-    type: string
-    depends-on:
-      - first-name
+- name: lowercase
+  shorthand: l
+  type: boolean
+  description: "Convert greeting to lowercase"
+  default: false
+  conflicts-with:
+  - uppercase
+
+- name: repeat
+  shorthand: r
+  type: number
+  description: "Repeat the greeting n times"
+  default: 1
 ```
-This results in the following environment behavior:
 
-```sh
-mycli --first-name John 
-# will succeed.
-
-mycli --first-name John --last-name Simpson 
-# will succeed.
-
-mycli --last-name Simpson 
-# will fail because the `first-name` flag is not provided. 
-
+This configuration would allow commands like:
+```
+mycli greet John 25 --uppercase --repeat 3
 ```
 
-
-##### `conflicts-with` key
-
-...
 
 ### Using the `cmdeagle` CLI
 
 The `cmdeagle` CLI is used to initialize, build, and manage your CLI application. It's fairly simple and has only a few commands.
 
-### `init` command
+#### `init` command
 
 The `init` command creates a new CLI project with a basic structure and example commands.
 
@@ -551,7 +688,7 @@ This command creates several files:
 - `.cmd.yaml` - The main configuration file for your CLI
 - Sample greeting scripts in multiple languages (Shell, JavaScript, Python, Go)
 
-### `build` command
+#### `build` command
 
 The `build` command compiles your CLI application based on the configuration in your `.cmd.yaml` file.
 
@@ -573,7 +710,7 @@ After building, your CLI will be available in:
 - On macOS/Linux: `/usr/local/bin` or `~/.local/bin`
 - On Windows: `%LocalAppData%\Programs\mycli\bin`
 
-### `completion` command
+#### `completion` command
 
 The `completion` command generates shell completion scripts to enable tab completion for the `cmdeagle` commands.
 
@@ -629,7 +766,7 @@ echo '. ~/Documents/PowerShell/cmdeagle.ps1' >> $PROFILE
 
 Note: While PowerShell completion is listed as an option (because it's built into Cobra), Windows support for cmdeagle is not yet fully implemented. We plan to add comprehensive Windows support in a future release.
 
-### `help` command
+#### `help` command
 
 The `help` command displays help information about available commands and their usage.
 

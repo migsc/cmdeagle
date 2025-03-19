@@ -1,73 +1,96 @@
-# This is the name of the binary you use to invoke your CLI.
+# ===== CLI APPLICATION METADATA =====
+# These settings define the core identity of your CLI application.
+# They're used to populate help text and version information.
 
+# The name of your CLI executable - this is what users will type to run your CLI.
+# This is the only required metadata field.
 name: "{{name}}"
 
-# Some optional metadata you can add to your CLI. This doesn't get used anywhere but may be useful to document. 
-# Displayed by `{{name}} --help` when help command invoked in some other way. 
+# A brief description of what your CLI does.
+# Displayed by `{{name}} --help` and other help commands.
 description: "{{description}}" # e.g. "My CLI is a tool to manage my projects."
+
+# The version number of your CLI.
+# Displayed when users run your CLI with the `--version` flag.
 version: "{{version}}" # e.g.  "0.0.1" 
+
+# The author/creator of the CLI.
 author: "{{author}}" # e.g. Your name e.g. "John Doe"
+
+# The license under which your CLI is distributed.
 license: "{{license}}" # e.g. Your license e.g. "MIT"
 
-# Controls whether the CLI will be built with a `completion` subcommand that will
-# generate an autocompletion script for you to copy and use in your shell (zsh, bash, etc). 
-# This is made possible because cmdeagle uses [cobra](https://github.com/spf13/cobra) 
-# under the hood.
+# ===== SHELL COMPLETION =====
+# Controls whether the CLI will generate shell completion scripts.
+# When enabled, your CLI will have a `completion` subcommand that generates
+# autocompletion scripts for various shells (bash, zsh, fish, powershell).
+# This is powered by Cobra (https://github.com/spf13/cobra).
 completion: true
 
-# This is the build script that will be used to build your CLI.
-# The Go build process requires internet connectivity to resolve and download modules 
-# for the wrapper application that cmdeagle generates to bundle your scripts and assets.
+# ===== BUILD CONFIGURATION =====
+# This script runs during the build phase when you execute `cmdeagle build`.
+# It's used to compile source code, generate assets, or prepare resources.
+# The Go build process requires internet connectivity to download dependencies.
 build: |
   go build -o $CLI_BIN_DIR/{{name}}-go-binary greet.go
-# When you run `cmdeagle build` without arguments, It will try to install the binary in these directories
-# - For macOs and Linux:   /usr/local/bin or ~/.local/bin
-# - For Windows: C:\Users\<username>\AppData\Local\Programs\MyApp\bin
-# The build script can also be define on any subcommand level.
 
-# The includes field is used to declare the files that will be bundled with your CLI.
+# Environment variables available during build:
+# - $CLI_BIN_DIR: Directory where binaries should be placed
+# - $CLI_NAME: Name of your CLI application
+# - $CLI_DATA_DIR: Directory where data files will be installed
+
+# ===== BUNDLED FILES =====
+# Files listed here will be bundled with your CLI executable.
+# They're extracted when the user first runs your CLI.
+# This is useful for scripts, configuration files, and static assets.
 includes:
-# You can bundle files with your CLI by declaring the paths to them in the `includes` field.
-# This is useful for things like static assets, media, configuration files, data files, etc.
 - "./greet.sh"
 - "./greet.js"
 - "./greet.py"
-# When the CLI runs for the first time, it will install the files in these directories
-# - For macOS and Linux:   /usr/local/share/{name} or ~/.local/share/{{name}}
+# Note: For security reasons, executable binaries cannot be bundled.
+# Instead, use the `build` script to compile and place executables.
+
+# When the CLI runs for the first time, it will install these files in:
+# - For macOS and Linux: /usr/local/share/{name} or ~/.local/share/{{name}}
 # - Windows (user-only): %LocalAppData%\{{name}}
 
-
-# The subcommands of your CLI. You can nest subcommands as deeply as you want.
-# Each subcommand can also declare its own `requires`, `includes` just like the root command above.
+# ===== COMMAND STRUCTURE =====
+# This section defines the subcommands of your CLI.
+# You can nest subcommands as deeply as you want to create a hierarchical command structure.
 commands:
 
 - name: greet
   description: "Greet the user."
 
+  # ===== DEPENDENCIES =====
+  # The `requires` setting specifies dependencies that must be present for your command to run.
+  # These are checked both at build time and runtime.
   requires:
-    # The `requires` statement is used to specify the dependencies your CLI needs to run. These are checked when you run 
-    # your binary. They are not checked at build time.
-    # You can use comparison operators preceeding a version number to specify the version of the dependency you need. 
-    node: ">=16.0.0"
-    python3: "*"
-    # Here is the full list of operators you can use:
+    # Each dependency is specified as a key-value pair:
+    # - Key: Name of the dependency (executable that should be in PATH)
+    # - Value: Version constraint string
+    node: ">=16.0.0" # Node.js 16.0.0 or higher
+    python3: "*" # Any version of Python 3
+    # Available comparison operators:
     # - `*` (any version)
-    # - `^` (major version)
-    # - `~` (major and minor version)
+    # - `^` (compatible with major version, e.g., ^1.2.3 matches any 1.x.y)
+    # - `~` (compatible with major and minor version, e.g., ~1.2.3 matches any 1.2.x)
     # - `>` (greater than)
     # - `<` (less than)
     # - `>=` (greater than or equal)
     # - `<=` (less than or equal)
     # - No operator (exact match)
 
-    # The arguments of your CLI.
+    # ===== ARGUMENTS =====
+    # Arguments are positional inputs that come after the command name.
+    # Their order matters and is determined by the order in this configuration.
   args:
 
   - name: name
-    type: string
+    type: string # Supported types: string, number, boolean (for flags only)
     description: "Name to greet"
-    default: "World"
-    required: true
+    default: "World" # Default value if not provided
+    required: true # Whether this argument must be provided
 
   - name: age
     type: number
@@ -76,16 +99,20 @@ commands:
     #   min: 18
     #   max: 100
     depends-on:
+    # This argument requires the 'name' argument to be provided
     - name: name
-
+  # ===== FLAGS =====
+  # Flags are named inputs that can appear in any order.
+  # They're typically prefixed with `--` (or `-` for shorthand versions).
   flags:
 
   - name: uppercase
-    shorthand: u
+    shorthand: u # Single-character alias (used with a single dash, e.g., -u)
     type: boolean
     description: "Convert greeting to uppercase"
     default: false
     conflicts-with:
+    # This flag cannot be used together with the 'lowercase' flag
     - lowercase
 
   - name: lowercase
@@ -122,18 +149,37 @@ commands:
     description: "Use Go to greet the user"
     conflicts-with:
     - use-python
-
+  # ===== COMMAND EXECUTION =====
+  # The `start` script defines what happens when your command is executed.
+  # This is the core functionality of your command.
   start: |
-    if [ "${flags.use-python}" = "true" ]; then
+    # All arguments and flags are available as environment variables:
+    # - Arguments: $ARGS_NAME, $ARGS_AGE
+    # - Flags: $FLAGS_UPPERCASE, $FLAGS_LOWERCASE, $FLAGS_REPEAT, etc.
+
+    if [ "$FLAGS_USE_PYTHON" = "true" ]; then
       echo "Using Python"
       python3 greet.py
-    elif [ "${flags.use-js}" = "true" ]; then
+    elif [ "$FLAGS_USE_JS" = "true" ]; then
       echo "Using JavaScript"
       node greet.js
-    elif [ "${flags.use-go}" = "true" ]; then
+    elif [ "$FLAGS_USE_GO" = "true" ]; then
       echo "Using Go"
       ./{{name}}-go-binary
     else
       echo "Using Shell"
       sh greet.sh
     fi
+  # You can also define a `validate` script that runs before the `start` script
+  # to perform custom validation of arguments and flags:
+  #
+  # validate: |
+  #   if [ -z "$ARGS_NAME" ]; then
+  #     echo "Error: Name cannot be empty" >&2
+  #     exit 1
+  #   fi
+  #
+  # The validate script should:
+  # - Return a non-zero exit code if validation fails
+  # - Output error messages to stderr
+  # - Return 0 (success) if validation passes

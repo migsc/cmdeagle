@@ -6,11 +6,11 @@
 
 # cmdeagle <small>0.11.1</small>
 
-> A versatile cross-platform CLI application builder.
+> A declarative CLI application builder for any language.
 
-- Easily handle complex validation and parsing.
-- Write command scripts in any language.
-- Build, distribute and run anywhere.
+- Define commands, arguments, and validation in a single config
+- Write command scripts in any programming language
+- Package into self-contained executables for any platform
 
 [Reference](#reference)
 [Getting Started](#quick-start)

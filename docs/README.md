@@ -2,28 +2,26 @@
 
 _**WARNING:** This is very much a work in progress, but we're close to releasing a stable version 1. Check back soon. Feedback is also much appreciated._
 
-A language-agnostic CLI application build tool that allows you to create cross-platform applications written in any programming language of your choice.
+## Overview
 
-## Features
+Building robust CLI applications is tedious, often requiring complex procedural logic and language-specific libraries. cmdeagle simplifies this process by:
 
-- Define commands and subcommands from a single YAML configuration file.
-- Reuse your existing external scripts and binaries to build commands.
-- Define, parse, and validate your arguments and flags into environment variables your scripts can use.
-- Create build steps and declare data/assets to install your commands.
+- Providing a declarative configuration approach that enables you to define commands, arguments, flags, validation rules, and dependency requirements in a single source of truth
+- Leveraging the power of shell scripting while allowing you to use any programming language you're comfortable with
+- Handling cross-platform builds that package your application into a single self-contained executable with all embedded assets
+- Offering a consistent developer experience regardless of the underlying implementation language
 
 ## Quick Start
 
-The easiest way to work with cmdeagle right now is by installing it with [Golang's package manager](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
+Go 1.23.2 or later is required.
 
 ### 1) Install it with Go's package manager
+
+The easiest way to work with cmdeagle right now is by installing it with [Golang's package manager](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
 
 ```sh
 go install github.com/migsc/cmdeagle@latest
 ```
-
-Go 1.23.2 or later is required. Install it from [Golang's website](https://go.dev/doc/install).
-<!-- - Node.js (v16.17.0+) -->
-<!-- - Node.js Package Manager (npm) -->
 
 ### 2) Initializing a starter project
 
@@ -31,7 +29,7 @@ Go 1.23.2 or later is required. Install it from [Golang's website](https://go.de
 cmdeagle init mycli
 ```
 
-Where `mycli` is the name of the executable file you want to build. By default, the binary will be named after the directory you run the command from. You can [change this later](#cli-level-name-key).
+Where `mycli` is the name of the executable file you want to build. By default, the binary will be named after the directory you run the command from. You can [change this later](#basic-information-and-metadata-settings) using the `name` key in your configuration.
 
 ### 3) Building the CLI:
 
@@ -131,7 +129,7 @@ Use "mycli [command] --help" for more information about a command.
 
 Where `mycli` was the name you created in [step 2](#_2-initialize-a-cli-starter-project-named-mycli).
 
-The `completion` command will generate a script for your CLI to use in your shell. This is made possible because `cmdeagle` uses [Cobra](https://github.com/spf13/cobra) under the hood. <!--IMPLEMENT--> You can turn this off by setting the `completion` setting to `false` at the root level of the `.cmd.yaml` file.
+The `completion` command will generate a script for your CLI to use in your shell. This is made possible because `cmdeagle` uses [Cobra](https://github.com/spf13/cobra) under the hood, which provides powerful [command completion capabilities](https://cobra.dev/#generating-bash-completions). You can turn this off by setting the `completion` setting to `false` at the root level of the `.cmd.yaml` file.
 
 Currently, `cmdeagle` primarily uses Cobra for parsing arguments, flags, and subcommands. While we don't yet take full advantage of all the rich features Cobra provides, we plan to integrate more of these capabilities in future releases to enhance the functionality and flexibility of your CLI applications.
 
@@ -141,6 +139,153 @@ Currently, `cmdeagle` primarily uses Cobra for parsing arguments, flags, and sub
 This section provides detailed documentation for all configuration options, commands, and features available in cmdeagle. Use this reference to understand how to configure your CLI application, define commands and subcommands, set up arguments and flags, and implement the various lifecycle scripts that power your CLI's functionality.
 
 The reference is organized by topic, starting with the configuration structure and moving through each aspect of CLI development with cmdeagle. Each section includes examples and explanations to help you implement the features in your own projects.
+
+
+### Using the `cmdeagle` CLI
+
+The `cmdeagle` CLI is used to initialize, build, and manage your CLI application. It's fairly simple and has only a few commands.
+
+#### `init` command
+
+The `init` command creates a new CLI project with a basic structure and example commands.
+
+```sh
+cmdeagle init [name]
+```
+
+**Parameters:**
+- `name` - The name of your CLI application (optional, defaults to the current directory name)
+
+**Examples:**
+
+Create a new CLI named "mycli":
+```sh
+cmdeagle init mycli
+```
+
+Create a CLI in the current directory:
+```sh
+mkdir my-awesome-cli && cd my-awesome-cli
+cmdeagle init
+```
+
+This command creates several files:
+- `.cmd.yaml` - The main configuration file for your CLI
+- Sample greeting scripts in multiple languages (Shell, JavaScript, Python, Go)
+
+#### `build` command
+
+The `build` command compiles your CLI application based on the configuration in your `.cmd.yaml` file.
+
+```sh
+cmdeagle build [flags]
+```
+
+**Flags:**
+- Currently, the build command supports building for your current platform. Cross-platform support is coming soon.
+
+**Examples:**
+
+Build your CLI:
+```sh
+cmdeagle build
+```
+
+After building, your CLI will be available in:
+- On macOS/Linux: `/usr/local/bin` or `~/.local/bin`
+- On Windows: `%LocalAppData%\Programs\mycli\bin`
+
+#### `completion` command
+
+The `completion` command generates shell completion scripts to enable tab completion for the `cmdeagle` commands.
+
+```sh
+cmdeagle completion [shell]
+```
+
+**Parameters:**
+- `shell` - The shell to generate completion for (bash, zsh, fish, powershell)
+
+**Examples:**
+
+
+Generate bash completions:
+```sh
+# Create completion directory if it doesn't exist
+mkdir -p ~/.bash_completion.d
+cmdeagle completion bash > ~/.bash_completion.d/cmdeagle
+
+# Add to your ~/.bashrc to load completions
+echo 'source ~/.bash_completion.d/cmdeagle' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Generate zsh completions:
+```sh
+# Create completion directory if it doesn't exist
+mkdir -p ~/.zsh/completion
+cmdeagle completion zsh > ~/.zsh/completion/_cmdeagle
+
+# Add to your ~/.zshrc to load completions
+echo 'fpath=(~/.zsh/completion $fpath)' >> ~/.zshrc
+echo 'autoload -U compinit && compinit' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Generate fish completions:
+```sh
+# Fish automatically loads completions from this directory
+mkdir -p ~/.config/fish/completions
+cmdeagle completion fish > ~/.config/fish/completions/cmdeagle.fish
+```
+
+Generate PowerShell completions:
+```powershell
+# Create a directory for the completion script
+mkdir -p ~/Documents/PowerShell/
+cmdeagle completion powershell > ~/Documents/PowerShell/cmdeagle.ps1
+
+# Add to your PowerShell profile to load completions
+echo '. ~/Documents/PowerShell/cmdeagle.ps1' >> $PROFILE
+```
+
+Note: While PowerShell completion is listed as an option (because it's built into Cobra), Windows support for cmdeagle is not yet fully implemented. We plan to add comprehensive Windows support in a future release.
+
+#### `help` command
+
+The `help` command displays help information about available commands and their usage.
+
+```sh
+cmdeagle help [command]
+```
+
+**Parameters:**
+- `command` - The command to get help for (optional)
+
+**Examples:**
+
+Get general help:
+```sh
+cmdeagle help
+```
+
+Get help for the init command:
+```sh
+cmdeagle help init
+```
+
+Get help for the build command:
+```sh
+cmdeagle help build
+```
+
+You can also use the `-h` or `--help` flag with any command to see its help information:
+```sh
+cmdeagle init --help
+cmdeagle build -h
+```
+
+The help command provides detailed information about command usage, available flags, and examples to guide you through using cmdeagle effectively.
 
 ### Configuring your CLI 
 
@@ -517,7 +662,7 @@ required: true
 
 ###### `pattern` setting
 
-A regular expression pattern that the input value must match to be considered valid. If the regular expression fails to match, the argument or flag will be considered invalid and the command will fail, similar to how the `validate` script works.
+A regular expression pattern that the input value must match to be considered valid. If the regular expression fails to match, the argument or flag will be considered invalid and the command will fail, similar to how the `validate` script works. You can test your regex patterns using tools like [regex101](https://regex101.com/). You need to select Golang as the language to test your regex patterns when you use regex101.
 
 ```yaml
 pattern: ^((\d+h)?(\d+m)?(\d+s)?)$|^(\d+)$
@@ -601,7 +746,7 @@ uppercase = os.environ.get('FLAGS_UPPERCASE') == 'true'
 
 ##### Basic built-in validations
 
-In addition to the (command-level `validate`)[#validate-setting] script, cmdeagle performs automatic validation based on the properties you define:
+In addition to the [command-level `validate` script](#validate-setting), cmdeagle performs automatic validation based on the properties you define:
 
 1. Type checking (string, number, boolean)
 2. Required field validation
@@ -656,149 +801,3 @@ This configuration would allow commands like:
 ```
 mycli greet John 25 --uppercase --repeat 3
 ```
-
-### Using the `cmdeagle` CLI
-
-The `cmdeagle` CLI is used to initialize, build, and manage your CLI application. It's fairly simple and has only a few commands.
-
-#### `init` command
-
-The `init` command creates a new CLI project with a basic structure and example commands.
-
-```sh
-cmdeagle init [name]
-```
-
-**Parameters:**
-- `name` - The name of your CLI application (optional, defaults to the current directory name)
-
-**Examples:**
-
-Create a new CLI named "mycli":
-```sh
-cmdeagle init mycli
-```
-
-Create a CLI in the current directory:
-```sh
-mkdir my-awesome-cli && cd my-awesome-cli
-cmdeagle init
-```
-
-This command creates several files:
-- `.cmd.yaml` - The main configuration file for your CLI
-- Sample greeting scripts in multiple languages (Shell, JavaScript, Python, Go)
-
-#### `build` command
-
-The `build` command compiles your CLI application based on the configuration in your `.cmd.yaml` file.
-
-```sh
-cmdeagle build [flags]
-```
-
-**Flags:**
-- Currently, the build command supports building for your current platform. Cross-platform support is coming soon.
-
-**Examples:**
-
-Build your CLI:
-```sh
-cmdeagle build
-```
-
-After building, your CLI will be available in:
-- On macOS/Linux: `/usr/local/bin` or `~/.local/bin`
-- On Windows: `%LocalAppData%\Programs\mycli\bin`
-
-#### `completion` command
-
-The `completion` command generates shell completion scripts to enable tab completion for the `cmdeagle` commands.
-
-```sh
-cmdeagle completion [shell]
-```
-
-**Parameters:**
-- `shell` - The shell to generate completion for (bash, zsh, fish, powershell)
-
-**Examples:**
-
-
-Generate bash completions:
-```sh
-# Create completion directory if it doesn't exist
-mkdir -p ~/.bash_completion.d
-cmdeagle completion bash > ~/.bash_completion.d/cmdeagle
-
-# Add to your ~/.bashrc to load completions
-echo 'source ~/.bash_completion.d/cmdeagle' >> ~/.bashrc
-source ~/.bashrc
-```
-
-Generate zsh completions:
-```sh
-# Create completion directory if it doesn't exist
-mkdir -p ~/.zsh/completion
-cmdeagle completion zsh > ~/.zsh/completion/_cmdeagle
-
-# Add to your ~/.zshrc to load completions
-echo 'fpath=(~/.zsh/completion $fpath)' >> ~/.zshrc
-echo 'autoload -U compinit && compinit' >> ~/.zshrc
-source ~/.zshrc
-```
-
-Generate fish completions:
-```sh
-# Fish automatically loads completions from this directory
-mkdir -p ~/.config/fish/completions
-cmdeagle completion fish > ~/.config/fish/completions/cmdeagle.fish
-```
-
-Generate PowerShell completions:
-```powershell
-# Create a directory for the completion script
-mkdir -p ~/Documents/PowerShell/
-cmdeagle completion powershell > ~/Documents/PowerShell/cmdeagle.ps1
-
-# Add to your PowerShell profile to load completions
-echo '. ~/Documents/PowerShell/cmdeagle.ps1' >> $PROFILE
-```
-
-Note: While PowerShell completion is listed as an option (because it's built into Cobra), Windows support for cmdeagle is not yet fully implemented. We plan to add comprehensive Windows support in a future release.
-
-#### `help` command
-
-The `help` command displays help information about available commands and their usage.
-
-```sh
-cmdeagle help [command]
-```
-
-**Parameters:**
-- `command` - The command to get help for (optional)
-
-**Examples:**
-
-Get general help:
-```sh
-cmdeagle help
-```
-
-Get help for the init command:
-```sh
-cmdeagle help init
-```
-
-Get help for the build command:
-```sh
-cmdeagle help build
-```
-
-You can also use the `-h` or `--help` flag with any command to see its help information:
-```sh
-cmdeagle init --help
-cmdeagle build -h
-```
-
-The help command provides detailed information about command usage, available flags, and examples to guide you through using cmdeagle effectively.

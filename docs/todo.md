@@ -3,13 +3,13 @@
 For next version v1.0
 
 - Docs
-  - [ ] Fix placeholder link to reference name key line 35
-- [ ] favicon for docs
-- [ ] fix the examples to use proper env variables
+  - [x] Fix placeholder link to reference name key line 35
+- [x] favicon for docs
+- [x] fix the examples to use proper env variables
 - init command
   - [x] Fix template app's config (line 61 cannot unmarshal)to the former.
   - [x] Fix template app's config (line 61 cannot unmarshal)
-  - [ ] Make build command for template app work without the chmod command
+  - [x] Make build command for template app work without the chmod command
   - [ ] remove comments before release so that they're not visible in source code
 - build command
   - [ ] need to provide arguments for arch and handle multiple
@@ -21,6 +21,9 @@ For next version v1.0
 scrap it? keep it? could be good for cross platform.
 - [ ] completion setting
 - [ ] app level metadata settings need to be printed in the help output
+- [ ] version needs to be printed in the help output
+- [ ] boolean accepted values need to be accepted correctly
+- [ ] add install with npm instructions
 
 ## v1.1
 

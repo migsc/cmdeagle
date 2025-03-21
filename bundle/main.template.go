@@ -72,6 +72,11 @@ func execute() error {
 	// Set up the root command
 	rootCmd, err = registerCommandDef(cmdConfig, rootCommandDef, nil, []string{})
 
+	rootCmd.Version = cmdConfig.Version
+	rootCmd.CompletionOptions = cobra.CompletionOptions{
+		DisableDefaultCmd: !cmdConfig.Completion,
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed to setup root command: %w", err)
 	}
@@ -182,6 +187,7 @@ func registerCommandDef(cmdConfig *types.CmdeagleConfig, commandDef *types.Comma
 	// 3. A way to run the command
 	cobraCmd := &cobra.Command{
 		Use:          commandDef.Name,
+		Version:      cmdConfig.Version,
 		Short:        commandDef.Description,
 		SilenceUsage: true, // Silence usage on validation errors
 		RunE: func(cmd *cobra.Command, args []string) error {

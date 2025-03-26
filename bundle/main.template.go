@@ -76,6 +76,7 @@ func execute() error {
 	rootCmd.CompletionOptions = cobra.CompletionOptions{
 		DisableDefaultCmd: !cmdConfig.Completion,
 	}
+	rootCmd.VersionTemplate()
 
 	if err != nil {
 		return fmt.Errorf("failed to setup root command: %w", err)

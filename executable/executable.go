@@ -148,7 +148,22 @@ func BuildBinary(mainFilePath string, targetBinaryPath string, moduleName string
 	// Build the binary - explicitly specify the main package
 	buildCmd := exec.Command("go", "build", "-o", expandedTargetPath, ".")
 	buildCmd.Dir = filepath.Dir(mainFilePath)
-	buildCmd.Env = append(os.Environ(), "CGO_ENABLED=0") // Disable CGO for static linking
+
+	// Set up environment variables for the build
+	// Always keep CGO_ENABLED=0 as it's crucial for the functionality
+	env := append(os.Environ(),
+		"CGO_ENABLED=0",
+		fmt.Sprintf("GOOS=%s", DefaultBuildEnv.GOOS),
+		fmt.Sprintf("GOARCH=%s", DefaultBuildEnv.GOARCH),
+	)
+
+	log.Debug("Building with environment",
+		"CGO_ENABLED", "0",
+		"GOOS", DefaultBuildEnv.GOOS,
+		"GOARCH", DefaultBuildEnv.GOARCH,
+	)
+
+	buildCmd.Env = env
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
 

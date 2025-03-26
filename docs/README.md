@@ -43,6 +43,57 @@ On macOS and Linux, the binary will be built to either the `./usr/local/bin` dir
 
 The binary will only run on your current operating system and architecture. However, you can target other platforms using specific flags. See the [reference](#reference) for more details.
 
+#### Cross-platform builds
+
+You can build your CLI for different operating systems and architectures using the `--os` and `--arch` flags:
+
+```sh
+# Build for Windows 64-bit
+cmdeagle build --os windows --arch amd64
+
+# Build for macOS on Apple Silicon
+cmdeagle build --os darwin --arch arm64
+
+# Build for Linux on ARM
+cmdeagle build --os linux --arch arm64
+```
+
+If you don't specify these flags, cmdeagle will build for your current platform by default.
+
+**Supported operating systems (`--os`):**
+- `linux` - Linux
+- `darwin` - macOS
+- `windows` - Windows
+- `freebsd` - FreeBSD
+- `openbsd` - OpenBSD
+- `netbsd` - NetBSD
+- `android` - Android
+- `ios` - iOS
+- `js` - WebAssembly
+- `plan9` - Plan 9
+- `aix` - AIX
+- `dragonfly` - DragonFly BSD
+- `illumos` - illumos
+- `solaris` - Solaris
+
+**Supported architectures (`--arch`):**
+- `amd64` - 64-bit x86 (Intel/AMD)
+- `386` - 32-bit x86
+- `arm64` - 64-bit ARM
+- `arm` - 32-bit ARM
+- `ppc64` - 64-bit PowerPC
+- `ppc64le` - 64-bit PowerPC (little endian)
+- `mips` - MIPS
+- `mipsle` - MIPS (little endian)
+- `mips64` - 64-bit MIPS
+- `mips64le` - 64-bit MIPS (little endian)
+- `s390x` - IBM System z
+- `wasm` - WebAssembly
+
+Note that not all combinations of operating systems and architectures are supported by Go. For the most up-to-date list of supported combinations, refer to the [Go documentation](https://golang.org/doc/install/source#environment).
+
+All binaries are built with CGO disabled to ensure maximum portability and compatibility.
+
 Currently, internet connectivity is required for the Go build process to resolve and download modules for the wrapper application that `cmdeagle` generates to bundle your scripts and assets. If all dependencies are cached, you can build the project offline. We plan to improve this process in future releases to further reduce the need for internet connectivity during builds.
 
 The sample scripts are defined in several different languages to help you get started. For Python, JavaScript, and other interpreted languages, the scripts are bundled together with the executable file, thanks to the file paths defined in the `includes` setting:

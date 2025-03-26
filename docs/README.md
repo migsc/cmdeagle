@@ -228,23 +228,31 @@ This command creates several files:
 
 The `build` command compiles your CLI application based on the configuration in your `.cmd.yaml` file.
 
-```sh
+```
 cmdeagle build [flags]
 ```
 
 **Flags:**
-- Currently, the build command supports building for your current platform. Cross-platform support is coming soon.
+- `--os` - Target operating system (defaults to current OS)
+- `--arch` - Target architecture (defaults to current architecture)
+- `--out`, `-o` - Output path for the binary (defaults to system binary directory)
+- `--debug` - Enable debug logging in both build and generated CLI
 
 **Examples:**
 
-Build your CLI:
-```sh
+Build your CLI with default settings:
+```
 cmdeagle build
 ```
 
+Build for a specific platform and output location:
+```
+cmdeagle build --os linux --arch arm64 --out ./bin/mycli
+```
+
 After building, your CLI will be available in:
-- On macOS/Linux: `/usr/local/bin` or `~/.local/bin`
-- On Windows: `%LocalAppData%\Programs\mycli\bin`
+- On macOS/Linux: `/usr/local/bin` or `~/.local/bin` (unless specified with `--out`)
+- On Windows: `%LocalAppData%\Programs\mycli\bin` (unless specified with `--out`)
 
 #### `completion` command
 

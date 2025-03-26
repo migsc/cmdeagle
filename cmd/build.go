@@ -66,6 +66,7 @@ func init() {
 
 	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOOS, "os", runtime.GOOS, "Target operating system")
 	buildCmd.Flags().StringVar(&executable.DefaultBuildEnv.GOARCH, "arch", runtime.GOARCH, "Target architecture")
+	buildCmd.Flags().StringP("out", "o", "", "Output path for the binary (defaults to system binary directory)")
 
 	// Add experimental-imports flag
 	buildCmd.Flags().Bool("experimental-imports", false, "Enable experimental import resolution")
@@ -302,13 +303,33 @@ func runBuild() error {
 
 	// Finally we build the binary
 	log.Debug("Preparing to build binary with", "binDirPath", binDirPath, "targetBinaryPath")
-	targetBinaryPath := filepath.Join(binDirPath, cmdConfig.Name)
+
+	// Check if output path is specified
+	outputPath, _ := flagSet.GetString("out")
+	var targetBinaryPath string
+	if outputPath != "" {
+		// Use the specified output path
+		expandedPath, err := file.ExpandPath(outputPath)
+		if err != nil {
+			return fmt.Errorf("failed to expand output path: %w", err)
+		}
+		targetBinaryPath = expandedPath
+
+		// Ensure the directory exists
+		if err := os.MkdirAll(filepath.Dir(targetBinaryPath), 0755); err != nil {
+			return fmt.Errorf("failed to create output directory: %w", err)
+		}
+	} else {
+		// Use the default path
+		targetBinaryPath = filepath.Join(binDirPath, cmdConfig.Name)
+	}
+
 	err = executable.BuildBinary(resultingMainFilePath, targetBinaryPath, cmdConfig.Name)
 	if err != nil {
 		return err
 	}
 
-	log.Info("CLI built successfully", "location", binDirPath)
+	log.Info("CLI built successfully", "location", targetBinaryPath)
 
 	// Delete the existing bundle data directory
 	err = os.RemoveAll(executable.GetAppDataDir(cmdConfig.Name))

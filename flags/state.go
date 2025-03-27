@@ -68,7 +68,7 @@ func (store *FlagsStateStore) VisitAll(fn func(flag *pflag.Flag)) {
 
 func (store *FlagsStateStore) Interpolate(script string) string {
 	store.pFlagSet.VisitAll(func(flag *pflag.Flag) {
-		placeholder := fmt.Sprintf("${flags.%s}", flag.Name)
+		placeholder := fmt.Sprintf("{{flags.%s}}", flag.Name)
 		script = strings.ReplaceAll(script, placeholder, fmt.Sprint(flag.Value))
 	})
 

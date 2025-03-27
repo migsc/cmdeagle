@@ -171,7 +171,7 @@ func (store *ArgsStateStore) Interpolate(script string) string {
 	log.Debug("Interpolating", "script", script)
 	for key, entry := range store.Entries {
 		log.Debug("Interpolating", "key", key, "val", entry.Val)
-		placeholder := fmt.Sprintf("${args.%s}", key)
+		placeholder := fmt.Sprintf("{{args.%s}}", key)
 		script = strings.ReplaceAll(script, placeholder, fmt.Sprint(entry.Val))
 	}
 

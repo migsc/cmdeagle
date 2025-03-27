@@ -769,6 +769,20 @@ depends-on:
 
 When your command runs, all arguments and flags are made available as environment variables that your scripts can access. This makes it easy to use input values in any programming language.
 
+Arguments and flags are accessible as environment variables:
+
+- Arguments: `ARGS_NAME` (e.g., `ARGS_USERNAME`)
+- Flags: `FLAGS_NAME` (e.g., `FLAGS_VERBOSE`)
+
+Example in shell:
+
+```sh
+echo "Hello, $ARGS_USERNAME!"
+if [ "$FLAGS_VERBOSE" = "true" ]; then
+  echo "Verbose mode enabled"
+fi
+```
+
 For arguments, the environment variable format is:
 ```
 ARGS_NAME
@@ -802,6 +816,82 @@ import os
 name = os.environ.get('ARGS_NAME')
 uppercase = os.environ.get('FLAGS_UPPERCASE') == 'true'
 ```
+###### Direct Interpolation
+
+You can also use variable interpolation directly in your scripts using the `{{variable-name}}` syntax:
+
+```sh
+# Using argument values with interpolation
+echo "Hello, {{args.name}}!"
+# Using flag values with interpolation
+if [ "{{flags.verbose}}" = "true" ]; then
+  echo "Verbose mode enabled"
+fi
+```
+Note that the difference here is that interpolation is done at runtime *before* the script is executed, so the shell or interpreter will see the actual values, not the placeholders. This could be useful if you need some simple cross platform interpolation and don't want to rely on environment variables.
+
+The syntax is inspired by GitHub Actions workflow syntax for variable substitution, though cmdeagle's implementation is simpler and doesn't include expression handling. For more information on GitHub's approach, see [GitHub's documentation on contexts and expressions](https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability).
+
+
+###### Built-in Variables for Interpolation
+
+When using direct interpolation with the `{{variable-name}}` syntax, the following built-in variables are available:
+
+**CLI/System Variables:**
+
+These variables provide information about your CLI application and its environment:
+
+- `{{cli.bin_dir}}` - The directory where your CLI's binaries are installed
+- `{{cli.data_dir}}` - The directory where your CLI's data files are installed
+- `{{cli.name}}` - The name of your CLI application as defined in your configuration
+
+Example:
+
+```sh
+echo "CLI binary directory: {{cli.bin_dir}}"
+echo "CLI data directory: {{cli.data_dir}}"
+echo "CLI name: {{cli.name}}"
+```
+
+**Parameter/Config Variables:**
+
+These variables provide access to structured data about your arguments and flags:
+
+- `{{args.json}}` - JSON representation of all arguments
+- `{{flags.json}}` - JSON representation of all flags
+- `{{params.json}}` - JSON representation of all parameters
+
+These can be useful when you need to pass structured data to a script:
+
+
+```sh
+# Pass all arguments as JSON to a Python script
+python3 -c "import sys, json; data = json.loads('{{args.json}}'); print(data)"
+
+# Pass all flags as JSON to a JavaScript script
+node -e "const flags = JSON.parse('{{flags.json}}'); console.log(flags)"
+```
+
+These JSON representations can be particularly useful when working with complex data structures or when you need to process multiple arguments or flags at once.
+
+**Note on Environment Variables:**
+
+In addition to being available through direct interpolation, the CLI configuration values are also accessible as environment variables in uppercase format:
+
+- `CLI_BIN_DIR` - The directory where your CLI's binaries are installed
+- `CLI_DATA_DIR` - The directory where your CLI's data files are installed
+- `CLI_NAME` - The name of your CLI application
+
+Example:
+```sh
+echo "CLI binary directory: $CLI_BIN_DIR"
+echo "CLI data directory: $CLI_DATA_DIR"
+echo "CLI name: $CLI_NAME"
+```
+
+This provides flexibility in how you access these values in your scripts.
+
+**Important:** The JSON representations (`args.json`, `flags.json`, and `params.json`) are only available through direct interpolation and are not set as environment variables. This is by design to avoid setting potentially large string contents as environment variables, which could cause issues in some systems or shells that have environment variable size limitations.
 
 ##### Basic built-in validations
 

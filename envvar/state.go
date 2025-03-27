@@ -25,7 +25,7 @@ func (store *EnvStateStore) Set(key string, value string) {
 
 func (store *EnvStateStore) Interpolate(script string) string {
 	for key, val := range store.Entries {
-		placeholder := fmt.Sprintf("${%s}", key)
+		placeholder := fmt.Sprintf("{{%s}}", key)
 		script = strings.ReplaceAll(script, placeholder, fmt.Sprint(val))
 	}
 

@@ -12,18 +12,19 @@ For next version v1.0
   - [x] Make build command for template app work without the chmod command
   - [ ] remove comments before release so that they're not visible in source code
 - build command
-  - [ ] need to provide arguments for arch and handle multiple
+  - [x] need to provide arguments for arch and handle multiple
 - CI/CD
   - [ ] version increment and release script
     - modifies version in docs and package.json
     - releases to Go registry
 - [ ] test and figure out what to do with existing variable interpolation functionality.
 scrap it? keep it? could be good for cross platform.
-- [ ] completion setting
+- [x] completion setting
 - [ ] app level metadata settings need to be printed in the help output
 - [ ] version needs to be printed in the help output
 - [ ] boolean accepted values need to be accepted correctly
 - [ ] add install with npm instructions
+- [ ] timer needs to have a list command that is not dependent on jq
 
 ## v1.1
 

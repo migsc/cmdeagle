@@ -22,6 +22,12 @@ builds:
   - linux
   - windows
   - darwin
+  goarch:
+  - amd64
+  - arm64
+  binary: cmdeagle
+  ldflags:
+  - -s -w -X main.version={{.Version}}
 
 gomod:
   proxy: true
@@ -33,11 +39,17 @@ archives:
 - format: tar.gz
   # this name template makes the OS and Arch compatible with the results of `uname`.
   name_template: >-
-    {{ .ProjectName }}_{{- title .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else if eq .Arch "386" }}i386{{- else }}{{ .Arch }}{{ end }}{{- if .Arm }}v{{ .Arm }}{{ end }}
+    {{ .ProjectName }}_{{.Version}}_{{- title .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
   # use zip for windows archives
   format_overrides:
   - goos: windows
     format: zip
+  files:
+  - LICENSE
+  - README.md
+
+checksum:
+  name_template: 'checksums.txt'
 
 changelog:
   sort: asc
@@ -47,7 +59,10 @@ changelog:
     - "^test:"
 
 release:
-  footer: >-
+  github:
+    owner: migsc
+    name: cmdeagle
+  footer: |
     
     ---
 

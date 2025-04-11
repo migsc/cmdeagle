@@ -32,7 +32,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  publish-npm:
+  npm-publish:
     needs: goreleaser
     runs-on: ubuntu-latest
     steps:
@@ -49,11 +49,6 @@ jobs:
       id: get_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-    - name: Update package.json version
-      run: |
-        # If package.json is in a subdirectory, adjust the path
-        npm version $VERSION --no-git-tag-version
-
     - name: Install dependencies
       run: npm ci
 
@@ -61,3 +56,4 @@ jobs:
       run: npm publish --access public
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        CMDEAGLE_VERSION: ${{ env.VERSION }}

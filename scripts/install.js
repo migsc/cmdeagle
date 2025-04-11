@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
@@ -9,9 +11,28 @@ const pipeline = promisify(require('stream').pipeline);
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 
-// Get package info
-const packageJson = require('../package.json');
-const version = packageJson.version;
+// Get the latest release version from GitHub API or use a specific version
+async function getVersion() {
+  try {
+    // If a specific version is provided via environment variable, use that
+    if (process.env.CMDEAGLE_VERSION) {
+      return process.env.CMDEAGLE_VERSION;
+    }
+    
+    // Otherwise, fetch the latest release from GitHub
+    const response = await fetch('https://api.github.com/repos/migsc/cmdeagle/releases/latest');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch latest release: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.tag_name.replace(/^v/, ''); // Remove 'v' prefix if present
+  } catch (error) {
+    console.error(`Error fetching version: ${error.message}`);
+    // Fallback to a hardcoded version as last resort
+    return '0.11.5'; // Update this with each release as a fallback
+  }
+}
 
 // Map Node.js platform/arch to GoReleaser naming
 const platformMap = {
@@ -25,117 +46,98 @@ const archMap = {
   'arm64': 'arm64'
 };
 
-// Determine current platform and architecture
-const platform = process.platform;
-const arch = process.arch;
-
-if (!platformMap[platform]) {
-  console.error(`Unsupported platform: ${platform}`);
-  process.exit(1);
-}
-
-if (!archMap[arch]) {
-  console.error(`Unsupported architecture: ${arch}`);
-  process.exit(1);
-}
-
-const mappedPlatform = platformMap[platform];
-const mappedArch = archMap[arch];
-const extension = platform === 'win32' ? '.exe' : '';
-
-// Create bin directory if it doesn't exist
-const binDir = path.join(__dirname, 'bin');
-if (!fs.existsSync(binDir)) {
-  fs.mkdirSync(binDir, { recursive: true });
-}
-
-// Set up paths
-const binaryName = `cmdeagle${extension}`;
-const binaryPath = path.join(binDir, binaryName);
-const fileName = `cmdeagle_${version}_${mappedPlatform}_${mappedArch}.tar.gz`;
-const downloadUrl = `https://github.com/migsc/cmdeagle/releases/download/v${version}/${fileName}`;
-const checksumUrl = `https://github.com/migsc/cmdeagle/releases/download/v${version}/checksums.txt`;
-const tempFile = path.join(__dirname, fileName);
-
-console.log(`Downloading cmdeagle ${version} for ${mappedPlatform} ${mappedArch}...`);
-console.log(`Download URL: ${downloadUrl}`);
-
-async function downloadFile(url, dest) {
-  const response = await fetch(url);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to download from ${url}: ${response.statusText}`);
-  }
-  
-  const fileStream = createWriteStream(dest);
-  await pipeline(response.body, fileStream);
-}
-
-async function verifyChecksum(filePath, checksumUrl) {
-  try {
-    // Download checksums file
-    const response = await fetch(checksumUrl);
-    if (!response.ok) {
-      console.warn('Could not download checksums file for verification. Skipping verification.');
-      return true;
-    }
-    
-    const checksums = await response.text();
-    
-    // Calculate SHA256 of the downloaded file
-    const fileBuffer = fs.readFileSync(filePath);
-    const hashSum = crypto.createHash('sha256');
-    hashSum.update(fileBuffer);
-    const fileHash = hashSum.digest('hex');
-    
-    // Find the matching line in checksums file
-    const expectedLine = checksums.split('\n').find(line => 
-      line.includes(path.basename(filePath))
-    );
-    
-    if (!expectedLine) {
-      console.warn(`Could not find checksum for ${path.basename(filePath)}. Skipping verification.`);
-      return true;
-    }
-    
-    const expectedHash = expectedLine.split(/\s+/)[0];
-    
-    if (fileHash !== expectedHash) {
-      console.error(`Checksum verification failed!`);
-      console.error(`Expected: ${expectedHash}`);
-      console.error(`Got: ${fileHash}`);
-      return false;
-    }
-    
-    console.log('Checksum verification passed.');
-    return true;
-  } catch (error) {
-    console.warn(`Checksum verification error: ${error.message}`);
-    console.warn('Continuing with installation...');
-    return true; // Continue even if verification fails
-  }
-}
-
 async function install() {
   try {
-    // Download the tarball
-    await downloadFile(downloadUrl, tempFile);
+    const platform = process.platform;
+    const arch = process.arch;
     
-    // Verify checksum
-    const isValid = await verifyChecksum(tempFile, checksumUrl);
-    if (!isValid) {
-      throw new Error('Checksum verification failed. Aborting installation.');
+    // Check if platform/arch is supported
+    if (!platformMap[platform]) {
+      throw new Error(`Unsupported platform: ${platform}. Only macOS, Linux, and Windows are supported.`);
     }
     
-    // Extract the tarball
-    console.log('Extracting binary...');
-    await tar.x({
-      file: tempFile,
-      cwd: binDir,
-      strip: 1 // Remove the top-level directory from the archive
-    });
+    if (!archMap[arch]) {
+      throw new Error(`Unsupported architecture: ${arch}. Only x64 and arm64 are supported.`);
+    }
     
-    // Make the binary executable on Unix platforms
+    // Get the version to download
+    const version = await getVersion();
+    console.log(`Installing cmdeagle version ${version}...`);
+    
+    // Construct download URL
+    const osName = platformMap[platform];
+    const archName = archMap[arch];
+    const extension = platform === 'win32' ? 'zip' : 'tar.gz';
+    const url = `https://github.com/migsc/cmdeagle/releases/download/v${version}/cmdeagle_${version}_${osName}_${archName}.${extension}`;
+    
+    console.log(`Downloading from ${url}...`);
+    
+    // Create bin directory if it doesn't exist
+    const binDir = path.join(__dirname, '..', 'bin');
+    if (!fs.existsSync(binDir)) {
+      fs.mkdirSync(binDir, { recursive: true });
+    }
+    
+    // Set binary name based on platform
+    const binaryName = platform === 'win32' ? 'cmdeagle.exe' : 'cmdeagle';
+    const binaryPath = path.join(binDir, binaryName);
+    
+    // Download and extract
+    const tempFile = path.join(binDir, `cmdeagle-${version}.${extension}`);
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download binary: ${response.statusText}`);
+    }
+    
+    // Save the downloaded file
+    await pipeline(
+      response.body,
+      createWriteStream(tempFile)
+    );
+    
+    // Extract the binary
+    if (platform === 'win32') {
+      // For Windows, use a simple extraction approach
+      const AdmZip = require('adm-zip');
+      const zip = new AdmZip(tempFile);
+      const zipEntries = zip.getEntries();
+      
+      // Find the binary in the zip
+      for (const entry of zipEntries) {
+        if (entry.entryName.endsWith('.exe')) {
+          zip.extractEntryTo(entry, binDir, false, true);
+          // Rename if needed
+          const extractedPath = path.join(binDir, entry.entryName.split('/').pop());
+          if (extractedPath !== binaryPath) {
+            fs.renameSync(extractedPath, binaryPath);
+          }
+          break;
+        }
+      }
+    } else {
+      // For Unix systems, use tar
+      await tar.extract({
+        file: tempFile,
+        cwd: binDir,
+        filter: (path) => path.endsWith(binaryName)
+      });
+      
+      // Find and move the binary if it's in a subdirectory
+      const files = fs.readdirSync(binDir);
+      for (const file of files) {
+        const filePath = path.join(binDir, file);
+        if (fs.statSync(filePath).isDirectory()) {
+          const nestedBinary = path.join(filePath, binaryName);
+          if (fs.existsSync(nestedBinary)) {
+            fs.renameSync(nestedBinary, binaryPath);
+            fs.rmdirSync(filePath, { recursive: true });
+          }
+        }
+      }
+    }
+    
+    // Make binary executable on Unix systems
     if (platform !== 'win32') {
       fs.chmodSync(binaryPath, 0o755);
     }
@@ -148,6 +150,7 @@ async function install() {
     console.error(`Installation failed: ${error.message}`);
     
     // Clean up any partial downloads
+    const tempFile = path.join(__dirname, '..', 'bin', `cmdeagle-${await getVersion()}.${process.platform === 'win32' ? 'zip' : 'tar.gz'}`);
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile);
     }

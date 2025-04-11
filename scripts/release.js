@@ -23,12 +23,29 @@ packageJson.version = npmVersion;
 fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2) + '\n');
 console.log(`Updated package.json to version ${npmVersion}`);
 
+// Get current branch name
+const currentBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+console.log(`Current branch: ${currentBranch}`);
+
 // Git operations
 try {
+    // First, make sure the release.js script itself is committed
+    try {
+        const status = execSync('git status --porcelain scripts/release.js').toString();
+        if (status) {
+            console.log('Committing changes to release.js first...');
+            execSync('git add scripts/release.js', {stdio: 'inherit'});
+            execSync('git commit -m "Update release script"', {stdio: 'inherit'});
+        }
+    } catch (e) {
+        console.log('No changes to release.js or error checking:', e.message);
+    }
+
+    // Now proceed with the version bump
     execSync('git add package.json', {stdio: 'inherit'});
     execSync(`git commit -m "Bump version to ${npmVersion}"`, {stdio: 'inherit'});
-    execSync('git push origin main', {stdio: 'inherit'});
-    console.log('Pushed version update to main branch');
+    execSync(`git push origin ${currentBranch}`, {stdio: 'inherit'});
+    console.log(`Pushed version update to ${currentBranch} branch`);
     
     execSync(`git tag -a ${version} -m "Release ${version}"`, {stdio: 'inherit'});
     execSync('git push --tags', {stdio: 'inherit'});

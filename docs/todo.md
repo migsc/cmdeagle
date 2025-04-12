@@ -11,13 +11,13 @@ For next version v1.0
   - [x] Fix template app's config (line 61 cannot unmarshal)
   - [x] Make build command for template app work without the chmod command
   - [ ] remove comments before release so that they're not visible in source code
-- build command
+- [x] build command
   - [x] need to provide arguments for arch and handle multiple
-- CI/CD
-  - [ ] version increment and release script
-    - modifies version in docs and package.json
-    - releases to Go registry
-- [ ] test and figure out what to do with existing variable interpolation functionality.
+- [ ] CI/CD
+  - [x] version increment and release script
+    - [x] modifies version in docs and package.json
+    - [] releases to Go registry
+- [x] test and figure out what to do with existing variable interpolation functionality.
 scrap it? keep it? could be good for cross platform.
 - [x] completion setting
 - [ ] app level metadata settings need to be printed in the help output

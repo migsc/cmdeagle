@@ -3,7 +3,10 @@
   "version": "0.11.9",
   "description": "A powerful and precise CLI framework for any language.",
   "author": "Miguel Chateloin <miguel@chateloin.com>",
-  "repository": "https://github.com/migsc/cmdeagle",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/migsc/cmdeagle.git"
+  },
   "license": "MIT",
   "keywords": [
     "cli",
@@ -12,7 +15,7 @@
     "framework"
   ],
   "bin": {
-    "cmdeagle": "./bin/cmdeagle"
+    "cmdeagle": "bin/cmdeagle"
   },
   "scripts": {
     "clean": "rm -rf dist",

@@ -43,7 +43,8 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        registry-url: 'https://registry.npmjs.org'
+        registry-url: 'https://registry.npmjs.org/'
+        scope: '@migsc'
 
     - name: Get version from tag
       id: get_version
@@ -51,6 +52,9 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
+
+    - name: Fix package.json
+      run: npm pkg fix
 
     - name: Publish to npm
       run: npm publish --access public

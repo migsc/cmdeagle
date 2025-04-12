@@ -54,25 +54,6 @@ jobs:
       run: |
         cp docs/README.md README.md
 
-        # Add npm installation instructions at the top
-        sed -i '1s/^/# cmdeagle\n\nA powerful and precise CLI framework for any language.\n\n/' README.md
-
-        # Find and replace the Go installation section
-        sed -i '/### 1) Install it with Go/,/```/c\
-        ### 1) Install it with npm or Go\n\
-        \n\
-        The easiest way to work with cmdeagle is by installing it with npm:\n\
-        \n\
-        ```sh\n\
-        npm install -g cmdeagle\n\
-        ```\n\
-        \n\
-        Alternatively, you can install it with [Golang'\''s package manager](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc):\n\
-        \n\
-        ```sh\n\
-        go install github.com/migsc/cmdeagle@latest\n\
-        ```' README.md
-
     - name: Install dependencies
       run: npm ci
 

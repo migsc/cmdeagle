@@ -17,7 +17,13 @@ Go 1.23.2 or later is required.
 
 ### 1) Install it with Go's package manager
 
-The easiest way to work with cmdeagle right now is by installing it with [Golang's package manager](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc). More platforms will be supported soon.
+The easiest way to work with cmdeagle is by installing it with npm:
+
+```sh
+npm install -g cmdeagle
+```
+
+Alternatively, you can install it with [Golang's package manager](https://go.dev/doc/install) on a unix-like system (macOS, Linux, etc):
 
 ```sh
 go install github.com/migsc/cmdeagle@latest

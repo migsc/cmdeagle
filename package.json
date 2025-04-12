@@ -17,7 +17,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "docs": "docsify serve docs",
-    "postinstall": "node install.js",
+    "postinstall": "node scripts/install.js",
     "release": "node scripts/release.js",
     "build": "make build && npm run build:resolver",
     "build:resolver": "pkg scripts/resolve-config-imports.js --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --output bin/resolve-imports"
@@ -29,7 +29,8 @@
   "dependencies": {
     "yaml": "^2.0.0",
     "tar": "^6.1.15",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "adm-zip": "^0.5.10"
   },
   "engines": {
     "node": ">=14.0.0"

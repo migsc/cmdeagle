@@ -1,6 +1,6 @@
 {
   "name": "cmdeagle",
-  "version": "0.11.11",
+  "version": "0.11.12",
   "description": "A powerful and precise CLI framework for any language.",
   "author": "Miguel Chateloin <miguel@chateloin.com>",
   "repository": {

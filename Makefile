@@ -16,9 +16,7 @@ $(BUILD_DIR):
 
 # Build the binary
 build: $(BUILD_DIR)
-	cp package.json cmd/package.json
 	$(GOBUILD)
-	rm cmd/package.json
 	chmod 755 $(BUILD_DIR)/$(BINARY_NAME)
 	
 # Clean build artifacts

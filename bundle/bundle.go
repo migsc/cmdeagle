@@ -70,7 +70,7 @@ func SetupStagingDir() (string, error) {
 }
 
 func GetMainTemplateContent() ([]byte, error) {
-	mainTemplateContent, err := os.ReadFile(filepath.Join(GetPackageSrcDirPath(), MainTemplateFileName))
+	mainTemplateContent, err := PackageFS.ReadFile(MainTemplateFileName)
 	if err != nil {
 		return nil, fmt.Errorf("error reading template: %w", err)
 	}

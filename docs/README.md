@@ -156,7 +156,7 @@ This command creates several files:
 
 The `build` command compiles your CLI application based on the configuration in your `.cmd.yaml` file.
 
-```
+```sh
 cmdeagle build [flags]
 ```
 
@@ -169,12 +169,12 @@ cmdeagle build [flags]
 **Examples:**
 
 Build your CLI with default settings:
-```
+```sh
 cmdeagle build
 ```
 
 Build for a specific platform and output location:
-```
+```sh
 cmdeagle build --os linux --arch arm64 --out ./bin/mycli
 ```
 
@@ -238,7 +238,7 @@ Currently, internet connectivity is required for the Go build process to resolve
 
 The sample scripts are defined in several different languages to help you get started. For Python, JavaScript, and other interpreted languages, the scripts are bundled together with the executable file, thanks to the file paths defined in the `includes` setting:
 
-```sh
+```yaml
 includes:
 - "./greet.sh"
 - "./greet.js"

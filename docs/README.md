@@ -13,7 +13,7 @@ Building robust CLI applications is tedious, often requiring complex procedural 
 
 Go 1.23.2 or later is required.
 
-### 1) Install it with Go's package manager
+### 1) Installation
 
 The easiest way to work with cmdeagle is by installing it with npm:
 

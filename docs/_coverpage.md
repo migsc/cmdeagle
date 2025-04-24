@@ -4,7 +4,7 @@
 
 ![logo](_media/logo-light.svg)
 
-# cmdeagle <small>0.11.1</small>
+# cmdeagle
 
 > A declarative CLI application builder for any language.
 

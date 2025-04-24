@@ -14,6 +14,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of cmdeagle",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(cmd.Root().Version)
+		fmt.Printf("cmdeagle version %s\n", cmd.Root().Version)
 	},
 }

@@ -11,14 +11,21 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cmdeagle",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Use:     "cmdeagle",
+	Version: "0.11.17",
+	Short:   "Build powerful CLI tools with simple YAML configuration",
+	Long: `Create professional command-line tools without the complexity.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+cmdeagle helps you build CLI applications that:
+- Are easy to configure using simple YAML files - no complex boilerplate needed
+- Work with your favorite scripting language - currently optimized for JavaScript, Python, 
+  and shell scripts (support for compiled languages coming soon)
+- Package your code and assets into a single executable (note: language runtimes like Node.js 
+  or Python must be installed separately - consider Docker/Podman for full environment portability)
+- Run consistently across platforms when properly containerized
+- Scale from simple scripts to complex tools
+
+Get started with 'cmdeagle init myapp' to create your first CLI application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

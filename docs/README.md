@@ -117,7 +117,7 @@ Currently, `cmdeagle` primarily uses Cobra for parsing arguments, flags, and sub
 
 This section provides detailed documentation for all configuration options, commands, and features available in cmdeagle. Use this reference to understand how to configure your CLI application, define commands and subcommands, set up arguments and flags, and implement the various lifecycle scripts that power your CLI's functionality.
 
-The reference is organized by topic, starting with the configuration structure and moving through each aspect of CLI development with cmdeagle. Each section includes examples and explanations to help you implement the features in your own projects.
+The reference is organized by topic, starting with development and usage, and moving through each aspect of the configuration structure. Each section includes examples and explanations to help you implement the features in your own projects.
 
 
 ### Using the `cmdeagle` CLI

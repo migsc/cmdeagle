@@ -1,7 +1,5 @@
 # cmdeagle
 
-_**WARNING:** This is very much a work in progress, but we're close to releasing a stable version 1. Check back soon. Feedback is also much appreciated._
-
 ## Overview
 
 Building robust CLI applications is tedious, often requiring complex procedural logic and language-specific libraries. cmdeagle simplifies this process by:
@@ -48,6 +46,53 @@ cmdeagle build
 On macOS and Linux, the binary will be built to either the `./usr/local/bin` directory if you have the necessary write permissions, or the `~/.local/bin` directory if you don't.
 
 The binary will only run on your current operating system and architecture. However, you can target other platforms using specific flags. See the [reference](#reference) for more details.
+
+### Runtime Dependencies and Containerization
+
+While cmdeagle packages your code and assets into a single executable, it's important to note that language runtimes (like Node.js, Python, etc.) must be installed separately on the target system. This is because:
+
+1. These runtimes are often large and system-specific
+2. They may require special system permissions or configurations
+3. Different applications might need different versions of the same runtime
+
+For the best portability and deployment experience, we recommend using containerization with Docker or Podman. This approach:
+
+- Ensures consistent runtime environments across different systems
+- Packages all dependencies, including language runtimes
+- Avoids conflicts between different versions of the same runtime
+- Makes deployment and distribution more reliable
+
+Example Dockerfile for a cmdeagle-built CLI that uses Node.js and Python:
+
+```dockerfile
+FROM node:18-slim
+
+# Install Python and other dependencies
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Copy your cmdeagle-built CLI
+COPY ./mycli /usr/local/bin/mycli
+
+# Make it executable
+RUN chmod +x /usr/local/bin/mycli
+
+# Set the entrypoint to your CLI
+ENTRYPOINT ["mycli"]
+```
+
+You can then build and run your containerized CLI:
+
+```sh
+docker build -t mycli .
+docker run mycli [command] [args...]
+```
+
+Or with Podman:
+
+```sh
+podman build -t mycli .
+podman run mycli [command] [args...]
+```
 
 #### Cross-platform builds
 

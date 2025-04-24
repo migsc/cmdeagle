@@ -65,7 +65,7 @@ var cliLanguage string
 
 var templateVariables map[string]TemplateVariable = map[string]TemplateVariable{
 	"name":        {Name: "name", Value: &cliName, Placeholder: "My CLI"},
-	"description": {Name: "description", Value: &cliDescription, Placeholder: "My CLI is a tool to manage my projects."},
+	"description": {Name: "description", Value: &cliDescription, Placeholder: "A sample command-line application powered by Cobra"},
 	"version":     {Name: "version", Value: &cliVersion, Placeholder: "0.0.1"},
 	"author":      {Name: "author", Value: &cliAuthor, Placeholder: "John Doe"},
 	"license":     {Name: "license", Value: &cliLicense, Placeholder: "MIT"},
@@ -132,7 +132,7 @@ var initCmd = &cobra.Command{
 				// Gather some final details about the order.
 				huh.NewGroup(
 					huh.NewInput().
-						Title("What’s your CLI's name?.").
+						Title("What's your CLI's name?.").
 						Description("This will be the name of the binary and the directory.").
 						// TODO implement rename command then change to: Description("This will be the name of the binary and the directory. You can change this later with `cmdeagle rename` command. It must be lowercase.").
 						Placeholder(templateVariables["name"].Placeholder).
@@ -152,7 +152,7 @@ var initCmd = &cobra.Command{
 				huh.NewGroup(
 					huh.NewInput().
 						Title("Description (optional).").
-						Description("This will be the description of the binary and the directory.").
+						Description("A brief description of what your CLI does. This will be shown in help text.").
 						Placeholder(templateVariables["description"].Placeholder).
 						Value(templateVariables["description"].Value),
 					huh.NewInput().

@@ -3,6 +3,7 @@ package flags
 import (
 	"embed"
 	"fmt"
+	"strings"
 
 	"github.com/migsc/cmdeagle/types"
 
@@ -48,7 +49,26 @@ var flagTypes = map[string]FlagTypeDef{
 			if flagDef.Default != nil {
 				defaultVal = flagDef.Default.(bool)
 			}
-			flagSet.BoolVarP(&boolVal, flagDef.Name, flagDef.Shorthand, defaultVal, flagDef.Description)
+			description := flagDef.Description
+			if !strings.HasSuffix(description, ")") {
+				description += " (accepts: true/false, t/f, 1/0, yes/no, y/n)"
+			}
+
+			// Create a custom bool value
+			if flagDef.Shorthand != "" {
+				flagSet.BoolVarP(&boolVal, flagDef.Name, flagDef.Shorthand, defaultVal, description)
+			} else {
+				flagSet.BoolVar(&boolVal, flagDef.Name, defaultVal, description)
+			}
+
+			flag := flagSet.Lookup(flagDef.Name)
+			if flag != nil {
+				flag.NoOptDefVal = "true"
+				// Add custom boolean value parsing
+				flag.Value = &boolValue{
+					value: &boolVal,
+				}
+			}
 			return &flagVal
 		},
 	},
@@ -60,7 +80,26 @@ var flagTypes = map[string]FlagTypeDef{
 			if flagDef.Default != nil {
 				defaultVal = flagDef.Default.(bool)
 			}
-			flagSet.BoolVarP(&boolVal, flagDef.Name, flagDef.Shorthand, defaultVal, flagDef.Description)
+			description := flagDef.Description
+			if !strings.HasSuffix(description, ")") {
+				description += " (accepts: true/false, t/f, 1/0, yes/no, y/n)"
+			}
+
+			// Create a custom bool value
+			if flagDef.Shorthand != "" {
+				flagSet.BoolVarP(&boolVal, flagDef.Name, flagDef.Shorthand, defaultVal, description)
+			} else {
+				flagSet.BoolVar(&boolVal, flagDef.Name, defaultVal, description)
+			}
+
+			flag := flagSet.Lookup(flagDef.Name)
+			if flag != nil {
+				flag.NoOptDefVal = "true"
+				// Add custom boolean value parsing
+				flag.Value = &boolValue{
+					value: &boolVal,
+				}
+			}
 			return &flagVal
 		},
 	},
@@ -227,4 +266,33 @@ var flagTypes = map[string]FlagTypeDef{
 			return &flagVal
 		},
 	},
+}
+
+// boolValue implements pflag.Value interface
+type boolValue struct {
+	value *bool
+}
+
+func (b *boolValue) Set(val string) error {
+	val = strings.ToLower(strings.TrimSpace(val))
+	switch val {
+	case "true", "t", "1", "yes", "y":
+		*b.value = true
+	case "false", "f", "0", "no", "n":
+		*b.value = false
+	default:
+		return fmt.Errorf("invalid boolean value '%s'. Accepted values: true/false, t/f, 1/0, yes/no, y/n", val)
+	}
+	return nil
+}
+
+func (b *boolValue) String() string {
+	if b.value == nil {
+		return "false"
+	}
+	return fmt.Sprintf("%v", *b.value)
+}
+
+func (b *boolValue) Type() string {
+	return "bool"
 }

@@ -72,11 +72,21 @@ func execute() error {
 	// Set up the root command
 	rootCmd, err = registerCommandDef(cmdConfig, rootCommandDef, nil, []string{})
 
+	// Enhanced metadata display
 	rootCmd.Version = cmdConfig.Version
+	rootCmd.Long = fmt.Sprintf(`%s
+
+Version: %s
+Author: %s
+License: %s`, cmdConfig.Description, cmdConfig.Version, cmdConfig.Author, cmdConfig.License)
+
+	// Custom version template
+	rootCmd.SetVersionTemplate(`{{with .Name}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
+`)
+
 	rootCmd.CompletionOptions = cobra.CompletionOptions{
 		DisableDefaultCmd: !cmdConfig.Completion,
 	}
-	rootCmd.VersionTemplate()
 
 	if err != nil {
 		return fmt.Errorf("failed to setup root command: %w", err)

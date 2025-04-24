@@ -3,13 +3,37 @@ package file
 import (
 	"embed"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/afero"
 )
 
 //go:embed *
 var PackageFS embed.FS
+
+// MimeTypes maps file extensions to their corresponding MIME types
+var MimeTypes = map[string]string{
+	".jpg":  "image/jpeg",
+	".jpeg": "image/jpeg",
+	".png":  "image/png",
+	".gif":  "image/gif",
+	".pdf":  "application/pdf",
+	".txt":  "text/plain",
+	".html": "text/html",
+	".htm":  "text/html",
+	".json": "application/json",
+	".xml":  "application/xml",
+	".zip":  "application/zip",
+	".doc":  "application/msword",
+	".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	".xls":  "application/vnd.ms-excel",
+	".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	".csv":  "text/csv",
+}
 
 func ResolvePath(path string) (string, error) {
 	expandedPath, err := ExpandPath(path)
@@ -142,4 +166,63 @@ func ExpandPath(path string) (string, error) {
 
 	// Clean the path
 	return filepath.Clean(absPath), nil
+}
+
+// ValidateFileType checks if a file matches the expected type (MIME type or extension)
+func ValidateFileType(fs afero.Fs, filePath string, expectedType string) error {
+	// Normalize expected type
+	if !strings.HasPrefix(expectedType, ".") && !strings.Contains(expectedType, "/") {
+		expectedType = "." + expectedType
+	}
+
+	// Open and read file for MIME type detection
+	file, err := fs.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("Cannot open file: %v", err)
+	}
+	defer file.Close()
+
+	// Read first 512 bytes for MIME type detection
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil && err != io.EOF {
+		return fmt.Errorf("Cannot read file: %v", err)
+	}
+
+	detectedType := http.DetectContentType(buffer)
+
+	// Handle MIME type constraints
+	if strings.Contains(expectedType, "/") {
+		// Special handling for binary files
+		if detectedType == "application/octet-stream" {
+			// For binary files, trust the file extension more than the detected type
+			if ext := strings.ToLower(filepath.Ext(filePath)); ext != "" {
+				if _, ok := MimeTypes[ext]; ok {
+					return nil // Accept if extension matches expected type
+				}
+			}
+		}
+
+		if !strings.HasPrefix(strings.ToLower(detectedType), strings.ToLower(expectedType)) {
+			return fmt.Errorf("File is not of type %v (detected: %v)", expectedType, detectedType)
+		}
+		return nil
+	}
+
+	// Handle extension constraints
+	ext := strings.ToLower(filepath.Ext(filePath))
+	if ext == "" {
+		return fmt.Errorf("File has no extension")
+	}
+
+	// Check if extension matches expected MIME type
+	if expectedMime, ok := MimeTypes[strings.ToLower(expectedType)]; ok {
+		if strings.HasPrefix(strings.ToLower(detectedType), strings.ToLower(expectedMime)) {
+			return nil
+		}
+		return fmt.Errorf("File extension %v doesn't match content type (detected: %v, expected: %v)",
+			ext, detectedType, expectedMime)
+	}
+
+	return fmt.Errorf("Unknown file type: %v", expectedType)
 }

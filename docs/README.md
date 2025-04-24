@@ -47,54 +47,143 @@ On macOS and Linux, the binary will be built to either the `./usr/local/bin` dir
 
 The binary will only run on your current operating system and architecture. However, you can target other platforms using specific flags. See the [reference](#reference) for more details.
 
-### Runtime Dependencies and Containerization
+### 4) Running your CLI
 
-While cmdeagle packages your code and assets into a single executable, it's important to note that language runtimes (like Node.js, Python, etc.) must be installed separately on the target system. This is because:
+You can run the executable file from your current working directory or from anywhere on your system if you add its directory to your system's `PATH` variable.
 
-1. These runtimes are often large and system-specific
-2. They may require special system permissions or configurations
-3. Different applications might need different versions of the same runtime
+The `greet` command is a sample subcommand that you can use as a starting point. It's defined in the `.cmd.yaml` file and is configured to run the sample scripts in the project.
 
-For the best portability and deployment experience, we recommend using containerization with Docker or Podman. This approach:
-
-- Ensures consistent runtime environments across different systems
-- Packages all dependencies, including language runtimes
-- Avoids conflicts between different versions of the same runtime
-- Makes deployment and distribution more reliable
-
-Example Dockerfile for a cmdeagle-built CLI that uses Node.js and Python:
-
-```dockerfile
-FROM node:18-slim
-
-# Install Python and other dependencies
-RUN apt-get update && apt-get install -y python3 python3-pip
-
-# Copy your cmdeagle-built CLI
-COPY ./mycli /usr/local/bin/mycli
-
-# Make it executable
-RUN chmod +x /usr/local/bin/mycli
-
-# Set the entrypoint to your CLI
-ENTRYPOINT ["mycli"]
-```
-
-You can then build and run your containerized CLI:
+Let's test it out:
 
 ```sh
-docker build -t mycli .
-docker run mycli [command] [args...]
+mycli greet cmdeagle 2 --uppercase --repeat 3
+HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
+HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
+HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
 ```
 
-Or with Podman:
+You can get more information about the `greet` command by running:
 
 ```sh
-podman build -t mycli .
-podman run mycli [command] [args...]
+mycli help greet
 ```
 
-#### Cross-platform builds
+The name and age arguments, along with the `--uppercase` and `--repeat` flags, are defined in the `.cmd.yaml` file. Have a look and read the comments to learn how each configuration key works. You can also read the [reference](#reference) for more details on how to define your own commands, flags, and arguments.
+
+For now, let's focus on the `start` script defined for the `greet` subcommand:
+
+```yaml
+  start: |
+    if [ "${FLAGS_USE_PYTHON}" = "true" ]; then
+      python3 greet.py
+    elif [ "${FLAGS_USE_JS}" = "true" ]; then
+      node greet.js
+    elif [ "${FLAGS_USE_GO}" = "true" ]; then
+      ./{{name}}-go-binary
+    else
+      sh greet.sh
+    fi
+```
+
+Note that it runs the `mycli-go-binary` mentioned before if the `--use-go` flag is passed. The flag could have easily been handled within the code of the `greet.py` and `greet.js` files, but we're doing it this way here to demonstrate a self-contained example of what a `start` script is capable of doing.
+
+Let's invoke the built-in `help` command now:
+
+```sh
+mycli help
+
+Usage:
+  mycli [flags]
+  mycli [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  greet       Greet the user.
+  help        Help about any command
+
+Flags:
+  -h, --help   help for mycli
+
+Use "mycli [command] --help" for more information about a command.
+```
+
+Where `mycli` was the name you created in [step 2](#_2-initialize-a-cli-starter-project-named-mycli).
+
+The `completion` command will generate a script for your CLI to use in your shell. This is made possible because `cmdeagle` uses [Cobra](https://github.com/spf13/cobra) under the hood, which provides powerful [command completion capabilities](https://cobra.dev/#generating-bash-completions). You can turn this off by setting the `completion` setting to `false` at the root level of the `.cmd.yaml` file.
+
+Currently, `cmdeagle` primarily uses Cobra for parsing arguments, flags, and subcommands. While we don't yet take full advantage of all the rich features Cobra provides, we plan to integrate more of these capabilities in future releases to enhance the functionality and flexibility of your CLI applications.
+
+## Reference
+
+This section provides detailed documentation for all configuration options, commands, and features available in cmdeagle. Use this reference to understand how to configure your CLI application, define commands and subcommands, set up arguments and flags, and implement the various lifecycle scripts that power your CLI's functionality.
+
+The reference is organized by topic, starting with the configuration structure and moving through each aspect of CLI development with cmdeagle. Each section includes examples and explanations to help you implement the features in your own projects.
+
+
+### Using the `cmdeagle` CLI
+
+The `cmdeagle` CLI is used to initialize, build, and manage your CLI application. It's fairly simple and has only a few commands.
+
+#### `init` command
+
+The `init` command creates a new CLI project with a basic structure and example commands.
+
+```sh
+cmdeagle init [name]
+```
+
+**Parameters:**
+- `name` - The name of your CLI application (optional, defaults to the current directory name)
+
+**Examples:**
+
+Create a new CLI named "mycli":
+```sh
+cmdeagle init mycli
+```
+
+Create a CLI in the current directory:
+```sh
+mkdir my-awesome-cli && cd my-awesome-cli
+cmdeagle init
+```
+
+This command creates several files:
+- `.cmd.yaml` - The main configuration file for your CLI
+- Sample greeting scripts in multiple languages (Shell, JavaScript, Python, Go)
+
+#### `build` command
+
+The `build` command compiles your CLI application based on the configuration in your `.cmd.yaml` file.
+
+```
+cmdeagle build [flags]
+```
+
+**Flags:**
+- `--os` - Target operating system (defaults to current OS)
+- `--arch` - Target architecture (defaults to current architecture)
+- `--out`, `-o` - Output path for the binary (defaults to system binary directory)
+- `--debug` - Enable debug logging in both build and generated CLI
+
+**Examples:**
+
+Build your CLI with default settings:
+```
+cmdeagle build
+```
+
+Build for a specific platform and output location:
+```
+cmdeagle build --os linux --arch arm64 --out ./bin/mycli
+```
+
+After building, your CLI will be available in:
+- On macOS/Linux: `/usr/local/bin` or `~/.local/bin` (unless specified with `--out`)
+- On Windows: `%LocalAppData%\Programs\mycli\bin` (unless specified with `--out`)
+
+
+### Building for targeted platforms
 
 You can build your CLI for different operating systems and architectures using the `--os` and `--arch` flags:
 
@@ -169,141 +258,55 @@ Here, Golang's `go build` command is used to compile the `greet.go` file and wri
 
 Note that `$CLI_BIN_DIR` is an environment variable defined by `cmdeagle` within the shell where the `build` script runs. It points to the directory where the executable file should be built, matching the directory where the CLI's executable file will be written. Unfortunately, it's not yet possible to override this to point to a different directory, but we plan to add this feature in a future release.
 
-### 4) Running your CLI
 
-You can run the executable file from your current working directory or from anywhere on your system if you add its directory to your system's `PATH` variable.
 
-The `greet` command is a sample subcommand that you can use as a starting point. It's defined in the `.cmd.yaml` file and is configured to run the sample scripts in the project.
+### Building for all platforms with containerization
 
-Let's test it out:
+While cmdeagle packages your code and assets into a single executable, it's important to note that language runtimes (like Node.js, Python, etc.) must be installed separately on the target system. This is because:
+
+1. These runtimes are often large and system-specific
+2. They may require special system permissions or configurations
+3. Different applications might need different versions of the same runtime
+
+For the best portability and deployment experience, we recommend using containerization with Docker or Podman. This approach:
+
+- Ensures consistent runtime environments across different systems
+- Packages all dependencies, including language runtimes
+- Avoids conflicts between different versions of the same runtime
+- Makes deployment and distribution more reliable
+
+Example Dockerfile for a cmdeagle-built CLI that uses Node.js and Python:
+
+```dockerfile
+FROM node:18-slim
+
+# Install Python and other dependencies
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Copy your cmdeagle-built CLI
+COPY ./mycli /usr/local/bin/mycli
+
+# Make it executable
+RUN chmod +x /usr/local/bin/mycli
+
+# Set the entrypoint to your CLI
+ENTRYPOINT ["mycli"]
+```
+
+You can then build and run your containerized CLI:
 
 ```sh
-mycli greet cmdeagle 2 --uppercase --repeat 3
-HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
-HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
-HELLO CMDEAGLE! YOU ARE 2 YEARS OLD.
+docker build -t mycli .
+docker run mycli [command] [args...]
 ```
 
-You can get more information about the `greet` command by running:
+Or with Podman:
 
 ```sh
-mycli help greet
+podman build -t mycli .
+podman run mycli [command] [args...]
 ```
 
-The name and age arguments, along with the `--uppercase` and `--repeat` flags, are defined in the `.cmd.yaml` file. Have a look and read the comments to learn how each configuration key works. You can also read the [reference](#reference) for more details on how to define your own commands, flags, and arguments.
-
-For now, let's focus on the `start` script defined for the `greet` subcommand:
-
-```yaml
-  start: |
-    if [ "${FLAGS_USE_PYTHON}" = "true" ]; then
-      python3 greet.py
-    elif [ "${FLAGS_USE_JS}" = "true" ]; then
-      node greet.js
-    elif [ "${FLAGS_USE_GO}" = "true" ]; then
-      ./{{name}}-go-binary
-    else
-      sh greet.sh
-    fi
-```
-
-Note that it runs the `mycli-go-binary` mentioned before if the `--use-go` flag is passed. The flag could have easily been handled within the code of the `greet.py` and `greet.js` files, but we're doing it this way here to demonstrate a self-contained example of what a `start` script is capable of doing.
-
-Let's invoke the built-in `help` command now:
-
-```sh
-mycli help
-
-Usage:
-  mycli [flags]
-  mycli [command]
-
-Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  greet       Greet the user.
-  help        Help about any command
-
-Flags:
-  -h, --help   help for mycli
-
-Use "mycli [command] --help" for more information about a command.
-```
-
-Where `mycli` was the name you created in [step 2](#_2-initialize-a-cli-starter-project-named-mycli).
-
-The `completion` command will generate a script for your CLI to use in your shell. This is made possible because `cmdeagle` uses [Cobra](https://github.com/spf13/cobra) under the hood, which provides powerful [command completion capabilities](https://cobra.dev/#generating-bash-completions). You can turn this off by setting the `completion` setting to `false` at the root level of the `.cmd.yaml` file.
-
-Currently, `cmdeagle` primarily uses Cobra for parsing arguments, flags, and subcommands. While we don't yet take full advantage of all the rich features Cobra provides, we plan to integrate more of these capabilities in future releases to enhance the functionality and flexibility of your CLI applications.
-
-
-## Reference
-
-This section provides detailed documentation for all configuration options, commands, and features available in cmdeagle. Use this reference to understand how to configure your CLI application, define commands and subcommands, set up arguments and flags, and implement the various lifecycle scripts that power your CLI's functionality.
-
-The reference is organized by topic, starting with the configuration structure and moving through each aspect of CLI development with cmdeagle. Each section includes examples and explanations to help you implement the features in your own projects.
-
-
-### Using the `cmdeagle` CLI
-
-The `cmdeagle` CLI is used to initialize, build, and manage your CLI application. It's fairly simple and has only a few commands.
-
-#### `init` command
-
-The `init` command creates a new CLI project with a basic structure and example commands.
-
-```sh
-cmdeagle init [name]
-```
-
-**Parameters:**
-- `name` - The name of your CLI application (optional, defaults to the current directory name)
-
-**Examples:**
-
-Create a new CLI named "mycli":
-```sh
-cmdeagle init mycli
-```
-
-Create a CLI in the current directory:
-```sh
-mkdir my-awesome-cli && cd my-awesome-cli
-cmdeagle init
-```
-
-This command creates several files:
-- `.cmd.yaml` - The main configuration file for your CLI
-- Sample greeting scripts in multiple languages (Shell, JavaScript, Python, Go)
-
-#### `build` command
-
-The `build` command compiles your CLI application based on the configuration in your `.cmd.yaml` file.
-
-```
-cmdeagle build [flags]
-```
-
-**Flags:**
-- `--os` - Target operating system (defaults to current OS)
-- `--arch` - Target architecture (defaults to current architecture)
-- `--out`, `-o` - Output path for the binary (defaults to system binary directory)
-- `--debug` - Enable debug logging in both build and generated CLI
-
-**Examples:**
-
-Build your CLI with default settings:
-```
-cmdeagle build
-```
-
-Build for a specific platform and output location:
-```
-cmdeagle build --os linux --arch arm64 --out ./bin/mycli
-```
-
-After building, your CLI will be available in:
-- On macOS/Linux: `/usr/local/bin` or `~/.local/bin` (unless specified with `--out`)
-- On Windows: `%LocalAppData%\Programs\mycli\bin` (unless specified with `--out`)
 
 #### `completion` command
 

@@ -346,15 +346,15 @@ func validateFileConstraints(fs afero.Fs, constraint *types.ParamConstraints, va
 			return fmt.Errorf("File does not exist: %v", filePath)
 		}
 
-		// If we're only checking existence, we can return here
-		if constraint.IsFileType == "" && constraint.HasPermissions == "" {
-			return nil
-		}
-
 		// Verify it's not a directory
 		isDir, err := afero.IsDir(fs, filePath)
 		if err != nil || isDir {
 			return fmt.Errorf("Path is a directory, not a file: %v", filePath)
+		}
+
+		// If we're only checking existence, we can return here
+		if constraint.IsFileType == "" && constraint.HasPermissions == "" {
+			return nil
 		}
 	}
 
@@ -381,7 +381,7 @@ func validateFileConstraints(fs afero.Fs, constraint *types.ParamConstraints, va
 	// Check IsFileType constraint
 	if constraint.IsFileType != "" {
 		if err := validateFileType(fs, filePath, constraint.IsFileType); err != nil {
-			return err
+			return fmt.Errorf("File type validation failed: %v", err)
 		}
 	}
 

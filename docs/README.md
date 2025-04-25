@@ -79,13 +79,13 @@ For now, let's focus on the `start` script defined for the `greet` subcommand:
     elif [ "${FLAGS_USE_JS}" = "true" ]; then
       node greet.js
     elif [ "${FLAGS_USE_GO}" = "true" ]; then
-      ./{{name}}-go-binary
+      $CLI_BIN_DIR/{{name}}-go-binary
     else
       sh greet.sh
     fi
 ```
 
-Note that it runs the `mycli-go-binary` mentioned before if the `--use-go` flag is passed. The flag could have easily been handled within the code of the `greet.py` and `greet.js` files, but we're doing it this way here to demonstrate a self-contained example of what a `start` script is capable of doing.
+Note that it runs the `mycli-go-binary` from `$CLI_BIN_DIR` if the `--use-go` flag is passed. The `$CLI_BIN_DIR` environment variable is automatically set by cmdeagle and points to the directory where your CLI's binaries are installed (see [CLI/System Variables](#built-in-variables-for-interpolation) for more details). While the flag could have been handled within the code of the `greet.py` and `greet.js` files, we're doing it this way to demonstrate how to reference compiled binaries from the `start` script.
 
 Let's invoke the built-in `help` command now:
 

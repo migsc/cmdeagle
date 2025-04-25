@@ -165,7 +165,7 @@ commands:
       node greet.js
     elif [ "$FLAGS_USE_GO" = "true" ]; then
       echo "Using Go"
-      ./{{name}}-go-binary
+      $CLI_BIN_DIR/{{name}}-go-binary
     else
       echo "Using Shell"
       sh greet.sh

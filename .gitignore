@@ -44,3 +44,7 @@ publish
 # VSCode
 *.code-workspace
 .vscode
+
+# Build and test outputs
+.ouputs
+.inputs

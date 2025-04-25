@@ -35,7 +35,7 @@ cmdeagle init mycli
 
 Where `mycli` is the name of the executable file you want to build. By default, the binary will be named after the directory you run the command from. You can [change this later](#basic-information-and-metadata-settings) using the `name` key in your configuration.
 
-### 3) Building the CLI:
+### 3) Building the CLI
 
 To build a binary for your CLI, run the following command in the root directory of your project:
 

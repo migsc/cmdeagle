@@ -234,6 +234,15 @@ Note that not all combinations of operating systems and architectures are suppor
 
 All binaries are built with CGO disabled to ensure maximum portability and compatibility.
 
+### Distribution Limitations
+When distributing your cmdeagle CLI application, be aware that any compiled binaries 
+(created via the `build` script) are NOT embedded in the main executable. Users will 
+need to run the build process on their own systems, or you'll need to distribute these 
+binaries separately alongside your main CLI.
+
+This is not an issue for script-based functionality (JavaScript, Python, shell scripts)
+as these are properly embedded and extracted at runtime.
+
 Currently, internet connectivity is required for the Go build process to resolve and download modules for the wrapper application that `cmdeagle` generates to bundle your scripts and assets. If all dependencies are cached, you can build the project offline. We plan to improve this process in future releases to further reduce the need for internet connectivity during builds.
 
 The sample scripts are defined in several different languages to help you get started. For Python, JavaScript, and other interpreted languages, the scripts are bundled together with the executable file, thanks to the file paths defined in the `includes` setting:

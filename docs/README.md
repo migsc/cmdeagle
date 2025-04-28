@@ -11,7 +11,7 @@ Building robust CLI applications is tedious, often requiring complex procedural 
 
 ## Quick Start
 
-Go 1.23.2 or later is required.
+Go 1.23.2 or later is required. Install it [here](https://go.dev/doc/install).
 
 ### 1) Installation
 

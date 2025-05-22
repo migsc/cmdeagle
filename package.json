@@ -27,7 +27,8 @@
   },
   "devDependencies": {
     "pkg": "^5.8.1",
-    "docsify-cli": "^4.4.4"
+    "docsify-cli": "^4.4.4",
+    "@types/bun": "latest"
   },
   "dependencies": {
     "yaml": "^2.0.0",
@@ -46,5 +47,11 @@
   "cpu": [
     "x64",
     "arm64"
-  ]
+  ],
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "peerDependencies": {
+    "typescript": "^5"
+  }
 }

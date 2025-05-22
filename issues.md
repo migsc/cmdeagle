@@ -7,6 +7,9 @@ These are meant to transfer into Github Issues later.
     - [feature] [help] [usability]
     - The CLI's help output should display application-level metadata (such as author, license, etc.) to provide users with more context.
 
+- Don't print Version, Author or License when they are empty
+    - [bug]
+
 - Print version in help output
     - [feature] [help] [usability]
     - The CLI's help output should include the current version number, making it easy for users to verify which version they are running.
@@ -42,9 +45,13 @@ These are meant to transfer into Github Issues later.
     - [feature] [init] [major]
     - The `init` command should support creating a minimal/bare template project, without sample commands or scripts, for advanced users who want to start from scratch.
 
-- `init` command: skip interactive prompts when arguments are provided
+- `init` command: properly skip interactive prompts when arguments are provided
     - [feature] [init] [minor] [usability]
     - If all required arguments are passed to the `init` command, it should skip interactive prompts and use the provided values, streamlining automation and scripting.
+    - But if only some of the arguments are passed, we need to still launch the interactive initialization.
+
+- Add support for  updating shell files on users' behalf for autocompletion of commands
+    [feature] [minor]
 
 - Add a new `debug` command
     - [feature] [debug] [major]
@@ -61,3 +68,27 @@ These are meant to transfer into Github Issues later.
 - Terminal-based browser for `help` command (future)
     - [feature] [help] [TUI] [future]
     - Upgrade the `help` command to launch a terminal-based browser for documentation, improving discoverability and navigation for users.
+
+- Update `init` command help output to accurately describe argument handling
+    - [bug] [init] [help] [usability]
+    - The help output for the `init` command should clearly and accurately explain how arguments are handled, including when interactive prompts are skipped, how defaults are applied, and what happens when only some arguments are provided. The current help text is misleading or incomplete.
+
+- Provide additional starter templates for initialization (Node.js/TypeScript, Python, Go, etc.)
+    - [feature] [init] [templates] [enhancement] [low-priority]
+    - Offer users a choice of starter templates when initializing a new CLI project, such as Node.js with TypeScript/JavaScript, Python, Go, and others. This will make it easier for users to get started in their preferred language and ecosystem.
+
+- Create a new repo or directory in this repo to example CLIs built with cmdeagle
+    - [documentation] [usability]
+    - Should add the timer CLI that I created
+
+- Remove the need for internet access to build
+    - [feature] [build] [offline] [v1] [minor]
+    - Refactor the build process so that, once dependencies are cached, users can build their CLI projects without requiring an internet connection.
+
+- Windows support: build to %LOCALAPPDATA%\Programs directory
+    - [feature] [windows] [cross-platform] [v2] [minor]
+    - Ensure that on Windows, the CLI is built and installed to the %LOCALAPPDATA%\Programs directory, matching platform conventions.
+
+- Take full advantage of Cobra features
+    - [enhancement] [cobra] [future]
+    - Refactor and extend the CLI to leverage more of Cobra's advanced features, such as richer argument/flag validation, command aliases, and improved help output.

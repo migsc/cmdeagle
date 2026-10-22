@@ -287,7 +287,7 @@ For the best portability and deployment experience, we recommend using container
 Example Dockerfile for a cmdeagle-built CLI that uses Node.js and Python:
 
 ```dockerfile
-FROM node:18-slim
+FROM node:22-slim
 
 # Install Python and other dependencies
 RUN apt-get update && apt-get install -y python3 python3-pip

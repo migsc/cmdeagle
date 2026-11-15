@@ -1,0 +1,21 @@
+# DRAFT: the cmdeagle v2 spec shape is not final. Core files arrive with implementation.
+schemaVersion: 2
+name: backup
+description: Copy a folder somewhere safe, without surprises.
+
+args:
+  - name: source
+    type: path
+    mustExist: true
+
+flags:
+  to:    { type: path, required: true, describe: Destination folder }
+  prune: { type: boolean, describe: Remove files that are gone from the source }
+
+effects:
+  reads:  [source, to]
+  writes: [to]
+  destructive: { targets: [to], when: prune }
+dryRun: required
+
+core: ./core/index.ts#backup

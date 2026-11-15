@@ -1,0 +1,20 @@
+# DRAFT: the cmdeagle v2 spec shape is not final. Core files arrive with implementation.
+schemaVersion: 2
+name: weather
+description: The forecast, without opening a browser.
+
+args:
+  - name: location
+    type: string
+    describe: City name, e.g. "Austin" or "Lisbon, PT"
+
+flags:
+  days:   { type: integer, min: 1, max: 16, default: 3 }
+  units:  { type: enum, values: [c, f], default: c }
+  cached: { type: boolean, describe: Use the last saved forecast; never touch the network }
+
+effects:
+  network: { targets: [geocoding-api.open-meteo.com, api.open-meteo.com], unless: cached }
+  writes:  [$XDG_CACHE_HOME/weather]
+
+core: ./core/index.ts#forecast

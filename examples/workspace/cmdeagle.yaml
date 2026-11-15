@@ -1,0 +1,37 @@
+# DRAFT: the cmdeagle v2 spec shape is not final. Core files arrive with implementation.
+schemaVersion: 2
+name: workspace
+description: See, name, and clear Hyprland workspaces.
+
+requires:
+  executables: [hyprctl]
+
+state:
+  labels: ~/.config/omarchy/workspace-labels.json
+
+commands:
+  ls:
+    description: List workspaces with their labels and windows.
+    effects: { reads: [hyprctl, labels] }
+    core: ./core/index.ts#list
+  label:
+    description: Name a workspace. An empty name removes the label.
+    args:
+      - { name: id, type: integer, min: 1, max: 10, optional: true, describe: Defaults to the active workspace }
+      - { name: name, type: string, optional: true }
+    effects: { writes: [labels] }
+    core: ./core/index.ts#label
+  clear:
+    description: Close a workspace's windows, keeping apps that also live elsewhere.
+    args: [{ name: id, type: integer, min: 1, max: 10, optional: true }]
+    effects:
+      reads: [hyprctl]
+      destructive: [windows, processes]
+      desktop: [windows]
+    dryRun: required
+    core: ./core/index.ts#clear
+  pick:
+    description: Choose a workspace interactively and switch to it.
+    effects: { reads: [hyprctl, labels], desktop: [focus] }
+    interactive: true
+    core: ./core/index.ts#pick

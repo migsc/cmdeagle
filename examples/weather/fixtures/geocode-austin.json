@@ -1,0 +1,5 @@
+{
+  "results": [
+    { "id": 1, "name": "Austin", "latitude": 30.26715, "longitude": -97.74306, "country": "United States", "country_code": "US", "admin1": "Texas", "timezone": "America/Chicago" }
+  ]
+}

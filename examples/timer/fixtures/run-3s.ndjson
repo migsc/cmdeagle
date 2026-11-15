@@ -1,0 +1,7 @@
+{"type":"timer.tick","remainingMs":3000,"elapsedMs":0}
+{"type":"timer.tick","remainingMs":2000,"elapsedMs":1000}
+{"type":"timer.paused","remainingMs":2000}
+{"type":"timer.resumed","remainingMs":2000}
+{"type":"timer.tick","remainingMs":1000,"elapsedMs":2000}
+{"type":"timer.tick","remainingMs":0,"elapsedMs":3000}
+{"type":"result","ok":true,"data":{"label":"focus","durationMs":3000,"completed":true,"startedAt":"2026-11-14T15:00:00.000Z","endedAt":"2026-11-14T15:00:04.200Z"}}

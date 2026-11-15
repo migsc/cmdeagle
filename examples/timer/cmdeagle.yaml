@@ -1,0 +1,30 @@
+# DRAFT: the cmdeagle v2 spec shape is not final. Core files arrive with implementation.
+schemaVersion: 2
+name: timer
+description: A focus timer that stays out of your way.
+
+args:
+  - name: duration
+    type: duration          # 25m, 1h30m, 90s
+    default: 25m
+
+flags:
+  label:  { type: string, describe: Shown in the countdown and the notification }
+  notify: { type: boolean, default: true, describe: Send a desktop notification at the end }
+  detach: { type: boolean, describe: Keep running in the background; check it with `timer status` }
+
+effects:
+  desktop: { targets: [notification], when: notify }
+
+core: ./core/index.ts#start
+serve: true                 # `timer status` and `timer stop` talk to a detached timer
+
+commands:
+  status:
+    description: Time left on the running timer.
+    effects: { reads: [timer process] }
+    core: ./core/index.ts#status
+  stop:
+    description: Stop the running timer.
+    effects: { writes: [timer process] }
+    core: ./core/index.ts#stop

@@ -1,0 +1,27 @@
+# DRAFT: the cmdeagle v2 spec shape is not final. Core files arrive with implementation.
+schemaVersion: 2
+name: chart
+description: Turn CSV or JSON into a chart, right in the terminal.
+
+args:
+  - name: file
+    type: path
+    optional: true
+    describe: CSV or JSON file. Reads stdin when omitted or "-".
+
+flags:
+  type:   { type: enum, values: [auto, bar, line, sparkline, histogram, scatter], default: auto }
+  x:      { type: string, describe: Column for the x axis or categories }
+  y:      { type: list, of: string, describe: One or more numeric columns to plot }
+  format: { type: enum, values: [auto, csv, json], default: auto }
+  bins:   { type: integer, min: 2, describe: Histogram bucket count }
+  width:  { type: integer, describe: Override the terminal width }
+  title:  { type: string }
+
+effects:
+  reads: [file, stdin]
+
+core: ./core/index.ts#plot
+
+skill:
+  guidance: ./skill/plotting.md   # hand-written; included verbatim in the generated SKILL.md

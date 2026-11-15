@@ -75,6 +75,8 @@
 
   <script>
 
+    console.log('%c❯ psst. something new is coming → ' + location.origin + location.pathname.replace(/[^/]*$/, '') + 'v2/', 'color:#7fd49a;font-family:monospace');
+
     let toggle, cover, lightTheme, darkTheme;
 
     document.addEventListener('DOMContentLoaded', function() {

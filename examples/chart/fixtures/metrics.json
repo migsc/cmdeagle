@@ -1,0 +1,7 @@
+[
+  { "service": "api", "p50_ms": 42, "p95_ms": 180, "error_rate": 0.002 },
+  { "service": "web", "p50_ms": 65, "p95_ms": 240, "error_rate": 0.004 },
+  { "service": "worker", "p50_ms": 120, "p95_ms": 910, "error_rate": 0.011 },
+  { "service": "search", "p50_ms": 38, "p95_ms": 150, "error_rate": 0.001 },
+  { "service": "auth", "p50_ms": 22, "p95_ms": 95, "error_rate": 0.0005 }
+]

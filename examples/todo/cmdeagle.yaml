@@ -1,0 +1,45 @@
+# DRAFT: the cmdeagle v2 spec shape is not final. Core files arrive with implementation.
+schemaVersion: 2
+name: todo
+description: A small to-do list that lives in your terminal.
+
+state:
+  file: $XDG_DATA_HOME/todo/todos.json
+
+# Bare `todo` opens the interactive list on a TTY and behaves like `todo ls` elsewhere.
+core: ./core/index.ts#browse
+effects: { reads: [state], writes: [state] }
+
+commands:
+  add:
+    description: Add an item.
+    args: [{ name: text, type: string, variadic: true }]
+    flags: { due: { type: date } }
+    effects: { writes: [state] }
+    core: ./core/index.ts#add
+  ls:
+    description: List items.
+    flags: { all: { type: boolean, describe: Include finished items } }
+    effects: { reads: [state] }
+    core: ./core/index.ts#list
+  done:
+    description: Mark items finished.
+    args: [{ name: id, type: integer, variadic: true }]
+    effects: { writes: [state] }
+    core: ./core/index.ts#done
+  edit:
+    description: Change an item's text.
+    args: [{ name: id, type: integer }, { name: text, type: string, variadic: true }]
+    effects: { writes: [state] }
+    core: ./core/index.ts#edit
+  rm:
+    description: Delete items.
+    args: [{ name: id, type: integer, variadic: true }]
+    effects: { destructive: [state] }
+    dryRun: required
+    core: ./core/index.ts#remove
+  clear:
+    description: Delete all finished items.
+    effects: { destructive: [state] }
+    dryRun: required
+    core: ./core/index.ts#clear

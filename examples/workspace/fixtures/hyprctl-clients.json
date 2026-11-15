@@ -1,0 +1,7 @@
+[
+  { "address": "0x5550001", "mapped": true, "workspace": { "id": 1, "name": "1" }, "class": "browser", "title": "Docs", "pid": 4101 },
+  { "address": "0x5550002", "mapped": true, "workspace": { "id": 1, "name": "1" }, "class": "terminal", "title": "notes", "pid": 4202 },
+  { "address": "0x5550003", "mapped": true, "workspace": { "id": 3, "name": "3" }, "class": "browser", "title": "Issue tracker", "pid": 4101 },
+  { "address": "0x5550004", "mapped": true, "workspace": { "id": 3, "name": "3" }, "class": "editor", "title": "demo — editor", "pid": 4303 },
+  { "address": "0x5550005", "mapped": true, "workspace": { "id": 3, "name": "3" }, "class": "terminal", "title": "demo — tests", "pid": 4404 }
+]

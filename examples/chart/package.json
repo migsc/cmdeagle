@@ -1,0 +1,23 @@
+{
+  "name": "@cmdeagle-example/chart",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun cli.tsx",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build": "bun build --compile --minify --splitting cli.tsx --outfile dist/chart",
+    "install-bin": "bun run build && install -m 755 dist/chart $HOME/.local/bin/chart"
+  },
+  "dependencies": {
+    "ink": "^8.0.0",
+    "react": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.4",
+    "@types/react": "^19.3.0",
+    "react-devtools-core": "file:../stubs/react-devtools-core",
+    "typescript": "^7.0.2"
+  }
+}

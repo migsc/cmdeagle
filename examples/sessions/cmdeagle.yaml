@@ -1,0 +1,30 @@
+# DRAFT: the cmdeagle v2 spec shape is not final. Core files arrive with implementation.
+schemaVersion: 2
+name: sessions
+description: Search and browse your coding-agent transcripts.
+
+config:
+  roots:
+    codex:  { type: path, default: ~/.codex/sessions }
+    claude: { type: path, default: ~/.claude/projects }
+
+# Bare `sessions` opens a fuzzy finder with a preview pane on a TTY.
+core: ./core/index.ts#browse
+effects: { reads: [roots] }
+
+commands:
+  search:
+    description: Find sessions that mention something.
+    args: [{ name: query, type: string }]
+    flags:
+      agent: { type: enum, values: [any, codex, claude], default: any }
+      since: { type: date }
+      limit: { type: integer, default: 20 }
+    effects: { reads: [roots] }
+    core: ./core/index.ts#search
+  show:
+    description: Print one session as a readable transcript.
+    args: [{ name: id, type: string }]
+    flags: { role: { type: enum, values: [all, user, assistant], default: all } }
+    effects: { reads: [roots] }
+    core: ./core/index.ts#show

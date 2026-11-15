@@ -1,0 +1,2 @@
+{"type":"user","timestamp":"2026-11-13T18:00:00Z","sessionId":"demo-0002","cwd":"/home/user/projects/demo","message":{"role":"user","content":"Why does the timer widget show stale time?"}}
+{"type":"assistant","timestamp":"2026-11-13T18:01:10Z","sessionId":"demo-0002","message":{"role":"assistant","content":"The widget polls every 60s; I changed it to subscribe to timer events instead."}}

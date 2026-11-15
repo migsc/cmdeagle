@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>cmdeagle v2</title>
+<meta name="description" content="An early look at cmdeagle v2, the AI-native CLI builder. In development; not released.">
+<link rel="icon" href="../_media/favicon.ico">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0b0e0f;--bg-2:#101516;--panel:#121819;--chrome:#182021;
+  --line:#253032;--line-2:#34413f;
+  --fg:#eef1ec;--muted:#93a29f;--dim:#5f6d6b;
+  --mint:#b1e5bf;--mint-2:#7fd49a;--amber:#edc57a;--red:#f09a8a;--blue:#9cc8f0;
+  --mono:ui-monospace,'SFMono-Regular','JetBrains Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Inter,Roboto,Arial,sans-serif;
+  --wrap:1200px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(#ffffff0d 1px,transparent 1px);background-size:26px 26px;
+  mask-image:linear-gradient(#000 0,#000 40%,transparent 90%)}
+main,header,footer,.ribbon{position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+a:hover{color:var(--mint)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--mint);outline-offset:4px;border-radius:4px}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 32px}
+.mono{font-family:var(--mono)}
+.mint{color:var(--mint)}.amber{color:var(--amber)}.red{color:var(--red)}.blue{color:var(--blue)}.muted{color:var(--muted)}.dim{color:var(--dim)}.fg{color:var(--fg)}
+
+/* ribbon */
+.ribbon{border-bottom:1px solid var(--line);background:repeating-linear-gradient(-45deg,#141a17 0 10px,#11171a 10px 20px);
+  font:11px/1.6 var(--mono);letter-spacing:.06em;color:#c6d3c8;text-align:center;padding:9px 16px}
+.ribbon b{color:var(--amber);font-weight:600}
+.blink{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);margin-right:8px;vertical-align:1px;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+/* header */
+header .wrap{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:-.5px}
+.brand img{width:30px;height:30px}
+.tag{font:10px var(--mono);letter-spacing:.08em;color:var(--mint);border:1px solid #3d5545;background:#132019;border-radius:999px;padding:4px 9px;font-weight:500}
+header nav{display:flex;gap:26px;font-size:13px;color:var(--muted)}
+
+/* hero */
+.hero{padding:64px 0 40px;overflow-x:clip}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:56px;align-items:center}
+.kicker{font:11px/1.5 var(--mono);letter-spacing:.16em;color:var(--mint);text-transform:uppercase}
+.kicker::before{content:"// ";color:var(--dim)}
+h1{font-size:clamp(38px,4.6vw,66px);line-height:1.02;letter-spacing:-.055em;font-weight:600;margin:22px 0 0}
+h1 .soft{color:var(--muted);font-weight:500}
+h1 em{font-style:normal;color:var(--mint);position:relative;white-space:nowrap}
+h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.08em;background:var(--mint);opacity:.35}
+.lead{font-size:17px;line-height:1.7;color:var(--muted);max-width:520px;margin:26px 0 0}
+.lead strong{color:var(--fg);font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:12px;font-size:13px;font-weight:600;padding:13px 18px;border-radius:6px;border:1px solid var(--line-2);color:var(--fg);background:transparent}
+.btn.primary{background:var(--mint);color:#102016;border-color:var(--mint)}
+.btn.primary:hover{background:#c8f2d2;color:#102016}
+.btn:active{transform:translateY(1px)}
+
+/* terminal */
+.term{background:var(--panel);border:1px solid var(--line-2);border-radius:10px;overflow:hidden;box-shadow:0 30px 80px -20px #000a,0 0 0 1px #0004}
+.term .bar{height:38px;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--chrome);border-bottom:1px solid var(--line);font:11px var(--mono);color:var(--muted)}
+.dots{display:flex;gap:6px}.dots i{width:10px;height:10px;border-radius:50%;background:#2c3738;display:block}
+.bar .title{flex:1;text-align:center;margin-right:40px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.term pre{margin:0;padding:22px 24px;font:13px/1.75 var(--mono);white-space:pre;overflow-x:auto;color:#d9dfd9}
+.hero-term{position:relative}
+.hero-term::before{content:"";position:absolute;inset:-60px -40px;background:radial-gradient(closest-side,#7fd49a22,transparent);z-index:-1}
+.hero-term pre{min-height:430px}
+.replay{background:transparent;border:1px solid var(--line-2);color:var(--muted);font:10px var(--mono);letter-spacing:.06em;border-radius:4px;padding:4px 8px}
+.replay:hover{color:var(--mint);border-color:#3d5545}
+.line{display:block}
+.line.hidden{visibility:hidden}
+.cursor{display:inline-block;width:.6em;height:1.1em;background:var(--mint);vertical-align:-.2em;animation:pulse 1s steps(1) infinite}
+
+/* strip */
+.strip{margin-top:64px;border-block:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:18px 0;font:11px var(--mono);letter-spacing:.08em;color:var(--muted)}
+.strip span::before{content:"◆ ";color:var(--mint)}
+
+/* sections */
+section.block{padding:96px 0;border-top:1px solid var(--line)}
+section.block:first-of-type{border-top:0}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:48px;margin-bottom:44px}
+h2{font-size:clamp(32px,4vw,52px);line-height:1.08;letter-spacing:-.05em;font-weight:600;margin:16px 0 0}
+.head p{max-width:400px;margin:0;color:var(--muted);font-size:15px;line-height:1.75}
+
+/* surfaces */
+.surfaces{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:28px;align-items:stretch}
+.surfaces .term pre{min-height:470px;font-size:12.5px}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tabs button{background:transparent;border:1px solid transparent;color:var(--muted);font:11px var(--mono);padding:5px 10px;border-radius:5px}
+.tabs button[aria-selected="true"]{color:var(--mint);border-color:#3d5545;background:#132019}
+.tabs button:hover{color:var(--fg)}
+.surface-note{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:36px}
+.surface-note div{border-top:1px solid var(--line);padding-top:18px}
+.surface-note b{display:block;font:11px var(--mono);letter-spacing:.12em;color:var(--mint);font-weight:500;text-transform:uppercase}
+.surface-note p{color:var(--muted);font-size:14px;line-height:1.7;margin:10px 0 0}
+
+/* effects */
+.effects{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.effect{background:var(--bg-2);padding:26px 22px 28px}
+.chip{display:inline-block;font:11px var(--mono);border-radius:4px;padding:3px 8px;border:1px solid}
+.chip.r{color:var(--blue);border-color:#35506a;background:#121c26}
+.chip.w{color:var(--mint);border-color:#3d5545;background:#132019}
+.chip.n{color:#c7b3f0;border-color:#4a3f66;background:#1a1626}
+.chip.d{color:var(--red);border-color:#6a3a33;background:#24140f}
+.effect h3{font-size:17px;font-weight:500;letter-spacing:-.3px;margin:16px 0 8px}
+.effect p{font-size:13.5px;line-height:1.7;color:var(--muted);margin:0}
+.effect code{font:12px var(--mono);color:var(--fg)}
+.rule{margin-top:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+.rule .term pre{font-size:12.5px}
+
+/* loop */
+.loop{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;counter-reset:s}
+.step{border-top:1px solid var(--line-2);padding-top:20px;position:relative}
+.step::before{counter-increment:s;content:"0" counter(s);font:11px var(--mono);color:var(--mint)}
+.step h3{font-size:19px;font-weight:500;letter-spacing:-.4px;margin:12px 0 10px}
+.step p{font-size:14px;line-height:1.7;color:var(--muted);margin:0 0 16px}
+.step code{display:block;font:11.5px/1.8 var(--mono);color:#d4dbd4;white-space:pre;overflow-x:auto}
+.step:not(:last-child)::after{content:"→";position:absolute;top:-12px;right:-20px;color:var(--dim);font-family:var(--mono)}
+
+/* status */
+.status{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:80px}
+.status h2 + p{color:var(--muted);font-size:15px;line-height:1.75;max-width:430px;margin:24px 0 30px}
+.ledger div{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:18px 0;border-bottom:1px solid var(--line)}
+.ledger div:first-child{padding-top:0}
+.ledger span{font:11px var(--mono);letter-spacing:.1em;color:var(--mint);text-transform:uppercase;padding-top:3px}
+.ledger p{margin:0;font-size:14px;line-height:1.7;color:var(--muted)}
+.ledger strong{color:var(--fg);font-weight:500}
+
+footer .wrap{border-top:1px solid var(--line);padding:30px 32px 48px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+footer .wrap > span:first-child{font-family:var(--mono)}
+
+@media (max-width:980px){
+  .hero-grid,.surfaces,.rule,.status{grid-template-columns:minmax(0,1fr)}
+  .hero-grid{gap:44px}
+  .effects{grid-template-columns:repeat(2,1fr)}
+  .loop{grid-template-columns:repeat(2,1fr)}
+  .step:nth-child(2)::after{display:none}
+  .surface-note{grid-template-columns:1fr}
+  .head{flex-direction:column;align-items:flex-start;gap:18px}
+  .status{gap:44px}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  footer .wrap{padding:26px 16px 40px}
+  header nav a:not(:last-child){display:none}
+  .hero{padding-top:40px}
+  .lead{font-size:15.5px}
+  .term pre{font-size:11px;padding:18px 14px}
+  .hero-term pre{min-height:0}
+  .surfaces .term pre{min-height:0;font-size:11px}
+  .rule .term pre{font-size:11px}
+  .bar .title{margin-right:0}
+  .tabs button{padding:5px 7px}
+  .effects,.loop{grid-template-columns:1fr}
+  .step::after{display:none}
+  section.block{padding:72px 0}
+  .ledger div{grid-template-columns:1fr;gap:6px}
+  .strip{font-size:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .blink,.cursor{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon"><span class="blink" aria-hidden="true"></span><b>UNLISTED</b> · You found /v2 before we announced it. Nothing here is released yet. Keep it between us.</div>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="cmdeagle v2">
+      <img src="../_media/logo-dark.svg" alt="" width="30" height="30">cmdeagle <span class="tag">v2 · alpha</span>
+    </a>
+    <nav aria-label="Page">
+      <a href="#surfaces">Surfaces</a>
+      <a href="#effects">Safety</a>
+      <a href="#loop">The loop</a>
+      <a href="../">v1 docs ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker">Next version · in development</div>
+          <h1>Describe a tool.<br><span class="soft">Your agent builds it.</span><br><em>Everyone</em> can use it.</h1>
+          <p class="lead">cmdeagle v2 is an <strong>AI-native CLI builder</strong>. Tell your agent what the tool should do; cmdeagle turns its spec into a real command-line app. People get a terminal UI they enjoy. Agents get a contract they can't misread. The finished tool runs <strong>without AI</strong>.</p>
+          <div class="actions">
+            <a class="btn primary" href="https://github.com/migsc/cmdeagle">Watch the repo ↗</a>
+            <a class="btn" href="#surfaces">See how it works ↓</a>
+          </div>
+        </div>
+        <div class="hero-term">
+          <div class="term">
+            <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">~/bin · your agent + cmdeagle</span><button class="replay" id="replay" type="button">↻ replay</button></div>
+            <pre id="hero-pre" aria-label="Concept transcript: an agent turns a backup script into a CLI"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="strip"><span>ONE SPEC</span><span>THREE SURFACES</span><span>DECLARED SIDE EFFECTS</span><span>NO AI AT RUNTIME</span></div>
+    </div>
+  </section>
+
+  <section class="block" id="surfaces">
+    <div class="wrap">
+      <div class="head">
+        <div><div class="kicker">01 · One spec, three surfaces</div><h2>Write it once.<br>It speaks to everyone.</h2></div>
+        <p>Every cmdeagle tool comes from one versioned <code class="mono fg">cmdeagle.yaml</code>. From it, cmdeagle builds a terminal UI for people, a JSON contract for programs, and a skill file that teaches your agent to use the tool.</p>
+      </div>
+      <div class="surfaces">
+        <div class="term">
+          <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">cmdeagle.yaml</span></div>
+<pre id="spec"><span class="dim">schemaVersion:</span> 2
+<span class="dim">name:</span> <span class="fg">backup</span>
+<span class="dim">description:</span> Copy a folder somewhere safe, without surprises.
+
+<span class="dim">args:</span>
+  - <span class="dim">name:</span> source
+    <span class="dim">type:</span> path
+    <span class="dim">mustExist:</span> true
+
+<span class="dim">flags:</span>
+  <span class="dim">to:</span>    { type: path, required: true }
+  <span class="dim">prune:</span> { type: boolean, describe: Remove files gone from source }
+
+<span class="mint">effects:</span>
+  <span class="mint">reads:</span>  [source]
+  <span class="mint">writes:</span> [to]
+  <span class="mint">destructive:</span> { when: prune }
+<span class="mint">dryRun:</span> required
+
+<span class="dim">run:</span> ./scripts/backup.sh</pre>
+        </div>
+        <div class="term">
+          <div class="bar">
+            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="title" id="surface-title">$ backup ~/Projects --to /mnt/vault --dry-run</span>
+            <div class="tabs" role="tablist" aria-label="Surface">
+              <button role="tab" aria-selected="true" data-s="human">Human</button>
+              <button role="tab" aria-selected="false" data-s="machine">Machine</button>
+              <button role="tab" aria-selected="false" data-s="model">Model</button>
+            </div>
+          </div>
+          <pre id="surface" role="tabpanel" aria-live="polite"></pre>
+        </div>
+      </div>
+      <div class="surface-note">
+        <div><b>Human</b><p>A terminal UI built on Ink: help that teaches, a live preview of the plan, and errors that say what to do next.</p></div>
+        <div><b>Machine</b><p>Versioned JSON results, diagnostics on stderr, and exit codes that don't change. No colors or spinners in a pipe, ever.</p></div>
+        <div><b>Model</b><p>A generated <code class="mono fg">SKILL.md</code> for Claude Code and other agents. It covers when to use the tool, how to call it, and what's safe.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="effects">
+    <div class="wrap">
+      <div class="head">
+        <div><div class="kicker">02 · Side effects, declared</div><h2>Your agent knows what<br>a command will touch.</h2></div>
+        <p>Every command declares what it reads, writes, sends, and destroys. If a command changes anything, it must support a dry run, and the generated skill tells your agent to show you the plan first.</p>
+      </div>
+      <div class="effects">
+        <div class="effect"><span class="chip r">reads</span><h3>Looks, doesn't touch.</h3><p>Safe to run while exploring. Inputs are validated before your script sees them.</p></div>
+        <div class="effect"><span class="chip w">writes</span><h3>Changes are previewed.</h3><p>Requires <code>--dry-run</code>. The plan comes back as a readable preview or as JSON.</p></div>
+        <div class="effect"><span class="chip n">network</span><h3>Calls out, openly.</h3><p>Hosts are declared in the spec, so permission rules can allow or block them.</p></div>
+        <div class="effect"><span class="chip d">destructive</span><h3>Asks before it's gone.</h3><p>Can be conditional, like <code>when: prune</code>. The skill tells the agent to get your OK first.</p></div>
+      </div>
+      <div class="rule">
+        <div class="term">
+          <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">dist/backup/SKILL.md · generated</span></div>
+<pre><span class="dim">## Safety</span>
+- Writes to <span class="fg">--to</span>. Destructive only with <span class="red">--prune</span>.
+- <span class="mint">Always run with --dry-run --json first</span>
+  and show the user the plan.
+- <span class="amber">Ask before using --prune.</span>
+
+<span class="dim">## Exit codes</span>
+0 ok · 2 invalid input · 3 source missing · 10 partial</pre>
+        </div>
+        <div class="term">
+          <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">what your agent does with it</span></div>
+<pre><span class="mint">›</span> <span class="fg">back up my projects to the vault and clean it up</span>
+
+<span class="mint">●</span> backup ~/Projects --to /mnt/vault <span class="mint">--dry-run --json</span>
+  <span class="muted">212 new · 37 changed · 0 deleted</span>
+
+<span class="amber">●</span> Cleaning up needs <span class="red">--prune</span>, which deletes
+  <span class="fg">9 files</span> from /mnt/vault. Go ahead?</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="loop">
+    <div class="wrap">
+      <div class="head">
+        <div><div class="kicker">03 · The loop</div><h2>Your agent writes the spec.<br>cmdeagle checks its work.</h2></div>
+        <p>cmdeagle runs as a skill inside the agent you already use. Each build returns a result your agent can read. When something fails, the error comes with a fix, and the loop keeps going until the build passes.</p>
+      </div>
+      <div class="loop">
+        <div class="step"><h3>Describe</h3><p>Point your agent at a script or explain the job in a sentence.</p><code><span class="mint">›</span> make backup.sh a real CLI,
+  safe by default</code></div>
+        <div class="step"><h3>Spec</h3><p>The agent writes <span class="mono fg">cmdeagle.yaml</span>: commands, flags, side effects. You can review it like any other file.</p><code><span class="mint">+</span> cmdeagle.yaml
+<span class="mint">+</span> scripts/backup.sh</code></div>
+        <div class="step"><h3>Finalize</h3><p>cmdeagle validates the spec and builds the tool. Each failure comes back with a stable code and a fix.</p><code><span class="red">✗</span> E_FLAG_UNDECLARED $PRUNE
+  <span class="muted">hint: add flags.prune</span>
+<span class="mint">✓</span> valid · built</code></div>
+        <div class="step"><h3>Ship</h3><p>You get a standalone binary and its skill file. No model, API key, or network needed to run it.</p><code>dist/backup/
+  backup
+  SKILL.md</code></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="status">
+    <div class="wrap status">
+      <div>
+        <div class="kicker">04 · Where it stands</div>
+        <h2>Coming soon.<br><span class="soft">Built in the open.</span></h2>
+        <p>v1 builds CLIs from your existing scripts, in any language. v2 keeps that and adds the agent: the AI-native builder described above. Everything on this page is in development. Watch the repo for the first alpha.</p>
+        <div class="actions">
+          <a class="btn primary" href="https://github.com/migsc/cmdeagle">github.com/migsc/cmdeagle ↗</a>
+          <a class="btn" href="../">Use v1 today</a>
+        </div>
+      </div>
+      <div class="ledger">
+        <div><span>Version</span><p><strong>v2.0.0-alpha</strong>, in development. No package is published yet.</p></div>
+        <div><span>Runtime</span><p>TypeScript with an Ink terminal UI, compiled to standalone binaries. Still being prototyped.</p></div>
+        <div><span>Agents</span><p>Ships as a skill for the agent you already use, so you sign in to your own agent. Nothing from cmdeagle sits in between.</p></div>
+        <div><span>v1</span><p>Still works. Existing <code class="mono fg">.cmd.yaml</code> projects will get a converter that shows you a diff.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>❯ cmdeagle v2 · you weren't supposed to see this yet</span>
+    <a href="https://github.com/migsc/cmdeagle/blob/master/LICENSE">MIT licensed ↗</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- hero transcript ---------- */
+  var S = function(cls, t){ return '<span class="'+cls+'">'+t+'</span>'; };
+  var prompt = 'turn ~/bin/backup.sh into a real CLI. safe by default.';
+  var lines = [
+    '',
+    S('mint','●')+' Reading backup.sh '+S('dim','(41 lines)'),
+    S('mint','●')+' Writing cmdeagle.yaml',
+    '    '+S('muted','effects: reads source · writes --to · destructive with --prune'),
+    S('mint','●')+' cmdeagle finalize --json',
+    '    '+S('red','✗ E_FLAG_UNDECLARED')+'  script reads $PRUNE, no flag declares it',
+    '      '+S('amber','hint:')+' add flags.prune { type: boolean }',
+    S('mint','●')+' Updating cmdeagle.yaml',
+    S('mint','●')+' cmdeagle finalize --json',
+    '    '+S('mint','✓ valid')+' · built dist/backup · generated SKILL.md',
+    '',
+    '  '+S('fg','Ready.')+' Try it yourself:',
+    '  '+S('muted','$')+' backup ~/Projects --to /mnt/vault '+S('mint','--dry-run')
+  ];
+  var pre = document.getElementById('hero-pre');
+  var timers = [];
+  function clear(){ timers.forEach(clearTimeout); timers = []; }
+  function head(n, cursor){
+    return S('mint','›')+' '+S('fg', prompt.slice(0, n))+(cursor?'<span class="cursor"></span>':'');
+  }
+  function full(){
+    pre.innerHTML = head(prompt.length) + '\n' + lines.join('\n');
+  }
+  function play(){
+    clear();
+    if (reduce) { full(); return; }
+    var body = lines.map(function(l){ return '<span class="line hidden">'+(l||' ')+'</span>'; }).join('');
+    pre.innerHTML = '<span id="h-head">'+head(0,true)+'</span>\n'+body;
+    var headEl = document.getElementById('h-head');
+    var spans = pre.querySelectorAll('.line');
+    var t = 300;
+    for (var i = 1; i <= prompt.length; i++) {
+      (function(n){ timers.push(setTimeout(function(){ headEl.innerHTML = head(n, true); }, t)); })(i);
+      t += 28;
+    }
+    t += 350;
+    timers.push(setTimeout(function(){ headEl.innerHTML = head(prompt.length); }, t));
+    var delays = [0,450,500,350,700,900,300,600,500,800,250,350,300];
+    spans.forEach(function(s, i){
+      t += delays[i] || 400;
+      timers.push(setTimeout(function(){ s.classList.remove('hidden'); }, t));
+    });
+  }
+  document.getElementById('replay').addEventListener('click', play);
+  play();
+
+  /* ---------- surfaces ---------- */
+  function pad(s, n){ var len = s.replace(/<[^>]+>/g,'').length; return s + Array(Math.max(0, n - len) + 1).join(' '); }
+  function box(title, rows, w){
+    var top = S('dim','╭─ ')+S('fg',title)+' '+S('dim', Array(w - title.length - 3).join('─') + '╮');
+    var out = [top];
+    rows.forEach(function(r){ out.push(S('dim','│')+' '+pad(r, w - 2)+S('dim','│')); });
+    out.push(S('dim','╰'+Array(w).join('─')+'╯'));
+    return out.join('\n');
+  }
+  var W = 48;
+  var human = box('backup · dry run', [
+    S('fg','~/Projects')+'  '+S('dim','→')+'  '+S('fg','/mnt/vault'),
+    '',
+    S('mint','✓')+' scanned   '+S('fg','1,284')+' files   2.1 GB',
+    S('mint','+')+' new         '+S('fg','212')+' files   340 MB',
+    S('amber','~')+' changed      '+S('fg','37')+' files    18 MB',
+    S('dim','−')+' deleted       '+S('fg','0')+'  '+S('dim','--prune off'),
+    '',
+    S('mint','████████████████████████████')+S('dim','░░░')+'  plan',
+  ], W) + '\n\n  ' + S('fg','Nothing was copied.') + '\n  ' + S('muted','Run without --dry-run to apply.') +
+    '\n\n  ' + S('dim','writes /mnt/vault · not destructive');
+
+  var machine = [
+    '{',
+    '  '+S('blue','"schemaVersion"')+': 2,',
+    '  '+S('blue','"command"')+': '+S('mint','"backup"')+',',
+    '  '+S('blue','"dryRun"')+': true,',
+    '  '+S('blue','"ok"')+': true,',
+    '  '+S('blue','"effects"')+': {',
+    '    '+S('blue','"reads"')+':  ['+S('mint','"~/Projects"')+'],',
+    '    '+S('blue','"writes"')+': ['+S('mint','"/mnt/vault"')+'],',
+    '    '+S('blue','"destructive"')+': false',
+    '  },',
+    '  '+S('blue','"plan"')+': {',
+    '    '+S('blue','"scanned"')+': 1284, '+S('blue','"new"')+': 212,',
+    '    '+S('blue','"changed"')+': 37, '+S('blue','"deleted"')+': 0,',
+    '    '+S('blue','"bytes"')+': 374000000',
+    '  },',
+    '  '+S('blue','"next"')+': '+S('mint','"backup ~/Projects --to /mnt/vault"'),
+    '}',
+    '',
+    S('dim','# stdout: JSON only · stderr: diagnostics · exit 0')
+  ].join('\n');
+
+  var model = [
+    S('dim','---'),
+    S('dim','name:')+' backup',
+    S('dim','description:')+' Back up a folder to a destination.',
+    '  Use when the user asks to back up, mirror,',
+    '  or snapshot files.',
+    S('dim','---'),
+    S('fg','# backup'),
+    S('dim','Generated by cmdeagle from cmdeagle.yaml.'),
+    '',
+    S('fg','## Usage'),
+    'backup &lt;source&gt; --to &lt;dest&gt; [--prune]',
+    '       [--dry-run] [--json]',
+    '',
+    S('fg','## Safety'),
+    '- Writes to --to. Destructive only with --prune.',
+    '- '+S('mint','Always run --dry-run --json first.'),
+    '- '+S('amber','Ask the user before --prune.'),
+    '',
+    S('fg','## Output'),
+    'JSON schema: ./schemas/backup.result.json'
+  ].join('\n');
+
+  var surfaces = {
+    human:   { title:'$ backup ~/Projects --to /mnt/vault --dry-run', html: human },
+    machine: { title:'$ backup ~/Projects --to /mnt/vault --dry-run --json', html: machine },
+    model:   { title:'dist/backup/SKILL.md', html: model }
+  };
+  var surfacePre = document.getElementById('surface');
+  var surfaceTitle = document.getElementById('surface-title');
+  var tabs = document.querySelectorAll('.tabs button');
+  function show(k){
+    surfacePre.innerHTML = surfaces[k].html;
+    surfaceTitle.textContent = surfaces[k].title;
+    tabs.forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.s === k)); });
+  }
+  tabs.forEach(function(b, i){
+    b.addEventListener('click', function(){ show(b.dataset.s); });
+    b.addEventListener('keydown', function(e){
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      var n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      n.focus(); show(n.dataset.s);
+    });
+  });
+  show('human');
+})();
+</script>
+</body>
+</html>

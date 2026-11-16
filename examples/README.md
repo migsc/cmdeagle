@@ -28,29 +28,29 @@ until the runtime spike lands. Specs and contracts describe intent.
 
 ## What each example proves
 
-| Claim | timer | weather | todo | chart | backup | sessions | vault | workspace | t3ctl |
-|---|---|---|---|---|---|---|---|---|---|
-| Args/flags validation, help, errors | ● | ● | ● | ● | ● | ● | ● | ● | ● |
-| Subcommands | ● | | ● | | | ● | ● | ● | ● |
-| Interactive TUI | ● | | ● | ● | | ● | | ● | |
-| Live-updating output | ● | | | | ● | ● | | | |
-| NDJSON event stream when piped | ● | | | | ● | ● | | | |
-| Prompts answered by flags | | | ● | | ● | | | ● | ● |
-| stdin input | | | | ● | | | ● | | |
-| Saved state | ● | ● | ● | | | | | ● | |
-| `reads` | ● | | ● | ● | ● | ● | ● | ● | ● |
-| `writes` | ● | ● | ● | | ● | | ● | ● | ● |
-| `network` | | ● | | | | | | | ● |
-| `destructive` + required dry run | | | ● | | ● | | | ● | |
-| `desktop` | ● | | | | | | | ● | |
-| `cost` | | | | | | | | | ● |
-| Required external executable | | | | | | | | ● | ● |
-| Wraps another language (`exec`) | | | | | | | | | ● |
-| Optional separate process (`serve`) | ● | | ○ | | | | | | |
-| Hand-written skill guidance | | | | ● | | | | | |
-| v1 `.cmd.yaml` converter | ○ | | | | | | | | |
+| Claim | timer | weather | todo | chart | backup |
+|---|---|---|---|---|---|
+| Args/flags validation, help, errors | ● | ● | ● | ● | ● |
+| Subcommands | ● | | ● | | |
+| Interactive TUI | ● | | ● | ● | |
+| Live-updating output | ● | | | | ● |
+| NDJSON event stream when piped | ● | | | | ● |
+| Prompts answered by flags | | | ● | | ● |
+| stdin input | | | | ● | |
+| Saved state | ● | ● | ● | | |
+| `reads` | ● | | ● | ● | ● |
+| `writes` | ● | ● | ● | | ● |
+| `network` | | ● | | | |
+| `destructive` + required dry run | | | ● | | ● |
+| `desktop` | ● | | | | |
+| Optional separate process (`serve`) | ● | | ○ | | |
+| Hand-written skill guidance | | | | ● | |
+| v1 `.cmd.yaml` converter | ○ | | | | |
 
 ● planned · ○ later
+
+Not covered by any example yet: the `cost` effect, a required external executable
+(`requires`), and wrapping another language (`exec`).
 
 ## Shared components
 
@@ -59,10 +59,9 @@ Components move into [`packages/ui`](../packages/ui/README.md) once a second exa
 | Component | First needed by |
 |---|---|
 | `BarChart`, `LineChart`, `Sparkline`, `Histogram`, `Scatter` | chart (Sparkline also weather) |
-| `Countdown`, `Progress` | timer (Progress also backup, sessions) |
-| `List`, `Checkbox`, `Prompt` | todo (List also sessions, vault, workspace) |
-| `Table`, `KeyValue` | weather (Table also backup, sessions, workspace) |
-| `Diff` | vault |
+| `Countdown`, `Progress` | timer (Progress also backup) |
+| `List`, `Checkbox`, `Prompt` | todo |
+| `Table`, `KeyValue` | weather (Table also backup) |
 
 ## Outgrowing this folder
 

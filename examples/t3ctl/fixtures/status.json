@@ -1,9 +1,0 @@
-{
-  "server": { "running": true, "origin": "http://127.0.0.1:3773" },
-  "projects": [
-    { "id": "00000000-0000-4000-8000-000000000001", "title": "demo", "folder": "/home/user/projects/demo" }
-  ],
-  "threads": [
-    { "id": "00000000-0000-4000-8000-0000000000a1", "projectId": "00000000-0000-4000-8000-000000000001", "title": "Readable backup CLI", "status": "idle" }
-  ]
-}

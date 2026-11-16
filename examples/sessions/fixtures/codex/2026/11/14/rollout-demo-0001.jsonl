@@ -1,3 +1,0 @@
-{"timestamp":"2026-11-14T10:00:00Z","type":"session_meta","payload":{"id":"demo-0001","cwd":"/home/user/projects/demo"}}
-{"timestamp":"2026-11-14T10:00:05Z","type":"message","payload":{"role":"user","text":"Add a keybinding that reloads the bar"}}
-{"timestamp":"2026-11-14T10:00:40Z","type":"message","payload":{"role":"assistant","text":"Added the binding, then ran hyprctl reload and hyprctl configerrors: no errors."}}
